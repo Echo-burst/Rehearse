@@ -395,3 +395,18 @@ document.querySelectorAll("[data-goto]").forEach((el) => {
     if (el.dataset.goto === "list") loadScenarios();
   });
 });
+
+// ============================================================================
+// 6. INSTALLABILITY
+//
+// Registering this service worker is what lets a phone add the app to its home
+// screen and open it without browser chrome.
+// ============================================================================
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch((err) => {
+      console.warn("Service worker did not register:", err);
+    });
+  });
+}
