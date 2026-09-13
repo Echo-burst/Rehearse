@@ -76,7 +76,8 @@ h2 { font-size: 22px; }
 
 .kicker {
   font-family: "Bricolage Grotesque", Inter, sans-serif;
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 600;
   color: var(--them);
   margin: 0 0 20px;
 }
@@ -331,6 +332,7 @@ input:focus-visible, textarea:focus-visible, button:focus-visible {
 .lang {
   font: inherit;
   font-size: 15px;
+  font-weight: 600;
   color: var(--paper);
   background: var(--surface);
   border: 1px solid var(--line);
@@ -338,7 +340,7 @@ input:focus-visible, textarea:focus-visible, button:focus-visible {
   padding: 7px 10px;
   cursor: pointer;
 }
-.lang option { background: var(--surface); color: var(--paper); }
+.lang option { background: var(--surface); color: var(--paper); font-weight: 600; }
 
 /* ---------- history ---------- */
 .bar-actions { display: flex; align-items: center; gap: 12px; }
@@ -365,6 +367,46 @@ input:focus-visible, textarea:focus-visible, button:focus-visible {
 /* ---------- misc ---------- */
 .error { color: var(--danger); font-size: 14px; margin: 4px 0 0; }
 .empty { color: var(--muted); text-align: center; padding: 32px 8px; }
+
+/* ---------- account pill ---------- */
+#btn-signout { font-weight: 600; }
+
+.account {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 16px 7px 7px;
+  max-width: 220px;
+  z-index: 15;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border-radius: 50%;
+  background: var(--you);
+  color: #0D2A1F;
+  font-family: "Bricolage Grotesque", Inter, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.account-name {
+  font-size: 15px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 .toast {
   position: fixed;
@@ -402,7 +444,47 @@ input:focus-visible, textarea:focus-visible, button:focus-visible {
 
   .scenario { animation: rise .22s cubic-bezier(.22,.61,.36,1) both; }
 
-  .toast { animation: toastIn .22s cubic-bezier(.22,.61,.36,1); }
+  /* ---------- account pill ---------- */
+#btn-signout { font-weight: 600; }
+
+.account {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 16px 7px 7px;
+  max-width: 220px;
+  z-index: 15;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border-radius: 50%;
+  background: var(--you);
+  color: #0D2A1F;
+  font-family: "Bricolage Grotesque", Inter, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.account-name {
+  font-size: 15px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toast { animation: toastIn .22s cubic-bezier(.22,.61,.36,1); }
   @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 8px); } }
 
 }
