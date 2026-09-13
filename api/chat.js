@@ -5,8 +5,17 @@
 const ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
 const MODEL = "openai/gpt-oss-120b";
 
+// Language codes from the interface, written out for the model.
+const LANGUAGE_NAME = {
+  en: "English",
+  ru: "Russian",
+  es: "Spanish",
+  fr: "French",
+  de: "German",
+};
+
 // --- PROMPT 1: the AI plays the other person --------------------------------
-function roleplayPrompt(s) {
+function roleplayPrompt(s, language) {
   return `You are role-playing one side of a difficult conversation so that a person can practise it.
 
 You are playing: ${s.counterpart}
@@ -14,6 +23,7 @@ The conversation is about: ${s.title}
 How this person behaves: ${s.context}
 
 Rules:
+- Write every reply in ${language}, regardless of the language the user writes in.
 - Stay in character as ${s.counterpart}. Never break character, never mention that you are an AI.
 - Reply with 1 to 3 sentences. Real people in real conversations are brief.
 - Push back realistically. Do not agree quickly or hand the person what they want after one good sentence.
@@ -25,7 +35,7 @@ Reply with only what ${s.counterpart} says out loud. No stage directions, no nar
 }
 
 // --- PROMPT 2: the AI reviews how the person did ----------------------------
-function evaluatePrompt(s) {
+function evaluatePrompt(s, language) {
   return `You are a communication coach reviewing a transcript of someone practising a difficult conversation.
 
 The conversation was about: ${s.title}
@@ -37,12 +47,14 @@ Judge only the messages from "user". Assess three things:
 2. Steadiness - did they hold their position when pushed, without becoming aggressive?
 3. Listening - did they respond to what the other person said, or recite a script?
 
+Write the "verdict" and "feedback" values in ${language}. Keep the JSON keys in English.
+
 Respond with valid JSON only. No markdown, no code fences, no text outside the JSON.
 
 {
   "score": <whole number 1-10>,
-  "verdict": "<four words or fewer, e.g. 'Clear but gave ground'>",
-  "feedback": "<120-180 words. Name one specific thing they did well, quoting a few of their own words. Then name the single biggest thing to change, and write one sentence they could say instead next time. Address them as 'you'. Be direct and kind. Do not flatter.>"
+  "verdict": "<four words or fewer>",
+  "feedback": "<120-180 words. Name one specific thing they did well, quoting a few of their own words. Then name the single biggest thing to change, and write one sentence they could say instead next time. Address them directly as 'you'. Be direct and kind. Do not flatter.>"
 }`;
 }
 
@@ -55,13 +67,17 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "GROQ_API_KEY is not set on the server." });
   }
 
-  const { mode, scenario, messages = [] } = req.body || {};
+  const { mode, scenario, messages = [], language = "en" } = req.body || {};
 
   if (!scenario || !mode) {
     return res.status(400).json({ error: "Missing mode or scenario." });
   }
 
-  const system = mode === "evaluate" ? evaluatePrompt(scenario) : roleplayPrompt(scenario);
+  const languageName = LANGUAGE_NAME[language] || "English";
+  const system =
+    mode === "evaluate"
+      ? evaluatePrompt(scenario, languageName)
+      : roleplayPrompt(scenario, languageName);
 
   // In roleplay the AI is the other person, so the roles pass through as they are.
   // In evaluate the AI is an outside reviewer, so the whole transcript is handed
@@ -121,7 +137,7 @@ export default async function handler(req, res) {
     } catch {
       return res.status(200).json({
         score: 0,
-        verdict: "Could not be scored",
+        verdict: "",
         feedback: cleaned,
       });
     }
