@@ -92,6 +92,9 @@ export const STRINGS = {
     descList: "Open one you have already set up.",
     descHistory: "Scores and feedback from every rehearsal.",
     menuTitle: "What are we doing?",
+    nameLabel: "Your name",
+    namePh: "What should we call you?",
+    errName: "Enter your name, an email, and a password of at least 6 characters.",
   },
 
   ru: {
@@ -167,6 +170,9 @@ export const STRINGS = {
     descList: "Откройте разговор, который уже настроен.",
     descHistory: "Оценки и разборы всех репетиций.",
     menuTitle: "Чем займёмся?",
+    nameLabel: "Ваше имя",
+    namePh: "Как к вам обращаться?",
+    errName: "Введите имя, почту и пароль минимум из 6 символов.",
   },
 
   es: {
@@ -242,6 +248,9 @@ export const STRINGS = {
     descList: "Abre una que ya tengas preparada.",
     descHistory: "Puntuaciones y análisis de todos tus ensayos.",
     menuTitle: "¿Qué hacemos?",
+    nameLabel: "Tu nombre",
+    namePh: "¿Cómo te llamamos?",
+    errName: "Escribe tu nombre, un correo y una contraseña de al menos 6 caracteres.",
   },
 
   fr: {
@@ -317,6 +326,9 @@ export const STRINGS = {
     descList: "Ouvrez une conversation déjà préparée.",
     descHistory: "Notes et bilans de toutes vos répétitions.",
     menuTitle: "On fait quoi ?",
+    nameLabel: "Votre prénom",
+    namePh: "Comment doit-on vous appeler ?",
+    errName: "Entrez votre prénom, un e-mail et un mot de passe d'au moins 6 caractères.",
   },
 
   de: {
@@ -392,5 +404,8 @@ export const STRINGS = {
     descList: "Öffne ein Gespräch, das du schon eingerichtet hast.",
     descHistory: "Bewertungen und Auswertungen aller Übungen.",
     menuTitle: "Was machen wir?",
+    nameLabel: "Dein Name",
+    namePh: "Wie sollen wir dich nennen?",
+    errName: "Gib deinen Namen, eine E-Mail und ein Passwort mit mindestens 6 Zeichen ein.",
   },
 };
