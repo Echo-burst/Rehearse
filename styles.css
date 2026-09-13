@@ -82,6 +82,8 @@ h2 { font-size: 22px; }
   margin: 0 0 20px;
 }
 
+.wordmark { font-size: 24px; letter-spacing: -0.01em; }
+
 .lede { color: var(--muted); margin: 0 0 28px; max-width: 46ch; }
 
 /* ---------- main menu ---------- */
@@ -368,44 +370,82 @@ input:focus-visible, textarea:focus-visible, button:focus-visible {
 .error { color: var(--danger); font-size: 14px; margin: 4px 0 0; }
 .empty { color: var(--muted); text-align: center; padding: 32px 8px; }
 
-/* ---------- account pill ---------- */
-#btn-signout { font-weight: 600; }
-
+/* ---------- account ---------- */
 .account {
   position: fixed;
   left: 16px;
   bottom: 16px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 999px;
-  padding: 7px 16px 7px 7px;
-  max-width: 220px;
+  padding: 9px 22px 9px 9px;
+  max-width: 260px;
+  font: inherit;
+  color: var(--paper);
+  cursor: pointer;
   z-index: 15;
 }
+.account:hover { background: var(--surface-hi); border-color: var(--border-strong, var(--muted)); }
 
 .avatar {
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
-  flex: 0 0 30px;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
   border-radius: 50%;
   background: var(--you);
   color: #0D2A1F;
   font-family: "Bricolage Grotesque", Inter, sans-serif;
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 600;
 }
 
 .account-name {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.account-panel {
+  position: fixed;
+  left: 16px;
+  bottom: 82px;
+  width: min(320px, calc(100vw - 32px));
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 16;
+}
+
+.panel-title {
+  font-family: "Bricolage Grotesque", Inter, sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.panel-label { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
+.panel-email { margin: 2px 0 0; font-size: 15px; word-break: break-all; }
+
+.panel-row { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
+.panel-row input { flex: 1; }
+.panel-row .mini { padding: 10px 14px; }
+
+.account-panel .btn { margin-top: 14px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .account-panel { animation: panelIn .18s cubic-bezier(.22,.61,.36,1); }
+  @keyframes panelIn { from { opacity: 0; transform: translateY(6px); } }
 }
 
 .toast {
