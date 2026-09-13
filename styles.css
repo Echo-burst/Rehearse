@@ -27,7 +27,25 @@ html, body {
   max-width: 620px;
   margin: 0 auto;
   padding: 24px 20px 48px;
+  /* dvh follows the phone's shrinking address bar; svh is the safe minimum.
+     On desktop fullscreen (F11) both resolve to the real screen height. */
+  min-height: 100svh;
   min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fullscreen and large desktop screens: a narrow column stranded in the middle
+   of a 27-inch display looks broken, so grow with the viewport. */
+@media (min-width: 900px) and (min-height: 700px) {
+  .view { max-width: 760px; padding: 48px 32px; justify-content: center; }
+  .display { font-size: 52px; }
+  .transcript { padding-bottom: 28px; }
+}
+
+@media (display-mode: fullscreen), (display-mode: standalone) {
+  .view { padding-top: max(24px, env(safe-area-inset-top)); }
+  .composer { padding-bottom: max(8px, env(safe-area-inset-bottom)); }
 }
 
 h1, h2, .display, .score {
@@ -299,7 +317,69 @@ input:focus-visible, textarea:focus-visible, button:focus-visible {
   z-index: 10;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .turn { animation: rise .18s ease-out; }
-  @keyframes rise { from { opacity: 0; transform: translateY(4px); } }
+/* ---------- motion ---------- */
+.btn, .mini, .linkish, .scenario-open, input, textarea, .lang {
+  transition: background-color .16s ease, border-color .16s ease,
+              color .16s ease, transform .12s ease, opacity .16s ease;
 }
+
+.btn:active, .mini:active { transform: scale(.975); }
+.scenario-open:active { transform: scale(.995); }
+
+.scenario, .card, .history-item { transition: border-color .18s ease, background-color .18s ease; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .view.enter { animation: viewIn .24s cubic-bezier(.22,.61,.36,1); }
+  @keyframes viewIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .turn { animation: rise .2s cubic-bezier(.22,.61,.36,1); }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+
+  .scenario { animation: rise .22s cubic-bezier(.22,.61,.36,1) both; }
+
+  .toast { animation: toastIn .22s cubic-bezier(.22,.61,.36,1); }
+  @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 8px); } }
+
+  .install { animation: toastIn .3s cubic-bezier(.22,.61,.36,1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+/* ---------- greeting ---------- */
+.greeting { margin-bottom: 4px; }
+.greet-line {
+  font-size: clamp(26px, 7vw, 34px);
+  letter-spacing: -0.02em;
+  margin: 0 0 6px;
+}
+.greet-tag { margin: 0; max-width: 42ch; }
+
+/* ---------- install banner ---------- */
+.install {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  max-width: 560px;
+  margin: 0 auto;
+  background: var(--surface-hi);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  z-index: 20;
+}
+.install-text { flex: 1; min-width: 180px; }
+.install-title { margin: 0; font-weight: 500; }
+.install-hint { margin: 4px 0 0; font-size: 14px; color: var(--muted); }
+.install-actions { display: flex; align-items: center; gap: 10px; }
+.mini-btn { margin-top: 0; padding: 9px 14px; font-size: 15px; }
