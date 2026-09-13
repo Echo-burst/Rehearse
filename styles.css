@@ -214,6 +214,19 @@ input:focus-visible, textarea:focus-visible, button:focus-visible {
 .muted { color: var(--muted); margin: 0; }
 #feedback-body { gap: 14px; white-space: pre-wrap; }
 
+/* ---------- language picker ---------- */
+.lang {
+  font: inherit;
+  font-size: 15px;
+  color: var(--paper);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 7px 10px;
+  cursor: pointer;
+}
+.lang option { background: var(--surface); color: var(--paper); }
+
 /* ---------- history ---------- */
 .bar-actions { display: flex; gap: 16px; }
 
