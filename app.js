@@ -118,6 +118,26 @@ function initLanguage() {
 initLanguage();
 
 // ============================================================================
+// 0b. WELCOME WINDOW
+//
+// Shown once. The flag in localStorage is what stops it reappearing.
+// ============================================================================
+
+if (!localStorage.getItem("introSeen")) {
+  $("intro").hidden = false;
+}
+
+$("btn-intro").addEventListener("click", () => {
+  const overlay = $("intro");
+  overlay.classList.add("leaving");
+  setTimeout(() => {
+    overlay.hidden = true;
+    overlay.classList.remove("leaving");
+  }, 260);
+  localStorage.setItem("introSeen", "1");
+});
+
+// ============================================================================
 // 1. AUTHENTICATION  (Supabase Auth)
 // ============================================================================
 
