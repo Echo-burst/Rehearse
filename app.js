@@ -498,8 +498,7 @@ function updateGreeting() {
 // 7. INSTALLABILITY
 //
 // Registering the service worker is what lets a phone add the app to its home
-// screen. The banner below replaces the browser's own install chrome, which is
-// easy to miss and does not exist at all on iPhone.
+// screen and open it without browser chrome.
 // ============================================================================
 
 if ("serviceWorker" in navigator) {
@@ -510,61 +509,5 @@ if ("serviceWorker" in navigator) {
   });
 }
 
-let installEvent = null;
-
-const alreadyInstalled = () =>
-  window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
-
-const isIos = () =>
-  /iphone|ipad|ipod/i.test(navigator.userAgent) && !/crios|fxios/i.test(navigator.userAgent);
-
-function showInstallBanner(iosMode) {
-  if (alreadyInstalled()) return;
-  if (localStorage.getItem("installDismissed")) return;
-
-  $("install-hint").hidden = !iosMode;
-  $("install-go").hidden = iosMode;
-  if (iosMode) $("install-hint").textContent = t("installIos");
-
-  $("install").hidden = false;
-}
-
-// Chrome and Edge fire this instead of showing their own prompt once we
-// call preventDefault. We hold the event and fire it when the user taps Install.
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  installEvent = e;
-  showInstallBanner(false);
-});
-
-// Safari on iPhone never fires that event, so the only option is instructions.
-if (isIos()) {
-  window.addEventListener("load", () => setTimeout(() => showInstallBanner(true), 1200));
-}
-
-// Adds the fade-out class, waits for the CSS transition, then removes the
-// banner from the layout. Without the wait it would vanish before it faded.
-function hideInstallBanner() {
-  const banner = $("install");
-  if (banner.hidden) return;
-  banner.classList.add("leaving");
-  setTimeout(() => {
-    banner.hidden = true;
-    banner.classList.remove("leaving");
-  }, 280);
-}
-
-$("install-go").addEventListener("click", async () => {
-  hideInstallBanner();
-  if (!installEvent) return;
-  installEvent.prompt();
-  await installEvent.userChoice;
-  installEvent = null;
-});
-
-$("install-later").addEventListener("click", () => {
-  localStorage.setItem("installDismissed", "1");
-  hideInstallBanner();
-});
-
-window.addEventListener("appinstalled", hideInstallBanner);
+// The service worker above is what keeps the app installable. Phones offer it
+// through their own menu: "Install app" on Android, "Add to Home Screen" on iOS.
