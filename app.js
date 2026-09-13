@@ -15,7 +15,15 @@ const t = (key) => STRINGS[lang][key] ?? STRINGS.en[key] ?? key;
 
 function show(name) {
   document.querySelectorAll(".view").forEach((v) => (v.hidden = true));
-  $("view-" + name).hidden = false;
+  const view = $("view-" + name);
+  view.hidden = false;
+
+  // Restart the entrance animation. Removing the class, forcing the browser to
+  // recalculate layout, then re-adding it is what makes it replay every time.
+  view.classList.remove("enter");
+  void view.offsetWidth;
+  view.classList.add("enter");
+
   window.scrollTo(0, 0);
 }
 
@@ -64,6 +72,7 @@ function setLanguage(next) {
   lang = STRINGS[next] ? next : "en";
   localStorage.setItem("lang", lang);
   applyLanguage();
+  if ($("greet").textContent) updateGreeting();
 }
 
 function initLanguage() {
@@ -140,6 +149,7 @@ $("btn-signout").addEventListener("click", async () => {
 supabase.auth.onAuthStateChange((_event, session) => {
   if (session) {
     show("list");
+    updateGreeting();
     loadScenarios();
   } else {
     show("auth");
@@ -455,15 +465,38 @@ $("btn-history").addEventListener("click", () => {
 document.querySelectorAll("[data-goto]").forEach((el) => {
   el.addEventListener("click", () => {
     show(el.dataset.goto);
-    if (el.dataset.goto === "list") loadScenarios();
+    if (el.dataset.goto === "list") {
+      updateGreeting();
+      loadScenarios();
+    }
   });
 });
 
 // ============================================================================
-// 6. INSTALLABILITY
+// 6. GREETING
+// ============================================================================
+
+function updateGreeting() {
+  const hour = new Date().getHours();
+  const part =
+    hour < 5 ? "greetNight" :
+    hour < 12 ? "greetMorning" :
+    hour < 18 ? "greetAfternoon" :
+    hour < 23 ? "greetEvening" : "greetNight";
+
+  const taglines = ["tag1", "tag2", "tag3", "tag4"];
+  const pick = taglines[Math.floor(Math.random() * taglines.length)];
+
+  $("greet").textContent = t(part);
+  $("greet-tag").textContent = t(pick);
+}
+
+// ============================================================================
+// 7. INSTALLABILITY
 //
-// Registering this service worker is what lets a phone add the app to its home
-// screen and open it without browser chrome.
+// Registering the service worker is what lets a phone add the app to its home
+// screen. The banner below replaces the browser's own install chrome, which is
+// easy to miss and does not exist at all on iPhone.
 // ============================================================================
 
 if ("serviceWorker" in navigator) {
@@ -473,3 +506,52 @@ if ("serviceWorker" in navigator) {
     });
   });
 }
+
+let installEvent = null;
+
+const alreadyInstalled = () =>
+  window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+
+const isIos = () =>
+  /iphone|ipad|ipod/i.test(navigator.userAgent) && !/crios|fxios/i.test(navigator.userAgent);
+
+function showInstallBanner(iosMode) {
+  if (alreadyInstalled()) return;
+  if (localStorage.getItem("installDismissed")) return;
+
+  $("install-hint").hidden = !iosMode;
+  $("install-go").hidden = iosMode;
+  if (iosMode) $("install-hint").textContent = t("installIos");
+
+  $("install").hidden = false;
+}
+
+// Chrome and Edge fire this instead of showing their own prompt once we
+// call preventDefault. We hold the event and fire it when the user taps Install.
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  installEvent = e;
+  showInstallBanner(false);
+});
+
+// Safari on iPhone never fires that event, so the only option is instructions.
+if (isIos()) {
+  window.addEventListener("load", () => setTimeout(() => showInstallBanner(true), 1200));
+}
+
+$("install-go").addEventListener("click", async () => {
+  if (!installEvent) return;
+  installEvent.prompt();
+  await installEvent.userChoice;
+  installEvent = null;
+  $("install").hidden = true;
+});
+
+$("install-later").addEventListener("click", () => {
+  localStorage.setItem("installDismissed", "1");
+  $("install").hidden = true;
+});
+
+window.addEventListener("appinstalled", () => {
+  $("install").hidden = true;
+});
