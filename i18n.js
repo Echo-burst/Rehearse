@@ -95,6 +95,11 @@ export const STRINGS = {
     nameLabel: "Your name",
     namePh: "What should we call you?",
     errName: "Enter your name, an email, and a password of at least 6 characters.",
+    accountTitle: "Account",
+    signedInAs: "Signed in as",
+    saveName: "Save",
+    savedName: "Name updated.",
+    errSave: "Could not update your name.",
   },
 
   ru: {
@@ -173,6 +178,11 @@ export const STRINGS = {
     nameLabel: "Ваше имя",
     namePh: "Как к вам обращаться?",
     errName: "Введите имя, почту и пароль минимум из 6 символов.",
+    accountTitle: "Аккаунт",
+    signedInAs: "Вы вошли как",
+    saveName: "Сохранить",
+    savedName: "Имя обновлено.",
+    errSave: "Не удалось обновить имя.",
   },
 
   es: {
@@ -251,6 +261,11 @@ export const STRINGS = {
     nameLabel: "Tu nombre",
     namePh: "¿Cómo te llamamos?",
     errName: "Escribe tu nombre, un correo y una contraseña de al menos 6 caracteres.",
+    accountTitle: "Cuenta",
+    signedInAs: "Has entrado como",
+    saveName: "Guardar",
+    savedName: "Nombre actualizado.",
+    errSave: "No se ha podido actualizar el nombre.",
   },
 
   fr: {
@@ -329,6 +344,11 @@ export const STRINGS = {
     nameLabel: "Votre prénom",
     namePh: "Comment doit-on vous appeler ?",
     errName: "Entrez votre prénom, un e-mail et un mot de passe d'au moins 6 caractères.",
+    accountTitle: "Compte",
+    signedInAs: "Connecté en tant que",
+    saveName: "Enregistrer",
+    savedName: "Nom mis à jour.",
+    errSave: "Impossible de mettre à jour le nom.",
   },
 
   de: {
@@ -407,5 +427,10 @@ export const STRINGS = {
     nameLabel: "Dein Name",
     namePh: "Wie sollen wir dich nennen?",
     errName: "Gib deinen Namen, eine E-Mail und ein Passwort mit mindestens 6 Zeichen ein.",
+    accountTitle: "Konto",
+    signedInAs: "Angemeldet als",
+    saveName: "Speichern",
+    savedName: "Name aktualisiert.",
+    errSave: "Name konnte nicht aktualisiert werden.",
   },
 };
