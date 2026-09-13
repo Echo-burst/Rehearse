@@ -38,6 +38,8 @@ function show(name) {
   // The rehearsal screen has its own sticky footer, so the pill would collide.
   const pill = $("account");
   if (pill) pill.hidden = !session || name === "rehearse";
+  const panel = $("account-panel");
+  if (panel) panel.hidden = true;
 
   window.scrollTo(0, 0);
 }
@@ -170,6 +172,7 @@ $("btn-demo").addEventListener("click", async () => {
 });
 
 $("btn-signout").addEventListener("click", async () => {
+  closePanel();
   await supabase.auth.signOut();
 });
 
@@ -199,14 +202,62 @@ function updateAccount() {
 
   if (!session) {
     pill.hidden = true;
+    $("account-panel").hidden = true;
     return;
   }
 
   const name = displayName();
   $("account-name").textContent = name;
   $("account-initial").textContent = (name[0] || "?").toUpperCase();
+  $("account-email").textContent = session.user.email || "";
+  $("account-rename").value = name;
   pill.hidden = false;
 }
+
+// ---- account panel --------------------------------------------------------
+
+function closePanel() {
+  $("account-panel").hidden = true;
+}
+
+$("account").addEventListener("click", (e) => {
+  e.stopPropagation();
+  const panel = $("account-panel");
+  panel.hidden = !panel.hidden;
+  if (!panel.hidden) $("account-rename").value = displayName();
+});
+
+// Clicking anywhere else closes it.
+document.addEventListener("click", (e) => {
+  if (!$("account-panel").contains(e.target)) closePanel();
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closePanel();
+});
+
+// UPDATE the name on the Supabase user record.
+$("btn-rename").addEventListener("click", async () => {
+  const name = $("account-rename").value.trim();
+  if (!name) return;
+
+  const btn = $("btn-rename");
+  busy(btn, true, t("saving"));
+  const { data, error } = await supabase.auth.updateUser({ data: { name } });
+  busy(btn, false);
+
+  if (error) {
+    toast(t("errSave"));
+    console.error(error);
+    return;
+  }
+
+  session.user = data.user;
+  updateAccount();
+  updateGreeting();
+  toast(t("savedName"));
+  closePanel();
+});
 
 // ============================================================================
 // 2. DATABASE  (read + write, scoped to the signed-in user by RLS)
