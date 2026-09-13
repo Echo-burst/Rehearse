@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rehearse — practise hard conversations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ============ SIGN IN / SIGN UP ============ -->
+<section id="view-auth" class="view">
+  <div class="auth-wrap">
+    <p class="kicker">Rehearse</p>
+    <h1 class="display">The conversation you keep putting off.</h1>
+    <p class="lede">Describe who you need to talk to and what you want. Practise against them here first.</p>
+
+    <form id="auth-form" class="card" autocomplete="on">
+      <label for="email">Email</label>
+      <input id="email" type="email" required autocomplete="email" placeholder="you@example.com">
+
+      <label for="password">Password</label>
+      <input id="password" type="password" required minlength="6" autocomplete="current-password" placeholder="At least 6 characters">
+
+      <p id="auth-error" class="error" hidden></p>
+
+      <button id="btn-signin" type="submit" class="btn primary">Sign in</button>
+      <button id="btn-signup" type="button" class="btn ghost">Create an account</button>
+    </form>
+
+    <button id="btn-demo" class="linkish">Look around with the demo account</button>
+  </div>
+</section>
+
+<!-- ============ SCENARIO LIST ============ -->
+<section id="view-list" class="view" hidden>
+  <header class="bar">
+    <p class="kicker">Rehearse</p>
+    <span class="bar-actions">
+      <button id="btn-history" class="linkish">Past attempts</button>
+      <button id="btn-signout" class="linkish">Sign out</button>
+    </span>
+  </header>
+
+  <div class="stack">
+    <button id="btn-new" class="btn primary wide">Set up a new conversation</button>
+    <div id="scenario-list" class="stack"></div>
+    <p id="list-empty" class="empty" hidden>Nothing here yet. Set up the conversation you're dreading and rehearse it once.</p>
+  </div>
+</section>
+
+<!-- ============ NEW SCENARIO ============ -->
+<section id="view-new" class="view" hidden>
+  <header class="bar">
+    <button class="linkish back" data-goto="list">Back</button>
+  </header>
+
+  <div class="stack">
+    <h2>Who are you talking to?</h2>
+    <form id="scenario-form" class="card">
+      <label for="s-title">What is this conversation about?</label>
+      <input id="s-title" required maxlength="80" placeholder="Asking for a raise">
+
+      <label for="s-person">Who is on the other side?</label>
+      <input id="s-person" required maxlength="60" placeholder="My manager, Aidana">
+
+      <label for="s-context">What should they know about how this person behaves?</label>
+      <textarea id="s-context" required rows="3" maxlength="500" placeholder="Busy, avoids committing to anything, always says the budget is frozen."></textarea>
+
+      <label for="s-goal">What do you want to walk away with?</label>
+      <textarea id="s-goal" required rows="2" maxlength="300" placeholder="A specific number and a date to review it."></textarea>
+
+      <p id="new-error" class="error" hidden></p>
+      <button type="submit" class="btn primary">Start rehearsing</button>
+    </form>
+  </div>
+</section>
+
+<!-- ============ REHEARSAL ============ -->
+<section id="view-rehearse" class="view" hidden>
+  <header class="bar">
+    <button class="linkish back" data-goto="list">Leave</button>
+    <p id="rehearse-title" class="bar-title"></p>
+  </header>
+
+  <div id="transcript" class="transcript"></div>
+
+  <form id="reply-form" class="composer">
+    <textarea id="reply" rows="2" placeholder="Say your piece…" required></textarea>
+    <button type="submit" class="btn primary" id="btn-send">Send</button>
+    <button type="button" class="btn ghost" id="btn-finish">Finish and get feedback</button>
+  </form>
+</section>
+
+<!-- ============ FEEDBACK ============ -->
+<section id="view-feedback" class="view" hidden>
+  <header class="bar">
+    <button class="linkish back" data-goto="list">Back</button>
+  </header>
+
+  <div class="stack">
+    <div class="card score-card">
+      <p class="kicker">How that went</p>
+      <p id="score" class="score">—</p>
+      <p id="score-label" class="muted"></p>
+    </div>
+    <div id="feedback-body" class="card"></div>
+    <button class="btn primary wide" data-goto="list">Done</button>
+  </div>
+</section>
+
+<!-- ============ HISTORY ============ -->
+<section id="view-history" class="view" hidden>
+  <header class="bar">
+    <button class="linkish back" data-goto="list">Back</button>
+    <p class="bar-title">Every rehearsal you've done</p>
+  </header>
+
+  <div id="history-list" class="stack"></div>
+  <p id="history-empty" class="empty" hidden>No finished rehearsals yet. Complete one and ask for feedback.</p>
+</section>
+
+<div id="toast" class="toast" hidden></div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
