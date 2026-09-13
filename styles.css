@@ -13,6 +13,12 @@
 
 * { box-sizing: border-box; }
 
+/* Scrolling still works; the bar itself is hidden. */
+html { scrollbar-width: none; -ms-overflow-style: none; }
+html::-webkit-scrollbar, body::-webkit-scrollbar, div::-webkit-scrollbar,
+textarea::-webkit-scrollbar, section::-webkit-scrollbar { width: 0; height: 0; display: none; }
+body, div, section, textarea { scrollbar-width: none; }
+
 html, body {
   margin: 0;
   background: var(--stage);
@@ -72,7 +78,23 @@ h2 { font-size: 22px; }
 
 .lede { color: var(--muted); margin: 0 0 28px; max-width: 46ch; }
 
-.auth-wrap { padding-top: 8vh; }
+/* ---------- main menu ---------- */
+.home-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.home-hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8vh 0 6vh;
+}
+.home-actions { display: flex; flex-direction: column; gap: 10px; }
+.home-actions .linkish { align-self: center; margin-top: 6px; }
+
+.form-wrap { flex: 1; justify-content: center; }
 
 .stack { display: flex; flex-direction: column; gap: 14px; }
 
@@ -378,6 +400,8 @@ input:focus-visible, textarea:focus-visible, button:focus-visible {
   flex-wrap: wrap;
   z-index: 20;
 }
+.install { transition: opacity .26s ease, transform .26s ease; }
+.install.leaving { opacity: 0; transform: translateY(12px); pointer-events: none; }
 .install-text { flex: 1; min-width: 180px; }
 .install-title { margin: 0; font-weight: 500; }
 .install-hint { margin: 4px 0 0; font-size: 14px; color: var(--muted); }
