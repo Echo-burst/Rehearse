@@ -99,10 +99,10 @@ initLanguage();
 // 1. AUTHENTICATION  (Supabase Auth)
 // ============================================================================
 
-$("auth-form").addEventListener("submit", async (e) => {
+$("signin-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const btn = $("btn-signin");
-  showError($("auth-error"), "");
+  showError($("signin-error"), "");
   busy(btn, true, t("signingIn"));
 
   const { error } = await supabase.auth.signInWithPassword({
@@ -111,17 +111,18 @@ $("auth-form").addEventListener("submit", async (e) => {
   });
 
   busy(btn, false);
-  if (error) showError($("auth-error"), error.message);
+  if (error) showError($("signin-error"), error.message);
 });
 
-$("btn-signup").addEventListener("click", async () => {
+$("signup-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
   const btn = $("btn-signup");
-  showError($("auth-error"), "");
+  showError($("signup-error"), "");
 
-  const email = $("email").value.trim();
-  const password = $("password").value;
+  const email = $("su-email").value.trim();
+  const password = $("su-password").value;
   if (!email || password.length < 6) {
-    showError($("auth-error"), t("errShortPw"));
+    showError($("signup-error"), t("errShortPw"));
     return;
   }
 
@@ -129,7 +130,7 @@ $("btn-signup").addEventListener("click", async () => {
   const { error } = await supabase.auth.signUp({ email, password });
   busy(btn, false);
 
-  if (error) showError($("auth-error"), error.message);
+  if (error) showError($("signup-error"), error.message);
   else toast(t("accountCreated"));
 });
 
@@ -138,7 +139,7 @@ $("btn-demo").addEventListener("click", async () => {
     email: DEMO_EMAIL,
     password: DEMO_PASSWORD,
   });
-  if (error) showError($("auth-error"), error.message);
+  if (error) toast(error.message);
 });
 
 $("btn-signout").addEventListener("click", async () => {
@@ -152,7 +153,7 @@ supabase.auth.onAuthStateChange((_event, session) => {
     updateGreeting();
     loadScenarios();
   } else {
-    show("auth");
+    show("home");
   }
 });
 
@@ -465,6 +466,8 @@ $("btn-history").addEventListener("click", () => {
 document.querySelectorAll("[data-goto]").forEach((el) => {
   el.addEventListener("click", () => {
     show(el.dataset.goto);
+    if (el.dataset.goto === "signin") showError($("signin-error"), "");
+    if (el.dataset.goto === "signup") showError($("signup-error"), "");
     if (el.dataset.goto === "list") {
       updateGreeting();
       loadScenarios();
@@ -539,19 +542,29 @@ if (isIos()) {
   window.addEventListener("load", () => setTimeout(() => showInstallBanner(true), 1200));
 }
 
+// Adds the fade-out class, waits for the CSS transition, then removes the
+// banner from the layout. Without the wait it would vanish before it faded.
+function hideInstallBanner() {
+  const banner = $("install");
+  if (banner.hidden) return;
+  banner.classList.add("leaving");
+  setTimeout(() => {
+    banner.hidden = true;
+    banner.classList.remove("leaving");
+  }, 280);
+}
+
 $("install-go").addEventListener("click", async () => {
+  hideInstallBanner();
   if (!installEvent) return;
   installEvent.prompt();
   await installEvent.userChoice;
   installEvent = null;
-  $("install").hidden = true;
 });
 
 $("install-later").addEventListener("click", () => {
   localStorage.setItem("installDismissed", "1");
-  $("install").hidden = true;
+  hideInstallBanner();
 });
 
-window.addEventListener("appinstalled", () => {
-  $("install").hidden = true;
-});
+window.addEventListener("appinstalled", hideInstallBanner);
