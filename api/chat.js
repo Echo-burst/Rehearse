@@ -3,7 +3,7 @@
 // the user's phone. Set GROQ_API_KEY in Vercel -> Settings -> Environment Variables.
 
 const ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
-const MODEL = "llama-3.3-70b-versatile";
+const MODEL = "openai/gpt-oss-120b";
 
 // --- PROMPT 1: the AI plays the other person --------------------------------
 function roleplayPrompt(s) {
