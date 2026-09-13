@@ -1,14 +1,17 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SUPABASE_URL, SUPABASE_ANON_KEY, DEMO_EMAIL, DEMO_PASSWORD } from "./config.js";
+import { LANGUAGES, STRINGS } from "./i18n.js";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ---- app state -------------------------------------------------------------
 let scenario = null;      // the conversation being rehearsed right now
 let messages = [];        // [{ role: "user" | "assistant", content }]
+let lang = "en";          // current interface language
 
 // ---- tiny helpers ----------------------------------------------------------
 const $ = (id) => document.getElementById(id);
+const t = (key) => STRINGS[lang][key] ?? STRINGS.en[key] ?? key;
 
 function show(name) {
   document.querySelectorAll(".view").forEach((v) => (v.hidden = true));
@@ -17,11 +20,11 @@ function show(name) {
 }
 
 function toast(text) {
-  const t = $("toast");
-  t.textContent = text;
-  t.hidden = false;
-  clearTimeout(t._timer);
-  t._timer = setTimeout(() => (t.hidden = true), 2600);
+  const el = $("toast");
+  el.textContent = text;
+  el.hidden = false;
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => (el.hidden = true), 2600);
 }
 
 function showError(el, text) {
@@ -32,12 +35,56 @@ function showError(el, text) {
 function busy(button, isBusy, labelWhenBusy) {
   button.disabled = isBusy;
   if (isBusy) {
-    button._label = button.textContent;
+    button._key = button.dataset.t;
     button.textContent = labelWhenBusy;
-  } else if (button._label) {
-    button.textContent = button._label;
+  } else if (button._key) {
+    button.textContent = t(button._key);
   }
 }
+
+// ============================================================================
+// 0. LANGUAGE
+// ============================================================================
+
+function applyLanguage() {
+  document.documentElement.lang = lang;
+
+  // Elements with data-t get their visible text replaced.
+  document.querySelectorAll("[data-t]").forEach((el) => {
+    el.textContent = t(el.dataset.t);
+  });
+
+  // Elements with data-tp get their placeholder replaced.
+  document.querySelectorAll("[data-tp]").forEach((el) => {
+    el.placeholder = t(el.dataset.tp);
+  });
+}
+
+function setLanguage(next) {
+  lang = STRINGS[next] ? next : "en";
+  localStorage.setItem("lang", lang);
+  applyLanguage();
+}
+
+function initLanguage() {
+  const select = $("lang");
+  for (const [code, name] of Object.entries(LANGUAGES)) {
+    const option = document.createElement("option");
+    option.value = code;
+    option.textContent = name;
+    select.appendChild(option);
+  }
+
+  // Remembered choice first, otherwise the phone's own language, otherwise English.
+  const saved = localStorage.getItem("lang");
+  const browser = (navigator.language || "en").slice(0, 2);
+  setLanguage(saved || (STRINGS[browser] ? browser : "en"));
+  select.value = lang;
+
+  select.addEventListener("change", () => setLanguage(select.value));
+}
+
+initLanguage();
 
 // ============================================================================
 // 1. AUTHENTICATION  (Supabase Auth)
@@ -47,7 +94,7 @@ $("auth-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const btn = $("btn-signin");
   showError($("auth-error"), "");
-  busy(btn, true, "Signing in…");
+  busy(btn, true, t("signingIn"));
 
   const { error } = await supabase.auth.signInWithPassword({
     email: $("email").value.trim(),
@@ -65,16 +112,16 @@ $("btn-signup").addEventListener("click", async () => {
   const email = $("email").value.trim();
   const password = $("password").value;
   if (!email || password.length < 6) {
-    showError($("auth-error"), "Enter an email and a password of at least 6 characters.");
+    showError($("auth-error"), t("errShortPw"));
     return;
   }
 
-  busy(btn, true, "Creating…");
+  busy(btn, true, t("creating"));
   const { error } = await supabase.auth.signUp({ email, password });
   busy(btn, false);
 
   if (error) showError($("auth-error"), error.message);
-  else toast("Account created. You're signed in.");
+  else toast(t("accountCreated"));
 });
 
 $("btn-demo").addEventListener("click", async () => {
@@ -82,7 +129,7 @@ $("btn-demo").addEventListener("click", async () => {
     email: DEMO_EMAIL,
     password: DEMO_PASSWORD,
   });
-  if (error) showError($("auth-error"), "Demo account unavailable: " + error.message);
+  if (error) showError($("auth-error"), error.message);
 });
 
 $("btn-signout").addEventListener("click", async () => {
@@ -113,7 +160,7 @@ async function loadScenarios() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    toast("Could not load your conversations.");
+    toast(t("errLoad"));
     console.error(error);
     return;
   }
@@ -123,9 +170,9 @@ async function loadScenarios() {
   for (const row of data) {
     const button = document.createElement("button");
     button.className = "scenario";
-    button.innerHTML = `<h3></h3><p></p>`;
+    button.innerHTML = "<h3></h3><p></p>";
     button.querySelector("h3").textContent = row.title;
-    button.querySelector("p").textContent = "with " + row.counterpart;
+    button.querySelector("p").textContent = t("with") + " " + row.counterpart;
     button.addEventListener("click", () => startRehearsal(row));
     list.appendChild(button);
   }
@@ -146,7 +193,7 @@ $("scenario-form").addEventListener("submit", async (e) => {
     goal: $("s-goal").value.trim(),
   };
 
-  busy(btn, true, "Saving…");
+  busy(btn, true, t("saving"));
   const { data, error } = await supabase.from("scenarios").insert(row).select().single();
   busy(btn, false);
 
@@ -177,14 +224,13 @@ async function loadHistory() {
   const list = $("history-list");
   list.innerHTML = "";
 
-  // Pulls each rehearsal together with the scenario it belongs to.
   const { data, error } = await supabase
     .from("rehearsals")
     .select("score, feedback, created_at, scenarios(title, counterpart)")
     .order("created_at", { ascending: false });
 
   if (error) {
-    toast("Could not load your history.");
+    toast(t("errHistory"));
     console.error(error);
     return;
   }
@@ -192,27 +238,22 @@ async function loadHistory() {
   $("history-empty").hidden = data.length > 0;
 
   for (const row of data) {
-    const date = new Date(row.created_at).toLocaleDateString(undefined, {
+    const date = new Date(row.created_at).toLocaleDateString(lang, {
       day: "numeric",
       month: "short",
     });
 
     const item = document.createElement("article");
     item.className = "card history-item";
-    item.innerHTML = `
-      <div class="history-head">
-        <span class="history-score"></span>
-        <span>
-          <h3></h3>
-          <p class="muted small"></p>
-        </span>
-      </div>
-      <p class="history-feedback"></p>`;
+    item.innerHTML =
+      '<div class="history-head"><span class="history-score"></span>' +
+      '<span><h3></h3><p class="muted small"></p></span></div>' +
+      '<p class="history-feedback"></p>';
 
     item.querySelector(".history-score").textContent = row.score ?? "—";
-    item.querySelector("h3").textContent = row.scenarios?.title || "Deleted conversation";
+    item.querySelector("h3").textContent = row.scenarios?.title || t("deleted");
     item.querySelector(".small").textContent =
-      (row.scenarios?.counterpart ? "with " + row.scenarios.counterpart + " · " : "") + date;
+      (row.scenarios?.counterpart ? t("with") + " " + row.scenarios.counterpart + " · " : "") + date;
     item.querySelector(".history-feedback").textContent = row.feedback || "";
 
     list.appendChild(item);
@@ -227,7 +268,8 @@ async function callAI(mode, payload) {
   const response = await fetch("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ mode, scenario, ...payload }),
+    // `language` tells the AI which language to answer in.
+    body: JSON.stringify({ mode, scenario, language: lang, ...payload }),
   });
 
   if (!response.ok) {
@@ -248,10 +290,10 @@ function renderTranscript(pending) {
 
   for (const m of messages) {
     const who = m.role === "user" ? "you" : "them";
-    const name = m.role === "user" ? "You" : scenario.counterpart;
+    const name = m.role === "user" ? t("you") : scenario.counterpart;
     const turn = document.createElement("div");
     turn.className = "turn " + who;
-    turn.innerHTML = `<p class="who"></p><p class="said"></p>`;
+    turn.innerHTML = '<p class="who"></p><p class="said"></p>';
     turn.querySelector(".who").textContent = name;
     turn.querySelector(".said").textContent = m.content;
     box.appendChild(turn);
@@ -260,8 +302,9 @@ function renderTranscript(pending) {
   if (pending) {
     const turn = document.createElement("div");
     turn.className = "turn them thinking";
-    turn.innerHTML = `<p class="who"></p><p class="said">thinking…</p>`;
+    turn.innerHTML = '<p class="who"></p><p class="said"></p>';
     turn.querySelector(".who").textContent = scenario.counterpart;
+    turn.querySelector(".said").textContent = t("thinking");
     box.appendChild(turn);
   }
 
@@ -279,10 +322,7 @@ async function startRehearsal(row) {
     const { reply } = await callAI("roleplay", { messages: [] });
     messages.push({ role: "assistant", content: reply });
   } catch (err) {
-    messages.push({
-      role: "assistant",
-      content: "[The other person could not be reached. Check your AI key and try again.]",
-    });
+    messages.push({ role: "assistant", content: t("unreachable") });
     console.error(err);
   }
   renderTranscript(false);
@@ -297,13 +337,13 @@ $("reply-form").addEventListener("submit", async (e) => {
   messages.push({ role: "user", content: text });
   $("reply").value = "";
   renderTranscript(true);
-  busy($("btn-send"), true, "Sending…");
+  busy($("btn-send"), true, t("sending"));
 
   try {
     const { reply } = await callAI("roleplay", { messages });
     messages.push({ role: "assistant", content: reply });
   } catch (err) {
-    toast("The other person did not respond. Try again.");
+    toast(t("errNoReply"));
     console.error(err);
   }
 
@@ -313,12 +353,12 @@ $("reply-form").addEventListener("submit", async (e) => {
 
 $("btn-finish").addEventListener("click", async () => {
   if (messages.filter((m) => m.role === "user").length === 0) {
-    toast("Say something first, then ask for feedback.");
+    toast(t("errSayFirst"));
     return;
   }
 
   const btn = $("btn-finish");
-  busy(btn, true, "Reviewing…");
+  busy(btn, true, t("reviewing"));
 
   try {
     const result = await callAI("evaluate", { messages });
@@ -328,7 +368,7 @@ $("btn-finish").addEventListener("click", async () => {
     await saveRehearsal(result.score, result.feedback);
     show("feedback");
   } catch (err) {
-    toast("Could not generate feedback.");
+    toast(t("errFeedback"));
     console.error(err);
   }
 
