@@ -87,6 +87,11 @@ export const STRINGS = {
     installBtn: "Install",
     installLater: "Not now",
     installIos: "Tap the share button below, then Add to Home Screen.",
+    myConversations: "My conversations",
+    descNew: "Describe someone and start rehearsing against them.",
+    descList: "Open one you have already set up.",
+    descHistory: "Scores and feedback from every rehearsal.",
+    menuTitle: "What are we doing?",
   },
 
   ru: {
@@ -157,6 +162,11 @@ export const STRINGS = {
     installBtn: "Установить",
     installLater: "Не сейчас",
     installIos: "Нажмите кнопку «Поделиться» внизу, затем «На экран «Домой»».",
+    myConversations: "Мои разговоры",
+    descNew: "Опишите человека и начните репетицию с ним.",
+    descList: "Откройте разговор, который уже настроен.",
+    descHistory: "Оценки и разборы всех репетиций.",
+    menuTitle: "Чем займёмся?",
   },
 
   es: {
@@ -227,6 +237,11 @@ export const STRINGS = {
     installBtn: "Instalar",
     installLater: "Ahora no",
     installIos: "Toca el botón de compartir abajo y luego Añadir a inicio.",
+    myConversations: "Mis conversaciones",
+    descNew: "Describe a alguien y empieza a ensayar con esa persona.",
+    descList: "Abre una que ya tengas preparada.",
+    descHistory: "Puntuaciones y análisis de todos tus ensayos.",
+    menuTitle: "¿Qué hacemos?",
   },
 
   fr: {
@@ -297,6 +312,11 @@ export const STRINGS = {
     installBtn: "Installer",
     installLater: "Plus tard",
     installIos: "Touchez le bouton Partager en bas, puis Sur l'écran d'accueil.",
+    myConversations: "Mes conversations",
+    descNew: "Décrivez quelqu'un et commencez à répéter face à lui.",
+    descList: "Ouvrez une conversation déjà préparée.",
+    descHistory: "Notes et bilans de toutes vos répétitions.",
+    menuTitle: "On fait quoi ?",
   },
 
   de: {
@@ -367,5 +387,10 @@ export const STRINGS = {
     installBtn: "Installieren",
     installLater: "Später",
     installIos: "Tippe unten auf Teilen und dann auf Zum Home-Bildschirm.",
+    myConversations: "Meine Gespräche",
+    descNew: "Beschreibe jemanden und übe das Gespräch mit ihm.",
+    descList: "Öffne ein Gespräch, das du schon eingerichtet hast.",
+    descHistory: "Bewertungen und Auswertungen aller Übungen.",
+    menuTitle: "Was machen wir?",
   },
 };
