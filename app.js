@@ -35,6 +35,10 @@ function show(name) {
   void view.offsetWidth;
   view.classList.add("enter");
 
+  // The rehearsal screen has its own sticky footer, so the pill would collide.
+  const pill = $("account");
+  if (pill) pill.hidden = !session || name === "rehearse";
+
   window.scrollTo(0, 0);
 }
 
@@ -135,15 +139,22 @@ $("signup-form").addEventListener("submit", async (e) => {
   const btn = $("btn-signup");
   showError($("signup-error"), "");
 
+  const name = $("su-name").value.trim();
   const email = $("su-email").value.trim();
   const password = $("su-password").value;
-  if (!email || password.length < 6) {
-    showError($("signup-error"), t("errShortPw"));
+  if (!name || !email || password.length < 6) {
+    showError($("signup-error"), t("errName"));
     return;
   }
 
   busy(btn, true, t("creating"));
-  const { error } = await supabase.auth.signUp({ email, password });
+  // The name is stored on the Supabase user record itself, under user_metadata,
+  // so there is no extra table to keep in sync.
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { data: { name } },
+  });
   busy(btn, false);
 
   if (error) showError($("signup-error"), error.message);
@@ -165,6 +176,7 @@ $("btn-signout").addEventListener("click", async () => {
 // Runs on page load and on every sign in / sign out.
 supabase.auth.onAuthStateChange((_event, nextSession) => {
   session = nextSession;
+  updateAccount();
 
   if (session) {
     updateGreeting();
@@ -173,6 +185,28 @@ supabase.auth.onAuthStateChange((_event, nextSession) => {
     show("auth");
   }
 });
+
+// The name pill in the bottom left corner.
+function displayName() {
+  if (!session) return "";
+  const meta = session.user.user_metadata || {};
+  // Accounts made before the name field existed fall back to their email.
+  return meta.name || (session.user.email || "").split("@")[0];
+}
+
+function updateAccount() {
+  const pill = $("account");
+
+  if (!session) {
+    pill.hidden = true;
+    return;
+  }
+
+  const name = displayName();
+  $("account-name").textContent = name;
+  $("account-initial").textContent = (name[0] || "?").toUpperCase();
+  pill.hidden = false;
+}
 
 // ============================================================================
 // 2. DATABASE  (read + write, scoped to the signed-in user by RLS)
