@@ -370,6 +370,52 @@ input:focus-visible, textarea:focus-visible, button:focus-visible {
 .error { color: var(--danger); font-size: 14px; margin: 4px 0 0; }
 .empty { color: var(--muted); text-align: center; padding: 32px 8px; }
 
+/* ---------- welcome window ---------- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 13, 18, .72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 40;
+  transition: opacity .26s ease;
+}
+.overlay.leaving { opacity: 0; pointer-events: none; }
+
+.intro-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 26px 24px;
+  width: min(440px, 100%);
+}
+.intro-card h2 { margin: 0 0 16px; }
+.intro-card .wordmark { margin-bottom: 14px; }
+
+.intro-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.intro-list li {
+  color: var(--muted);
+  padding-left: 16px;
+  border-left: 2px solid var(--line);
+  line-height: 1.6;
+}
+.intro-list li:first-child { border-left-color: var(--you); }
+
+.intro-card .btn { margin-top: 22px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .intro-card { animation: panelIn .26s cubic-bezier(.22,.61,.36,1); }
+}
+
 /* ---------- account ---------- */
 .account {
   position: fixed;
