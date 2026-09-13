@@ -8,12 +8,23 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let scenario = null;      // the conversation being rehearsed right now
 let messages = [];        // [{ role: "user" | "assistant", content }]
 let lang = "en";          // current interface language
+let session = null;       // null means signed out
 
 // ---- tiny helpers ----------------------------------------------------------
 const $ = (id) => document.getElementById(id);
 const t = (key) => STRINGS[lang][key] ?? STRINGS.en[key] ?? key;
 
+// Screens reachable without an account. Everything else is gated.
+const PUBLIC_VIEWS = ["auth", "signin", "signup"];
+
 function show(name) {
+  // The guard. Asking for an app screen while signed out sends you to the
+  // welcome screen instead, so there is no way to browse past the login.
+  if (!session && !PUBLIC_VIEWS.includes(name)) name = "auth";
+
+  // And the reverse: a signed-in user has no business on the login screens.
+  if (session && PUBLIC_VIEWS.includes(name)) name = "menu";
+
   document.querySelectorAll(".view").forEach((v) => (v.hidden = true));
   const view = $("view-" + name);
   view.hidden = false;
@@ -72,25 +83,30 @@ function setLanguage(next) {
   lang = STRINGS[next] ? next : "en";
   localStorage.setItem("lang", lang);
   applyLanguage();
+
+  // Two pickers exist (welcome screen and menu); keep them showing the same value.
+  document.querySelectorAll(".lang").forEach((sel) => (sel.value = lang));
+
   if ($("greet").textContent) updateGreeting();
 }
 
 function initLanguage() {
-  const select = $("lang");
-  for (const [code, name] of Object.entries(LANGUAGES)) {
-    const option = document.createElement("option");
-    option.value = code;
-    option.textContent = name;
-    select.appendChild(option);
+  const selects = document.querySelectorAll(".lang");
+
+  for (const select of selects) {
+    for (const [code, name] of Object.entries(LANGUAGES)) {
+      const option = document.createElement("option");
+      option.value = code;
+      option.textContent = name;
+      select.appendChild(option);
+    }
+    select.addEventListener("change", () => setLanguage(select.value));
   }
 
   // Remembered choice first, otherwise the phone's own language, otherwise English.
   const saved = localStorage.getItem("lang");
   const browser = (navigator.language || "en").slice(0, 2);
   setLanguage(saved || (STRINGS[browser] ? browser : "en"));
-  select.value = lang;
-
-  select.addEventListener("change", () => setLanguage(select.value));
 }
 
 initLanguage();
@@ -147,13 +163,14 @@ $("btn-signout").addEventListener("click", async () => {
 });
 
 // Runs on page load and on every sign in / sign out.
-supabase.auth.onAuthStateChange((_event, session) => {
+supabase.auth.onAuthStateChange((_event, nextSession) => {
+  session = nextSession;
+
   if (session) {
-    show("list");
     updateGreeting();
-    loadScenarios();
+    show("menu");
   } else {
-    show("home");
+    show("auth");
   }
 });
 
@@ -453,25 +470,17 @@ $("btn-finish").addEventListener("click", async () => {
 // 5. NAVIGATION
 // ============================================================================
 
-$("btn-new").addEventListener("click", () => {
-  showError($("new-error"), "");
-  show("new");
-});
-
-$("btn-history").addEventListener("click", () => {
-  show("history");
-  loadHistory();
-});
-
 document.querySelectorAll("[data-goto]").forEach((el) => {
   el.addEventListener("click", () => {
-    show(el.dataset.goto);
-    if (el.dataset.goto === "signin") showError($("signin-error"), "");
-    if (el.dataset.goto === "signup") showError($("signup-error"), "");
-    if (el.dataset.goto === "list") {
-      updateGreeting();
-      loadScenarios();
-    }
+    const target = el.dataset.goto;
+    show(target);
+
+    if (target === "signin") showError($("signin-error"), "");
+    if (target === "signup") showError($("signup-error"), "");
+    if (target === "new") showError($("new-error"), "");
+    if (target === "menu") updateGreeting();
+    if (target === "list") loadScenarios();
+    if (target === "history") loadHistory();
   });
 });
 
