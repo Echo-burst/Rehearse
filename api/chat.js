@@ -90,7 +90,8 @@ export default async function handler(req, res) {
         model: MODEL,
         messages: chat,
         temperature: mode === "evaluate" ? 0.3 : 0.8,
-        max_tokens: mode === "evaluate" ? 500 : 200,
+        max_tokens: mode === "evaluate" ? 2000 : 400,
+        ...(mode === "evaluate" && { response_format: { type: "json_object" } }),
       }),
     });
 
