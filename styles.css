@@ -13,6 +13,11 @@
 
 * { box-sizing: border-box; }
 
+/* The browser's own rule for this is display:none, but any element we give an
+   explicit display to (like .view below, which is flex) silently outranks it.
+   Without this line, hidden screens stay on the page and can be scrolled to. */
+[hidden] { display: none !important; }
+
 /* Scrolling still works; the bar itself is hidden. */
 html { scrollbar-width: none; -ms-overflow-style: none; }
 html::-webkit-scrollbar, body::-webkit-scrollbar, div::-webkit-scrollbar,
