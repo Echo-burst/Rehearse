@@ -148,16 +148,35 @@ input:focus-visible, textarea:focus-visible, button:focus-visible {
 .scenario {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-left: 3px solid var(--them);
+  border-left: 3px solid var(--line);
   border-radius: 0 var(--radius) var(--radius) 0;
-  padding: 16px 18px;
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  padding: 4px 12px 4px 0;
+}
+.scenario.pinned { border-left-color: var(--them); }
+
+.scenario-open {
+  flex: 1;
+  background: none;
+  border: 0;
   text-align: left;
   color: var(--paper);
   font: inherit;
+  padding: 14px 0 14px 18px;
   cursor: pointer;
-  width: 100%;
+  border-radius: var(--radius);
 }
-.scenario:hover { background: var(--surface-hi); }
+.scenario-open:hover { background: var(--surface-hi); }
+
+.scenario-actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+}
+
 .scenario h3 {
   font-family: "Bricolage Grotesque", Inter, sans-serif;
   font-size: 18px;
@@ -165,6 +184,20 @@ input:focus-visible, textarea:focus-visible, button:focus-visible {
   margin: 0 0 2px;
 }
 .scenario p { margin: 0; font-size: 14px; color: var(--muted); }
+
+.mini {
+  font: inherit;
+  font-size: 13px;
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 5px 9px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.mini:hover { background: var(--surface-hi); color: var(--paper); }
+.mini.danger:hover { border-color: var(--danger); color: var(--danger); }
 
 /* ---------- transcript ---------- */
 .transcript {
@@ -232,6 +265,7 @@ input:focus-visible, textarea:focus-visible, button:focus-visible {
 
 .history-item { gap: 12px; }
 .history-head { display: flex; align-items: center; gap: 14px; }
+.history-meta { flex: 1; min-width: 0; }
 .history-score {
   font-family: "Bricolage Grotesque", Inter, sans-serif;
   font-size: 26px;
