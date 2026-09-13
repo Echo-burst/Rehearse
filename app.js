@@ -154,9 +154,11 @@ async function loadScenarios() {
   const list = $("scenario-list");
   list.innerHTML = "";
 
+  // Pinned conversations first, then newest first within each group.
   const { data, error } = await supabase
     .from("scenarios")
     .select("*")
+    .order("pinned", { ascending: false })
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -168,14 +170,57 @@ async function loadScenarios() {
   $("list-empty").hidden = data.length > 0;
 
   for (const row of data) {
-    const button = document.createElement("button");
-    button.className = "scenario";
-    button.innerHTML = "<h3></h3><p></p>";
-    button.querySelector("h3").textContent = row.title;
-    button.querySelector("p").textContent = t("with") + " " + row.counterpart;
-    button.addEventListener("click", () => startRehearsal(row));
-    list.appendChild(button);
+    const card = document.createElement("article");
+    card.className = "scenario" + (row.pinned ? " pinned" : "");
+    card.innerHTML =
+      '<button class="scenario-open"><h3></h3><p></p></button>' +
+      '<div class="scenario-actions">' +
+      '<button class="mini act-pin"></button>' +
+      '<button class="mini danger act-del"></button>' +
+      "</div>";
+
+    card.querySelector("h3").textContent = row.title;
+    card.querySelector("p").textContent = t("with") + " " + row.counterpart;
+    card.querySelector(".act-pin").textContent = row.pinned ? t("unpin") : t("pin");
+    card.querySelector(".act-del").textContent = t("del");
+
+    card.querySelector(".scenario-open").addEventListener("click", () => startRehearsal(row));
+    card.querySelector(".act-pin").addEventListener("click", () => togglePin(row));
+    card.querySelector(".act-del").addEventListener("click", () => deleteScenario(row));
+
+    list.appendChild(card);
   }
+}
+
+// UPDATE: flip the pinned flag on one row.
+async function togglePin(row) {
+  const { error } = await supabase
+    .from("scenarios")
+    .update({ pinned: !row.pinned })
+    .eq("id", row.id);
+
+  if (error) {
+    toast(t("errDelete"));
+    console.error(error);
+    return;
+  }
+  loadScenarios();
+}
+
+// DELETE: removing a scenario also removes its rehearsals, because the
+// foreign key in supabase-schema.sql is declared "on delete cascade".
+async function deleteScenario(row) {
+  if (!confirm(t("confirmScenario"))) return;
+
+  const { error } = await supabase.from("scenarios").delete().eq("id", row.id);
+
+  if (error) {
+    toast(t("errDelete"));
+    console.error(error);
+    return;
+  }
+  toast(t("removed"));
+  loadScenarios();
 }
 
 $("scenario-form").addEventListener("submit", async (e) => {
@@ -226,7 +271,7 @@ async function loadHistory() {
 
   const { data, error } = await supabase
     .from("rehearsals")
-    .select("score, feedback, created_at, scenarios(title, counterpart)")
+    .select("id, score, feedback, created_at, scenarios(title, counterpart)")
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -247,7 +292,8 @@ async function loadHistory() {
     item.className = "card history-item";
     item.innerHTML =
       '<div class="history-head"><span class="history-score"></span>' +
-      '<span><h3></h3><p class="muted small"></p></span></div>' +
+      '<span class="history-meta"><h3></h3><p class="muted small"></p></span>' +
+      '<button class="mini danger act-del"></button></div>' +
       '<p class="history-feedback"></p>';
 
     item.querySelector(".history-score").textContent = row.score ?? "—";
@@ -255,9 +301,26 @@ async function loadHistory() {
     item.querySelector(".small").textContent =
       (row.scenarios?.counterpart ? t("with") + " " + row.scenarios.counterpart + " · " : "") + date;
     item.querySelector(".history-feedback").textContent = row.feedback || "";
+    item.querySelector(".act-del").textContent = t("del");
+    item.querySelector(".act-del").addEventListener("click", () => deleteRehearsal(row.id));
 
     list.appendChild(item);
   }
+}
+
+// DELETE one past rehearsal.
+async function deleteRehearsal(id) {
+  if (!confirm(t("confirmRehearsal"))) return;
+
+  const { error } = await supabase.from("rehearsals").delete().eq("id", id);
+
+  if (error) {
+    toast(t("errDelete"));
+    console.error(error);
+    return;
+  }
+  toast(t("removed"));
+  loadHistory();
 }
 
 // ============================================================================
