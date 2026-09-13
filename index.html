@@ -19,31 +19,66 @@
 </head>
 <body>
 
-<!-- ============ SIGN IN / SIGN UP ============ -->
-<section id="view-auth" class="view">
-  <div class="auth-wrap">
+<!-- ============ MAIN MENU ============ -->
+<section id="view-home" class="view">
+  <div class="home-wrap">
     <div class="bar">
       <p class="kicker">Rehearse</p>
       <select id="lang" class="lang" aria-label="Language"></select>
     </div>
 
-    <h1 class="display" data-t="headline"></h1>
-    <p class="lede" data-t="lede"></p>
+    <div class="home-hero">
+      <h1 class="display" data-t="headline"></h1>
+      <p class="lede" data-t="lede"></p>
+    </div>
 
-    <form id="auth-form" class="card" autocomplete="on">
+    <div class="home-actions">
+      <button class="btn primary wide" data-goto="signin" data-t="signIn"></button>
+      <button class="btn ghost wide" data-goto="signup" data-t="signUp"></button>
+      <button id="btn-demo" class="linkish" data-t="demo"></button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SIGN IN ============ -->
+<section id="view-signin" class="view" hidden>
+  <header class="bar">
+    <button class="linkish back" data-goto="home" data-t="back"></button>
+  </header>
+
+  <div class="stack form-wrap">
+    <h2 data-t="signIn"></h2>
+    <form id="signin-form" class="card" autocomplete="on">
       <label for="email" data-t="emailLabel"></label>
       <input id="email" type="email" required autocomplete="email" placeholder="you@example.com">
 
       <label for="password" data-t="passwordLabel"></label>
       <input id="password" type="password" required minlength="6" autocomplete="current-password" data-tp="passwordPh">
 
-      <p id="auth-error" class="error" hidden></p>
-
+      <p id="signin-error" class="error" hidden></p>
       <button id="btn-signin" type="submit" class="btn primary" data-t="signIn"></button>
-      <button id="btn-signup" type="button" class="btn ghost" data-t="signUp"></button>
     </form>
+  </div>
+</section>
 
-    <button id="btn-demo" class="linkish" data-t="demo"></button>
+<!-- ============ SIGN UP ============ -->
+<section id="view-signup" class="view" hidden>
+  <header class="bar">
+    <button class="linkish back" data-goto="home" data-t="back"></button>
+  </header>
+
+  <div class="stack form-wrap">
+    <h2 data-t="signUp"></h2>
+    <form id="signup-form" class="card" autocomplete="on">
+      <label for="su-email" data-t="emailLabel"></label>
+      <input id="su-email" type="email" required autocomplete="email" placeholder="you@example.com">
+
+      <label for="su-password" data-t="passwordLabel"></label>
+      <input id="su-password" type="password" required minlength="6" autocomplete="new-password" data-tp="passwordPh">
+
+      <p id="signup-error" class="error" hidden></p>
+      <button id="btn-signup" type="submit" class="btn primary" data-t="signUp"></button>
+    </form>
   </div>
 </section>
 
