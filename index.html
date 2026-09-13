@@ -58,6 +58,10 @@
   </header>
 
   <div class="stack">
+    <div class="greeting">
+      <h2 id="greet" class="greet-line"></h2>
+      <p id="greet-tag" class="lede greet-tag"></p>
+    </div>
     <button id="btn-new" class="btn primary wide" data-t="newConversation"></button>
     <div id="scenario-list" class="stack"></div>
     <p id="list-empty" class="empty" data-t="listEmpty" hidden></p>
@@ -134,6 +138,17 @@
   <div id="history-list" class="stack"></div>
   <p id="history-empty" class="empty" data-t="historyEmpty" hidden></p>
 </section>
+
+<div id="install" class="install" hidden>
+  <div class="install-text">
+    <p class="install-title" data-t="installTitle"></p>
+    <p id="install-hint" class="install-hint" hidden></p>
+  </div>
+  <div class="install-actions">
+    <button id="install-go" class="btn primary mini-btn" data-t="installBtn"></button>
+    <button id="install-later" class="linkish" data-t="installLater"></button>
+  </div>
+</div>
 
 <div id="toast" class="toast" hidden></div>
 
