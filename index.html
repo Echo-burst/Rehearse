@@ -19,8 +19,13 @@
 </head>
 <body>
 
-<!-- ============ MAIN MENU ============ -->
-<section id="view-home" class="view">
+<!-- ==================================================================== -->
+<!--  SIGNED OUT.  These three are the only screens reachable without an  -->
+<!--  account. app.js refuses to show anything else until you sign in.    -->
+<!-- ==================================================================== -->
+
+<!-- ============ WELCOME ============ -->
+<section id="view-auth" class="view">
   <div class="home-wrap">
     <div class="bar">
       <p class="kicker">Rehearse</p>
@@ -43,7 +48,7 @@
 <!-- ============ SIGN IN ============ -->
 <section id="view-signin" class="view" hidden>
   <header class="bar">
-    <button class="linkish back" data-goto="home" data-t="back"></button>
+    <button class="linkish back" data-goto="auth" data-t="back"></button>
   </header>
 
   <div class="stack form-wrap">
@@ -64,7 +69,7 @@
 <!-- ============ SIGN UP ============ -->
 <section id="view-signup" class="view" hidden>
   <header class="bar">
-    <button class="linkish back" data-goto="home" data-t="back"></button>
+    <button class="linkish back" data-goto="auth" data-t="back"></button>
   </header>
 
   <div class="stack form-wrap">
@@ -82,31 +87,62 @@
   </div>
 </section>
 
-<!-- ============ SCENARIO LIST ============ -->
-<section id="view-list" class="view" hidden>
+<!-- ==================================================================== -->
+<!--  SIGNED IN.  Everything below requires a session.                    -->
+<!-- ==================================================================== -->
+
+<!-- ============ MAIN MENU ============ -->
+<section id="view-menu" class="view" hidden>
   <header class="bar">
     <p class="kicker">Rehearse</p>
     <span class="bar-actions">
-      <button id="btn-history" class="linkish" data-t="history"></button>
+      <select id="lang-menu" class="lang" aria-label="Language"></select>
       <button id="btn-signout" class="linkish" data-t="signOut"></button>
     </span>
   </header>
 
-  <div class="stack">
+  <div class="menu-wrap">
     <div class="greeting">
       <h2 id="greet" class="greet-line"></h2>
       <p id="greet-tag" class="lede greet-tag"></p>
     </div>
-    <button id="btn-new" class="btn primary wide" data-t="newConversation"></button>
+
+    <nav class="stack">
+      <button class="nav-card accent" data-goto="new">
+        <span class="nav-title" data-t="newConversation"></span>
+        <span class="nav-desc" data-t="descNew"></span>
+      </button>
+
+      <button class="nav-card" data-goto="list">
+        <span class="nav-title" data-t="myConversations"></span>
+        <span class="nav-desc" data-t="descList"></span>
+      </button>
+
+      <button class="nav-card" data-goto="history">
+        <span class="nav-title" data-t="history"></span>
+        <span class="nav-desc" data-t="descHistory"></span>
+      </button>
+    </nav>
+  </div>
+</section>
+
+<!-- ============ MY CONVERSATIONS ============ -->
+<section id="view-list" class="view" hidden>
+  <header class="bar">
+    <button class="linkish back" data-goto="menu" data-t="back"></button>
+    <p class="bar-title" data-t="myConversations"></p>
+  </header>
+
+  <div class="stack">
     <div id="scenario-list" class="stack"></div>
     <p id="list-empty" class="empty" data-t="listEmpty" hidden></p>
   </div>
 </section>
 
-<!-- ============ NEW SCENARIO ============ -->
+<!-- ============ NEW CONVERSATION ============ -->
 <section id="view-new" class="view" hidden>
   <header class="bar">
-    <button class="linkish back" data-goto="list" data-t="back"></button>
+    <button class="linkish back" data-goto="menu" data-t="back"></button>
   </header>
 
   <div class="stack">
@@ -149,7 +185,7 @@
 <!-- ============ FEEDBACK ============ -->
 <section id="view-feedback" class="view" hidden>
   <header class="bar">
-    <button class="linkish back" data-goto="list" data-t="back"></button>
+    <button class="linkish back" data-goto="menu" data-t="back"></button>
   </header>
 
   <div class="stack">
@@ -159,14 +195,14 @@
       <p id="score-label" class="muted"></p>
     </div>
     <div id="feedback-body" class="card"></div>
-    <button class="btn primary wide" data-goto="list" data-t="done"></button>
+    <button class="btn primary wide" data-goto="menu" data-t="done"></button>
   </div>
 </section>
 
 <!-- ============ HISTORY ============ -->
 <section id="view-history" class="view" hidden>
   <header class="bar">
-    <button class="linkish back" data-goto="list" data-t="back"></button>
+    <button class="linkish back" data-goto="menu" data-t="back"></button>
     <p class="bar-title" data-t="historyTitle"></p>
   </header>
 
