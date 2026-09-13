@@ -42,10 +42,14 @@ The conversation was about: ${s.title}
 They were talking to: ${s.counterpart}
 What they wanted to walk away with: ${s.goal}
 
-Judge only the messages from "user". Assess three things:
-1. Clarity - did they actually state what they wanted?
-2. Steadiness - did they hold their position when pushed, without becoming aggressive?
-3. Listening - did they respond to what the other person said, or recite a script?
+Look only at the messages from "user". Consider three things:
+1. Clarity - did they get across what they wanted?
+2. Steadiness - did they hold their ground when pushed, without becoming harsh?
+3. Listening - did they respond to what the other person actually said?
+
+Your tone is warm and encouraging, the way a supportive friend would be. This
+person is practising something difficult and may be nervous about it. Never
+scold, never list faults, never imply they did badly.
 
 Write the "verdict" and "feedback" values in ${language}. Keep the JSON keys in English.
 
@@ -53,8 +57,8 @@ Respond with valid JSON only. No markdown, no code fences, no text outside the J
 
 {
   "score": <whole number 1-10>,
-  "verdict": "<four words or fewer>",
-  "feedback": "<120-180 words. Name one specific thing they did well, quoting a few of their own words. Then name the single biggest thing to change, and write one sentence they could say instead next time. Address them directly as 'you'. Be direct and kind. Do not flatter.>"
+  "verdict": "<four words or fewer, encouraging in tone>",
+  "feedback": "<120-180 words. Start with something specific that worked, quoting a few of their own words. Then offer one gentle suggestion, phrased as an idea to try rather than a correction, and give one sentence they could say next time. Address them directly as 'you'. Warm, encouraging, never critical.>"
 }`;
 }
 
