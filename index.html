@@ -28,7 +28,7 @@
 <section id="view-auth" class="view">
   <div class="home-wrap">
     <div class="bar">
-      <p class="kicker">Rehearse</p>
+      <p class="kicker wordmark">Rehearse</p>
       <select id="lang" class="lang" aria-label="Language"></select>
     </div>
 
@@ -97,10 +97,9 @@
 <!-- ============ MAIN MENU ============ -->
 <section id="view-menu" class="view" hidden>
   <header class="bar">
-    <p class="kicker">Rehearse</p>
+    <p class="kicker wordmark">Rehearse</p>
     <span class="bar-actions">
       <select id="lang-menu" class="lang" aria-label="Language"></select>
-      <button id="btn-signout" class="linkish" data-t="signOut"></button>
     </span>
   </header>
 
@@ -213,10 +212,25 @@
   <p id="history-empty" class="empty" data-t="historyEmpty" hidden></p>
 </section>
 
-<div id="account" class="account" hidden>
+<div id="account-panel" class="account-panel" hidden>
+  <p class="panel-title" data-t="accountTitle"></p>
+
+  <p class="panel-label" data-t="signedInAs"></p>
+  <p id="account-email" class="panel-email"></p>
+
+  <label for="account-rename" class="panel-label" data-t="nameLabel"></label>
+  <div class="panel-row">
+    <input id="account-rename" type="text" maxlength="40" data-tp="namePh">
+    <button id="btn-rename" class="mini" data-t="saveName"></button>
+  </div>
+
+  <button id="btn-signout" class="btn ghost wide" data-t="signOut"></button>
+</div>
+
+<button id="account" class="account" hidden aria-haspopup="true">
   <span id="account-initial" class="avatar"></span>
   <span id="account-name" class="account-name"></span>
-</div>
+</button>
 
 <div id="toast" class="toast" hidden></div>
 
