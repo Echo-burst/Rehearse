@@ -96,6 +96,41 @@ h2 { font-size: 22px; }
 
 .form-wrap { flex: 1; justify-content: center; }
 
+/* ---------- main menu ---------- */
+.menu-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 26px;
+}
+
+.nav-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  width: 100%;
+  font: inherit;
+  color: var(--paper);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--line);
+  border-radius: 0 12px 12px 0;
+  padding: 18px 20px;
+  cursor: pointer;
+}
+.nav-card:hover { background: var(--surface-hi); border-left-color: var(--muted); }
+.nav-card.accent { border-left-color: var(--you); }
+.nav-card.accent:hover { border-left-color: var(--you); }
+
+.nav-title {
+  font-family: "Bricolage Grotesque", Inter, sans-serif;
+  font-size: 19px;
+  font-weight: 600;
+}
+.nav-desc { font-size: 14px; color: var(--muted); }
+
 .stack { display: flex; flex-direction: column; gap: 14px; }
 
 /* ---------- surfaces ---------- */
@@ -301,7 +336,7 @@ input:focus-visible, textarea:focus-visible, button:focus-visible {
 .lang option { background: var(--surface); color: var(--paper); }
 
 /* ---------- history ---------- */
-.bar-actions { display: flex; gap: 16px; }
+.bar-actions { display: flex; align-items: center; gap: 12px; }
 
 .history-item { gap: 12px; }
 .history-head { display: flex; align-items: center; gap: 14px; }
