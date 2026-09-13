@@ -75,6 +75,9 @@
   <div class="stack form-wrap">
     <h2 data-t="signUp"></h2>
     <form id="signup-form" class="card" autocomplete="on">
+      <label for="su-name" data-t="nameLabel"></label>
+      <input id="su-name" type="text" required maxlength="40" autocomplete="given-name" data-tp="namePh">
+
       <label for="su-email" data-t="emailLabel"></label>
       <input id="su-email" type="email" required autocomplete="email" placeholder="you@example.com">
 
@@ -209,6 +212,11 @@
   <div id="history-list" class="stack"></div>
   <p id="history-empty" class="empty" data-t="historyEmpty" hidden></p>
 </section>
+
+<div id="account" class="account" hidden>
+  <span id="account-initial" class="avatar"></span>
+  <span id="account-name" class="account-name"></span>
+</div>
 
 <div id="toast" class="toast" hidden></div>
 
