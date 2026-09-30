@@ -485,21 +485,17 @@ input[type="color"] {
 
 /* ---------- account ---------- */
 .account {
-  position: fixed;
-  left: 16px;
-  bottom: 16px;
   display: flex;
   align-items: center;
   gap: 12px;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 999px;
-  padding: 9px 22px 9px 9px;
-  max-width: 260px;
+  padding: 7px 18px 7px 7px;
+  max-width: 230px;
   font: inherit;
   color: var(--paper);
   cursor: pointer;
-  z-index: 15;
 }
 .account:hover { background: var(--surface-hi); border-color: var(--border-strong, var(--muted)); }
 
@@ -527,8 +523,8 @@ input[type="color"] {
 
 .account-panel {
   position: fixed;
-  left: 16px;
-  bottom: 82px;
+  left: 20px;
+  top: 78px;
   width: min(320px, calc(100vw - 32px));
   background: var(--surface);
   border: 1px solid var(--line);
@@ -558,8 +554,28 @@ input[type="color"] {
 
 @media (prefers-reduced-motion: no-preference) {
   .account-panel { animation: panelIn .18s cubic-bezier(.22,.61,.36,1); }
-  @keyframes panelIn { from { opacity: 0; transform: translateY(6px); } }
+  @keyframes panelIn { from { opacity: 0; transform: translateY(-6px); } }
 }
+
+/* average score inside the panel */
+.panel-score {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 12px 14px;
+  margin: 4px 0 6px;
+  background: var(--stage);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.panel-score-value {
+  font-family: "Bricolage Grotesque", Inter, sans-serif;
+  font-size: 30px;
+  font-weight: 600;
+  color: var(--you);
+  line-height: 1;
+}
+.panel-score-label { font-size: 13px; color: var(--muted); }
 
 .toast {
   position: fixed;
@@ -601,9 +617,6 @@ input[type="color"] {
 #btn-signout { font-weight: 600; }
 
 .account {
-  position: fixed;
-  left: 16px;
-  bottom: 16px;
   display: flex;
   align-items: center;
   gap: 10px;
