@@ -41,9 +41,6 @@ function show(name) {
   void view.offsetWidth;
   view.classList.add("enter");
 
-  // The rehearsal screen has its own sticky footer, so the pill would collide.
-  const pill = $("account");
-  if (pill) pill.hidden = !session || name === "rehearse";
   const panel = $("account-panel");
   if (panel) panel.hidden = true;
 
@@ -277,10 +274,7 @@ function displayName() {
 }
 
 function updateAccount() {
-  const pill = $("account");
-
   if (!session) {
-    pill.hidden = true;
     $("account-panel").hidden = true;
     return;
   }
@@ -290,7 +284,28 @@ function updateAccount() {
   $("account-initial").textContent = (name[0] || "?").toUpperCase();
   $("account-email").textContent = session.user.email || "";
   $("account-rename").value = name;
-  pill.hidden = false;
+}
+
+// The average of this user's own scores. RLS means this query can only ever
+// see their rows, so no filtering by user_id is needed here.
+async function loadAverage() {
+  const { data, error } = await supabase
+    .from("rehearsals")
+    .select("score")
+    .gt("score", 0);
+
+  const value = $("account-avg");
+  const label = $("account-avg-label");
+
+  if (error || !data || data.length === 0) {
+    value.textContent = "—";
+    label.textContent = t("noAvg");
+    return;
+  }
+
+  const average = data.reduce((sum, row) => sum + row.score, 0) / data.length;
+  value.textContent = average.toFixed(1);
+  label.textContent = t("yourAvg") + " · " + data.length;
 }
 
 // ---- account panel --------------------------------------------------------
@@ -303,7 +318,10 @@ $("account").addEventListener("click", (e) => {
   e.stopPropagation();
   const panel = $("account-panel");
   panel.hidden = !panel.hidden;
-  if (!panel.hidden) $("account-rename").value = displayName();
+  if (!panel.hidden) {
+    $("account-rename").value = displayName();
+    loadAverage();
+  }
 });
 
 // Clicking anywhere else closes it.
