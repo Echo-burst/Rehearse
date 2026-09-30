@@ -15,15 +15,21 @@ const $ = (id) => document.getElementById(id);
 const t = (key) => STRINGS[lang][key] ?? STRINGS.en[key] ?? key;
 
 // Screens reachable without an account. Everything else is gated.
-const PUBLIC_VIEWS = ["auth", "signin", "signup"];
+const PUBLIC_VIEWS = ["auth", "signin", "signup", "reset"];
+
+// True only between clicking the link in a reset email and saving a new password.
+let recovering = false;
 
 function show(name) {
   // The guard. Asking for an app screen while signed out sends you to the
   // welcome screen instead, so there is no way to browse past the login.
-  if (!session && !PUBLIC_VIEWS.includes(name)) name = "auth";
+  if (recovering) name = "newpass";
+  else {
+    if (!session && !PUBLIC_VIEWS.includes(name)) name = "auth";
 
-  // And the reverse: a signed-in user has no business on the login screens.
-  if (session && PUBLIC_VIEWS.includes(name)) name = "menu";
+    // And the reverse: a signed-in user has no business on the login screens.
+    if (session && PUBLIC_VIEWS.includes(name)) name = "menu";
+  }
 
   document.querySelectorAll(".view").forEach((v) => (v.hidden = true));
   const view = $("view-" + name);
@@ -197,16 +203,69 @@ $("btn-signout").addEventListener("click", async () => {
 });
 
 // Runs on page load and on every sign in / sign out.
-supabase.auth.onAuthStateChange((_event, nextSession) => {
+supabase.auth.onAuthStateChange((event, nextSession) => {
   session = nextSession;
+
+  // Arriving from a reset email: Supabase signs the user in with a temporary
+  // session whose only purpose is setting a new password.
+  if (event === "PASSWORD_RECOVERY") {
+    recovering = true;
+    updateAccount();
+    show("newpass");
+    return;
+  }
+
   updateAccount();
 
   if (session) {
     updateGreeting();
+    updateAdminVisibility();
     show("menu");
   } else {
     show("auth");
   }
+});
+
+// ---- password reset -------------------------------------------------------
+
+$("reset-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = $("btn-reset");
+  showError($("reset-error"), "");
+  busy(btn, true, t("sending"));
+
+  const { error } = await supabase.auth.resetPasswordForEmail(
+    $("reset-email").value.trim(),
+    { redirectTo: window.location.origin }
+  );
+
+  busy(btn, false);
+  if (error) showError($("reset-error"), error.message);
+  else toast(t("resetSent"));
+});
+
+$("newpass-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = $("btn-newpass");
+  showError($("newpass-error"), "");
+  busy(btn, true, t("saving"));
+
+  const { error } = await supabase.auth.updateUser({
+    password: $("new-password").value,
+  });
+
+  busy(btn, false);
+
+  if (error) {
+    showError($("newpass-error"), error.message);
+    return;
+  }
+
+  recovering = false;
+  toast(t("passUpdated"));
+  updateGreeting();
+  updateAdminVisibility();
+  show("menu");
 });
 
 // The name pill in the bottom left corner.
@@ -586,6 +645,7 @@ document.querySelectorAll("[data-goto]").forEach((el) => {
     if (target === "menu") updateGreeting();
     if (target === "list") loadScenarios();
     if (target === "history") loadHistory();
+    if (target === "admin") loadAdmin();
   });
 });
 
@@ -625,3 +685,158 @@ if ("serviceWorker" in navigator) {
 
 // The service worker above is what keeps the app installable. Phones offer it
 // through their own menu: "Install app" on Android, "Add to Home Screen" on iOS.
+
+// ============================================================================
+// 8. VOICE INPUT
+//
+// The Web Speech API is built into the browser, so there is no library and no
+// API call. Chrome and Edge support it, including on Android. Safari's support
+// is patchy, which is why the button hides itself when it is unavailable.
+// ============================================================================
+
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const SPEECH_LOCALE = { en: "en-US", ru: "ru-RU", es: "es-ES", fr: "fr-FR", de: "de-DE" };
+
+let recognizer = null;
+let listening = false;
+
+if (SpeechRecognition) {
+  $("btn-mic").hidden = false;
+
+  $("btn-mic").addEventListener("click", () => {
+    if (listening) {
+      recognizer.stop();
+      return;
+    }
+
+    recognizer = new SpeechRecognition();
+    recognizer.lang = SPEECH_LOCALE[lang] || "en-US";
+    recognizer.interimResults = true;
+    recognizer.continuous = false;
+
+    const before = $("reply").value;
+
+    recognizer.addEventListener("start", () => {
+      listening = true;
+      $("btn-mic").classList.add("listening");
+    });
+
+    recognizer.addEventListener("result", (event) => {
+      // Rebuild the whole transcript each time so interim guesses get replaced
+      // rather than appended twice.
+      let heard = "";
+      for (const result of event.results) heard += result[0].transcript;
+      $("reply").value = (before ? before + " " : "") + heard;
+    });
+
+    recognizer.addEventListener("error", (event) => {
+      console.warn("Speech recognition:", event.error);
+      if (event.error === "not-allowed") toast(t("micNo"));
+    });
+
+    recognizer.addEventListener("end", () => {
+      listening = false;
+      $("btn-mic").classList.remove("listening");
+    });
+
+    recognizer.start();
+  });
+}
+
+// ============================================================================
+// 9. APP-WIDE SETTINGS AND ADMIN
+// ============================================================================
+
+// Everyone reads the settings, so one admin change reaches every user.
+async function loadSettings() {
+  const { data, error } = await supabase
+    .from("app_settings")
+    .select("accent, wordmark, notice")
+    .eq("id", 1)
+    .single();
+
+  if (error || !data) return;
+
+  document.documentElement.style.setProperty("--you", data.accent);
+  document.querySelectorAll(".wordmark").forEach((el) => (el.textContent = data.wordmark));
+
+  const notice = $("notice");
+  notice.textContent = data.notice || "";
+  notice.hidden = !data.notice;
+
+  $("admin-accent").value = data.accent;
+  $("admin-wordmark").value = data.wordmark;
+  $("admin-notice").value = data.notice || "";
+}
+
+loadSettings();
+
+// The admin card only appears for the account the database recognises. Hiding
+// it is cosmetic; admin_stats() re-checks server side and refuses anyone else.
+async function updateAdminVisibility() {
+  if (!session) {
+    $("nav-admin").hidden = true;
+    return;
+  }
+
+  const { data, error } = await supabase.rpc("is_admin");
+  $("nav-admin").hidden = !!error || data !== true;
+}
+
+async function loadAdmin() {
+  const box = $("stats");
+  box.innerHTML = "";
+
+  const { data, error } = await supabase.rpc("admin_stats");
+
+  if (error || !data) {
+    toast(t("errLoad"));
+    console.error(error);
+    return;
+  }
+
+  const rows = [
+    ["statUsers", data.users],
+    ["statWeek", data.users_week],
+    ["statToday", data.users_today],
+    ["statActive", data.active_week],
+    ["statScenarios", data.scenarios],
+    ["statRehearsals", data.rehearsals],
+    ["statAvg", data.avg_score ?? "—"],
+  ];
+
+  for (const [key, value] of rows) {
+    const cell = document.createElement("div");
+    cell.className = "stat";
+    cell.innerHTML = '<span class="stat-value"></span><span class="stat-label"></span>';
+    cell.querySelector(".stat-value").textContent = value;
+    cell.querySelector(".stat-label").textContent = t(key);
+    box.appendChild(cell);
+  }
+}
+
+$("btn-admin-save").addEventListener("click", async () => {
+  const btn = $("btn-admin-save");
+  showError($("admin-error"), "");
+  busy(btn, true, t("saving"));
+
+  const { error } = await supabase
+    .from("app_settings")
+    .update({
+      accent: $("admin-accent").value,
+      wordmark: $("admin-wordmark").value.trim() || "Rehearse",
+      notice: $("admin-notice").value.trim(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", 1);
+
+  busy(btn, false);
+
+  if (error) {
+    showError($("admin-error"), error.message);
+    return;
+  }
+
+  await loadSettings();
+  toast(t("adminSaved"));
+});
