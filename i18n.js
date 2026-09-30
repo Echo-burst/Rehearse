@@ -131,6 +131,8 @@ export const STRINGS = {
     adminNotice: "Notice on the menu",
     adminSave: "Apply for everyone",
     adminSaved: "Applied.",
+    yourAvg: "Your average score",
+    noAvg: "No finished rehearsals yet",
   },
 
   ru: {
@@ -245,6 +247,8 @@ export const STRINGS = {
     adminNotice: "Объявление в меню",
     adminSave: "Применить для всех",
     adminSaved: "Применено.",
+    yourAvg: "Ваша средняя оценка",
+    noAvg: "Завершённых репетиций пока нет",
   },
 
   es: {
@@ -359,6 +363,8 @@ export const STRINGS = {
     adminNotice: "Aviso en el menú",
     adminSave: "Aplicar para todos",
     adminSaved: "Aplicado.",
+    yourAvg: "Tu puntuación media",
+    noAvg: "Aún no hay ensayos terminados",
   },
 
   fr: {
@@ -473,6 +479,8 @@ export const STRINGS = {
     adminNotice: "Annonce sur le menu",
     adminSave: "Appliquer pour tous",
     adminSaved: "Appliqué.",
+    yourAvg: "Votre note moyenne",
+    noAvg: "Aucune répétition terminée",
   },
 
   de: {
@@ -587,5 +595,7 @@ export const STRINGS = {
     adminNotice: "Hinweis im Menü",
     adminSave: "Für alle übernehmen",
     adminSaved: "Übernommen.",
+    yourAvg: "Dein Durchschnitt",
+    noAvg: "Noch keine abgeschlossenen Übungen",
   },
 };
