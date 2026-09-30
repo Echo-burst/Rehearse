@@ -63,6 +63,38 @@
       <p id="signin-error" class="error" hidden></p>
       <button id="btn-signin" type="submit" class="btn primary" data-t="signIn"></button>
     </form>
+    <button class="linkish center" data-goto="reset" data-t="forgot"></button>
+  </div>
+</section>
+
+<!-- ============ FORGOT PASSWORD ============ -->
+<section id="view-reset" class="view" hidden>
+  <header class="bar">
+    <button class="linkish back" data-goto="signin" data-t="back"></button>
+  </header>
+
+  <div class="stack form-wrap">
+    <h2 data-t="resetTitle"></h2>
+    <form id="reset-form" class="card">
+      <p class="lede small-lede" data-t="resetHint"></p>
+      <label for="reset-email" data-t="emailLabel"></label>
+      <input id="reset-email" type="email" required autocomplete="email" placeholder="you@example.com">
+      <p id="reset-error" class="error" hidden></p>
+      <button id="btn-reset" type="submit" class="btn primary" data-t="resetSend"></button>
+    </form>
+  </div>
+</section>
+
+<!-- ============ SET A NEW PASSWORD ============ -->
+<section id="view-newpass" class="view" hidden>
+  <div class="stack form-wrap">
+    <h2 data-t="newPassTitle"></h2>
+    <form id="newpass-form" class="card">
+      <label for="new-password" data-t="passwordLabel"></label>
+      <input id="new-password" type="password" required minlength="6" autocomplete="new-password" data-tp="passwordPh">
+      <p id="newpass-error" class="error" hidden></p>
+      <button id="btn-newpass" type="submit" class="btn primary" data-t="newPassSave"></button>
+    </form>
   </div>
 </section>
 
@@ -109,6 +141,8 @@
       <p id="greet-tag" class="lede greet-tag"></p>
     </div>
 
+    <p id="notice" class="notice" hidden></p>
+
     <nav class="stack">
       <button class="nav-card accent" data-goto="new">
         <span class="nav-title" data-t="newConversation"></span>
@@ -123,6 +157,11 @@
       <button class="nav-card" data-goto="history">
         <span class="nav-title" data-t="history"></span>
         <span class="nav-desc" data-t="descHistory"></span>
+      </button>
+
+      <button id="nav-admin" class="nav-card" data-goto="admin" hidden>
+        <span class="nav-title" data-t="adminTitle"></span>
+        <span class="nav-desc" data-t="descAdmin"></span>
       </button>
     </nav>
   </div>
@@ -178,7 +217,16 @@
   <div id="transcript" class="transcript"></div>
 
   <form id="reply-form" class="composer">
-    <textarea id="reply" rows="2" required data-tp="replyPh"></textarea>
+    <div class="composer-row">
+      <textarea id="reply" rows="2" required data-tp="replyPh"></textarea>
+      <button type="button" id="btn-mic" class="mic" hidden aria-label="Speak">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <rect x="9" y="3" width="6" height="11" rx="3"/>
+          <path d="M5 11a7 7 0 0 0 14 0"/>
+          <path d="M12 18v3"/>
+        </svg>
+      </button>
+    </div>
     <button type="submit" class="btn primary" id="btn-send" data-t="send"></button>
     <button type="button" class="btn ghost" id="btn-finish" data-t="finish"></button>
   </form>
@@ -210,6 +258,34 @@
 
   <div id="history-list" class="stack"></div>
   <p id="history-empty" class="empty" data-t="historyEmpty" hidden></p>
+</section>
+
+<!-- ============ ADMIN ============ -->
+<section id="view-admin" class="view" hidden>
+  <header class="bar">
+    <button class="linkish back" data-goto="menu" data-t="back"></button>
+    <p class="bar-title" data-t="adminTitle"></p>
+  </header>
+
+  <div class="stack">
+    <div id="stats" class="stats"></div>
+
+    <div class="card">
+      <p class="panel-title" data-t="adminDesign"></p>
+
+      <label for="admin-accent" data-t="adminAccent"></label>
+      <input id="admin-accent" type="color" value="#6FE3B0">
+
+      <label for="admin-wordmark" data-t="adminWordmark"></label>
+      <input id="admin-wordmark" type="text" maxlength="24">
+
+      <label for="admin-notice" data-t="adminNotice"></label>
+      <input id="admin-notice" type="text" maxlength="120">
+
+      <p id="admin-error" class="error" hidden></p>
+      <button id="btn-admin-save" class="btn primary" data-t="adminSave"></button>
+    </div>
+  </div>
 </section>
 
 <!-- ============ WELCOME WINDOW (first visit only) ============ -->
