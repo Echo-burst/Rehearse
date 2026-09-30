@@ -129,7 +129,10 @@
 <!-- ============ MAIN MENU ============ -->
 <section id="view-menu" class="view" hidden>
   <header class="bar">
-    <p class="kicker wordmark">Rehearse</p>
+    <button id="account" class="account" aria-haspopup="true">
+      <span id="account-initial" class="avatar"></span>
+      <span id="account-name" class="account-name"></span>
+    </button>
     <span class="bar-actions">
       <select id="lang-menu" class="lang" aria-label="Language"></select>
     </span>
@@ -305,6 +308,11 @@
 <div id="account-panel" class="account-panel" hidden>
   <p class="panel-title" data-t="accountTitle"></p>
 
+  <div class="panel-score">
+    <span id="account-avg" class="panel-score-value">—</span>
+    <span id="account-avg-label" class="panel-score-label"></span>
+  </div>
+
   <p class="panel-label" data-t="signedInAs"></p>
   <p id="account-email" class="panel-email"></p>
 
@@ -316,11 +324,6 @@
 
   <button id="btn-signout" class="btn ghost wide" data-t="signOut"></button>
 </div>
-
-<button id="account" class="account" hidden aria-haspopup="true">
-  <span id="account-initial" class="avatar"></span>
-  <span id="account-name" class="account-name"></span>
-</button>
 
 <div id="toast" class="toast" hidden></div>
 
