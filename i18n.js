@@ -170,6 +170,9 @@ export const STRINGS = {
     askPh: "Ask about your score…",
     ask: "Ask",
     errExplain: "Couldn't get an explanation. Try again.",
+    situationLabel: "What's the situation?",
+    situationPh: "At the office on Friday afternoon, right after the team meeting. We haven't talked about pay in a year.",
+    optional: "optional",
     motivate: {
       low: [
         "That's okay. Hard conversations take practice, and you've just had some. Whenever you're ready, try it again.",
@@ -371,6 +374,9 @@ export const STRINGS = {
     askPh: "Спросите о своей оценке…",
     ask: "Спросить",
     errExplain: "Не удалось получить объяснение. Попробуйте ещё раз.",
+    situationLabel: "Какая ситуация?",
+    situationPh: "В офисе в пятницу днём, сразу после планёрки. О зарплате мы не говорили уже год.",
+    optional: "необязательно",
     motivate: {
       low: [
         "Всё в порядке. Трудные разговоры требуют практики, и вы только что потренировались. Когда будете готовы, попробуйте ещё раз.",
@@ -572,6 +578,9 @@ export const STRINGS = {
     askPh: "Pregunta sobre tu nota…",
     ask: "Preguntar",
     errExplain: "No se pudo obtener la explicación. Inténtalo de nuevo.",
+    situationLabel: "¿Cuál es la situación?",
+    situationPh: "En la oficina el viernes por la tarde, justo después de la reunión de equipo. Hace un año que no hablamos del sueldo.",
+    optional: "opcional",
     motivate: {
       low: [
         "No pasa nada. Las conversaciones difíciles requieren práctica, y acabas de practicar. Cuando quieras, vuelve a intentarlo.",
@@ -773,6 +782,9 @@ export const STRINGS = {
     askPh: "Une question sur votre note ?",
     ask: "Demander",
     errExplain: "Impossible d'obtenir l'explication. Réessayez.",
+    situationLabel: "Quelle est la situation ?",
+    situationPh: "Au bureau, vendredi après-midi, juste après la réunion d'équipe. On n'a pas parlé de salaire depuis un an.",
+    optional: "facultatif",
     motivate: {
       low: [
         "Ce n'est pas grave. Les conversations difficiles demandent de la pratique, et vous venez de vous entraîner. Quand vous serez prêt, réessayez.",
@@ -974,6 +986,9 @@ export const STRINGS = {
     askPh: "Frag zu deiner Note…",
     ask: "Fragen",
     errExplain: "Keine Erklärung erhalten. Versuch es noch einmal.",
+    situationLabel: "Wie ist die Situation?",
+    situationPh: "Im Büro am Freitagnachmittag, direkt nach dem Teammeeting. Über das Gehalt haben wir seit einem Jahr nicht gesprochen.",
+    optional: "optional",
     motivate: {
       low: [
         "Das ist völlig in Ordnung. Schwierige Gespräche brauchen Übung, und genau die hattest du gerade. Wenn du bereit bist, versuch es noch einmal.",
@@ -1175,6 +1190,9 @@ export const STRINGS = {
     askPh: "Бағаңыз туралы сұраңыз…",
     ask: "Сұрау",
     errExplain: "Түсіндірме алу мүмкін болмады. Қайталап көріңіз.",
+    situationLabel: "Жағдай қандай?",
+    situationPh: "Жұма күні түстен кейін кеңседе, команда жиналысынан кейін бірден. Жалақы туралы бір жыл бойы сөйлескен жоқпыз.",
+    optional: "міндетті емес",
     motivate: {
       low: [
         "Ештеңе етпейді. Қиын әңгімелер жаттығуды қажет етеді, ал сіз дәл қазір жаттықтыңыз. Дайын болғанда қайталап көріңіз.",
