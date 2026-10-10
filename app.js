@@ -446,6 +446,7 @@ $("scenario-form").addEventListener("submit", async (e) => {
     counterpart: $("s-person").value.trim(),
     context: $("s-context").value.trim(),
     goal: $("s-goal").value.trim(),
+    starter: document.querySelector('input[name="starter"]:checked')?.value || "them",
   };
 
   busy(btn, true, t("saving"));
@@ -572,6 +573,13 @@ function renderTranscript(pending) {
     box.appendChild(turn);
   }
 
+  if (!pending && messages.length === 0) {
+    const hint = document.createElement("p");
+    hint.className = "turn-hint";
+    hint.textContent = t("yourTurn");
+    box.appendChild(hint);
+  }
+
   if (pending) {
     const turn = document.createElement("div");
     turn.className = "turn them thinking";
@@ -589,6 +597,15 @@ async function startRehearsal(row) {
   messages = [];
   $("rehearse-title").textContent = row.title + " · " + row.counterpart;
   show("rehearse");
+
+  // The user chose to open: no AI call yet, just an empty transcript and a
+  // prompt to go first. The AI's first message will be a reply to theirs.
+  if (row.starter === "me") {
+    renderTranscript(false);
+    $("reply").focus();
+    return;
+  }
+
   renderTranscript(true);
 
   try {
@@ -765,17 +782,68 @@ if (SpeechRecognition) {
 // 9. APP-WIDE SETTINGS AND ADMIN
 // ============================================================================
 
+// ---- colour helpers -------------------------------------------------------
+
+function toRgb(hex) {
+  const clean = hex.replace("#", "");
+  return [0, 2, 4].map((i) => parseInt(clean.slice(i, i + 2), 16));
+}
+
+// Perceived brightness, 0 (black) to 1 (white).
+function luminance(hex) {
+  const [r, g, b] = toRgb(hex).map((v) => {
+    const c = v / 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+// Blend two colours, amount 0 to 1.
+function mix(a, b, amount) {
+  const [r1, g1, b1] = toRgb(a);
+  const [r2, g2, b2] = toRgb(b);
+  const blend = (x, y) => Math.round(x + (y - x) * amount);
+  return (
+    "#" +
+    [blend(r1, r2), blend(g1, g2), blend(b1, b2)]
+      .map((v) => v.toString(16).padStart(2, "0"))
+      .join("")
+  );
+}
+
+// Applies a theme to the whole page. Accent, background and text are set
+// independently, so changing one never drags the others with it. The greys in
+// between are derived so the admin only has to pick four colours.
+function applyTheme({ accent, bg, surface, ink }) {
+  const root = document.documentElement.style;
+
+  root.setProperty("--you", accent);
+  root.setProperty("--stage", bg);
+  root.setProperty("--surface", surface);
+  root.setProperty("--paper", ink);
+
+  // Text drawn on the accent: black or white, whichever stays readable.
+  root.setProperty("--accent-ink", luminance(accent) > 0.45 ? "#10161E" : "#FFFFFF");
+
+  // Derived greys.
+  root.setProperty("--surface-hi", mix(surface, ink, 0.09));
+  root.setProperty("--line", mix(surface, ink, 0.2));
+  root.setProperty("--muted", mix(ink, bg, 0.45));
+}
+
+// ---- app-wide settings ----------------------------------------------------
+
 // Everyone reads the settings, so one admin change reaches every user.
 async function loadSettings() {
   const { data, error } = await supabase
     .from("app_settings")
-    .select("accent, wordmark, notice")
+    .select("accent, bg, surface, ink, wordmark, notice")
     .eq("id", 1)
     .single();
 
   if (error || !data) return;
 
-  document.documentElement.style.setProperty("--you", data.accent);
+  applyTheme(data);
   document.querySelectorAll(".wordmark").forEach((el) => (el.textContent = data.wordmark));
 
   const notice = $("notice");
@@ -783,14 +851,29 @@ async function loadSettings() {
   notice.hidden = !data.notice;
 
   $("admin-accent").value = data.accent;
+  $("admin-bg").value = data.bg;
+  $("admin-surface").value = data.surface;
+  $("admin-ink").value = data.ink;
   $("admin-wordmark").value = data.wordmark;
   $("admin-notice").value = data.notice || "";
 }
 
 loadSettings();
 
+// Live preview while dragging a colour picker, before anything is saved.
+for (const id of ["admin-accent", "admin-bg", "admin-surface", "admin-ink"]) {
+  $(id).addEventListener("input", () =>
+    applyTheme({
+      accent: $("admin-accent").value,
+      bg: $("admin-bg").value,
+      surface: $("admin-surface").value,
+      ink: $("admin-ink").value,
+    })
+  );
+}
+
 // The admin card only appears for the account the database recognises. Hiding
-// it is cosmetic; admin_stats() re-checks server side and refuses anyone else.
+// it is cosmetic; the admin functions re-check server side and refuse anyone else.
 async function updateAdminVisibility() {
   if (!session) {
     $("nav-admin").hidden = true;
@@ -802,6 +885,11 @@ async function updateAdminVisibility() {
 }
 
 async function loadAdmin() {
+  loadStats();
+  loadUsers();
+}
+
+async function loadStats() {
   const box = $("stats");
   box.innerHTML = "";
 
@@ -833,6 +921,95 @@ async function loadAdmin() {
   }
 }
 
+// The account list. Deliberately no conversation content - names, activity and
+// counts only, so usage is visible without reading anyone's private text.
+async function loadUsers() {
+  const list = $("user-list");
+  list.innerHTML = "";
+
+  const { data, error } = await supabase.rpc("admin_users");
+
+  if (error || !data) {
+    console.error(error);
+    return;
+  }
+
+  const fmt = (iso) =>
+    iso ? new Date(iso).toLocaleDateString(lang, { day: "numeric", month: "short" }) : null;
+
+  for (const user of data) {
+    // Active means they have signed in within the last two weeks.
+    const lastSeen = user.last_sign_in_at ? new Date(user.last_sign_in_at) : null;
+    const active = lastSeen && Date.now() - lastSeen.getTime() < 14 * 864e5;
+
+    const row = document.createElement("article");
+    row.className = "card user-row" + (active ? " is-active" : "");
+    row.innerHTML =
+      '<div class="user-head">' +
+      '<span class="dot"></span>' +
+      '<span class="user-meta"><h3></h3><p class="muted small"></p></span>' +
+      '<button class="mini danger act-del"></button>' +
+      "</div>" +
+      '<p class="muted small user-counts"></p>';
+
+    row.querySelector("h3").textContent = user.name || user.email;
+    row.querySelector(".user-meta .small").textContent = user.name ? user.email : "";
+
+    const seen = lastSeen ? t("lastSeen") + " " + fmt(user.last_sign_in_at) : t("neverIn");
+    row.querySelector(".user-counts").textContent =
+      (active ? t("activeNow") : t("dormant")) +
+      " · " + seen +
+      " · " + t("joined") + " " + fmt(user.created_at) +
+      " · " + user.scenarios + " / " + user.rehearsals + " " + t("countsShort");
+
+    const del = row.querySelector(".act-del");
+    del.textContent = t("armDelete");
+    del.addEventListener("click", () => armDelete(del, user));
+
+    list.appendChild(row);
+  }
+}
+
+// Two steps on purpose. The first tap only arms the button; the second asks for
+// a final confirmation naming the account. It disarms itself after five seconds.
+function armDelete(button, user) {
+  if (!button.dataset.armed) {
+    button.dataset.armed = "1";
+    button.textContent = t("confirmArmed");
+    button.classList.add("armed");
+
+    button._timer = setTimeout(() => {
+      delete button.dataset.armed;
+      button.textContent = t("armDelete");
+      button.classList.remove("armed");
+    }, 5000);
+    return;
+  }
+
+  clearTimeout(button._timer);
+  delete button.dataset.armed;
+  button.classList.remove("armed");
+  button.textContent = t("armDelete");
+
+  if (!confirm(t("confirmFinal") + "\n\n" + (user.email || ""))) return;
+
+  deleteUser(user.id);
+}
+
+async function deleteUser(id) {
+  const { error } = await supabase.rpc("admin_delete_user", { target: id });
+
+  if (error) {
+    toast(error.message);
+    console.error(error);
+    return;
+  }
+
+  toast(t("userDeleted"));
+  loadStats();
+  loadUsers();
+}
+
 $("btn-admin-save").addEventListener("click", async () => {
   const btn = $("btn-admin-save");
   showError($("admin-error"), "");
@@ -842,6 +1019,9 @@ $("btn-admin-save").addEventListener("click", async () => {
     .from("app_settings")
     .update({
       accent: $("admin-accent").value,
+      bg: $("admin-bg").value,
+      surface: $("admin-surface").value,
+      ink: $("admin-ink").value,
       wordmark: $("admin-wordmark").value.trim() || "Rehearse",
       notice: $("admin-notice").value.trim(),
       updated_at: new Date().toISOString(),
