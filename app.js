@@ -504,6 +504,7 @@ $("scenario-form").addEventListener("submit", async (e) => {
     user_id: user.id,
     title: $("s-title").value.trim(),
     counterpart: $("s-person").value.trim(),
+    situation: $("s-situation").value.trim(),
     context: $("s-context").value.trim(),
     goal: $("s-goal").value.trim(),
     starter: document.querySelector('input[name="starter"]:checked')?.value || "them",
