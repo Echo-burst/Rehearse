@@ -730,7 +730,7 @@ if ("serviceWorker" in navigator) {
 // ============================================================================
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-const SPEECH_LOCALE = { en: "en-US", ru: "ru-RU", es: "es-ES", fr: "fr-FR", de: "de-DE" };
+const SPEECH_LOCALE = { en: "en-US", ru: "ru-RU", es: "es-ES", fr: "fr-FR", de: "de-DE", kk: "kk-KZ" };
 
 let recognizer = null;
 let listening = false;
