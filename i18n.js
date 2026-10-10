@@ -165,6 +165,11 @@ export const STRINGS = {
     tileConvos: "Conversations",
     tileRehearsals: "Rehearsals",
     tileAvg: "Avg. score",
+    whyScore: "Why this score?",
+    explaining: "Thinking it through…",
+    askPh: "Ask about your score…",
+    ask: "Ask",
+    errExplain: "Couldn't get an explanation. Try again.",
     motivate: {
       low: [
         "That's okay. Hard conversations take practice, and you've just had some. Whenever you're ready, try it again.",
@@ -361,6 +366,11 @@ export const STRINGS = {
     tileConvos: "Разговоры",
     tileRehearsals: "Репетиции",
     tileAvg: "Ср. оценка",
+    whyScore: "Почему такая оценка?",
+    explaining: "Разбираюсь…",
+    askPh: "Спросите о своей оценке…",
+    ask: "Спросить",
+    errExplain: "Не удалось получить объяснение. Попробуйте ещё раз.",
     motivate: {
       low: [
         "Всё в порядке. Трудные разговоры требуют практики, и вы только что потренировались. Когда будете готовы, попробуйте ещё раз.",
@@ -557,6 +567,11 @@ export const STRINGS = {
     tileConvos: "Conversaciones",
     tileRehearsals: "Ensayos",
     tileAvg: "Nota media",
+    whyScore: "¿Por qué esta nota?",
+    explaining: "Pensándolo…",
+    askPh: "Pregunta sobre tu nota…",
+    ask: "Preguntar",
+    errExplain: "No se pudo obtener la explicación. Inténtalo de nuevo.",
     motivate: {
       low: [
         "No pasa nada. Las conversaciones difíciles requieren práctica, y acabas de practicar. Cuando quieras, vuelve a intentarlo.",
@@ -753,6 +768,11 @@ export const STRINGS = {
     tileConvos: "Conversations",
     tileRehearsals: "Répétitions",
     tileAvg: "Note moy.",
+    whyScore: "Pourquoi cette note ?",
+    explaining: "Je réfléchis…",
+    askPh: "Une question sur votre note ?",
+    ask: "Demander",
+    errExplain: "Impossible d'obtenir l'explication. Réessayez.",
     motivate: {
       low: [
         "Ce n'est pas grave. Les conversations difficiles demandent de la pratique, et vous venez de vous entraîner. Quand vous serez prêt, réessayez.",
@@ -949,6 +969,11 @@ export const STRINGS = {
     tileConvos: "Gespräche",
     tileRehearsals: "Übungen",
     tileAvg: "Ø Note",
+    whyScore: "Warum diese Note?",
+    explaining: "Ich denke nach…",
+    askPh: "Frag zu deiner Note…",
+    ask: "Fragen",
+    errExplain: "Keine Erklärung erhalten. Versuch es noch einmal.",
     motivate: {
       low: [
         "Das ist völlig in Ordnung. Schwierige Gespräche brauchen Übung, und genau die hattest du gerade. Wenn du bereit bist, versuch es noch einmal.",
@@ -1145,6 +1170,11 @@ export const STRINGS = {
     tileConvos: "Әңгімелер",
     tileRehearsals: "Жаттығулар",
     tileAvg: "Орт. баға",
+    whyScore: "Неге мұндай баға?",
+    explaining: "Ойланып жатырмын…",
+    askPh: "Бағаңыз туралы сұраңыз…",
+    ask: "Сұрау",
+    errExplain: "Түсіндірме алу мүмкін болмады. Қайталап көріңіз.",
     motivate: {
       low: [
         "Ештеңе етпейді. Қиын әңгімелер жаттығуды қажет етеді, ал сіз дәл қазір жаттықтыңыз. Дайын болғанда қайталап көріңіз.",
