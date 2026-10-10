@@ -323,6 +323,24 @@ function paintScore(box, number, avg) {
   number.style.color = colour || "";
 }
 
+// An encouraging line that matches the score. Lower scores get the warmest,
+// most motivating words; higher scores get something short and relaxed.
+// Same bands as the outline colours: 1-2.9, 3-5.9, 6-7.9, 8-10.
+function motivation(score) {
+  const n = Number(score);
+  if (!score || !Number.isFinite(n) || n <= 0) return "";
+  const band = n < 3 ? "low" : n < 6 ? "mid" : n < 8 ? "good" : "top";
+  const pool = (STRINGS[lang].motivate || STRINGS.en.motivate)[band];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function showMotivation(el, score) {
+  const line = motivation(score);
+  el.textContent = line;
+  el.hidden = !line;
+  el.style.borderLeftColor = scoreColour(score) || "";
+}
+
 async function loadAverage() {
   const { data, error } = await supabase
     .from("rehearsals")
@@ -338,12 +356,14 @@ async function loadAverage() {
     value.textContent = "—";
     label.textContent = t("noAvg");
     paintScore(box, value, null);
+    showMotivation($("account-motivation"), null);
     return;
   }
 
   const average = data.reduce((sum, row) => sum + row.score, 0) / data.length;
   value.textContent = average.toFixed(1);
   paintScore(box, value, average);
+  showMotivation($("account-motivation"), average);
   label.textContent = t("yourAvg") + " · " + data.length;
 }
 
@@ -693,6 +713,7 @@ $("btn-finish").addEventListener("click", async () => {
     const result = await callAI("evaluate", { messages });
     $("score").textContent = result.score;
     $("score-label").textContent = result.verdict;
+    showMotivation($("score-motivation"), result.score);
     $("feedback-body").textContent = result.feedback;
     await saveRehearsal(result.score, result.feedback);
     show("feedback");
