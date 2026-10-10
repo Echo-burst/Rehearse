@@ -261,6 +261,15 @@
       <p id="score-motivation" class="motivation" hidden></p>
     </div>
     <div id="feedback-body" class="card"></div>
+
+    <div class="card explain-card">
+      <button id="btn-why" class="btn ghost" data-t="whyScore"></button>
+      <div id="explain-thread" class="explain-thread" hidden></div>
+      <form id="ask-form" class="ask-row" hidden>
+        <input id="ask-input" type="text" maxlength="300" autocomplete="off" data-tp="askPh">
+        <button id="btn-ask" type="submit" class="btn primary ask-btn" data-t="ask"></button>
+      </form>
+    </div>
     <button class="btn primary wide" data-goto="menu" data-t="done"></button>
   </div>
 </section>
