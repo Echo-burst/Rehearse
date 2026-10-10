@@ -12,6 +12,7 @@ const LANGUAGE_NAME = {
   es: "Spanish",
   fr: "French",
   de: "German",
+  kk: "Kazakh",
 };
 
 // --- PROMPT 1: the AI plays the other person --------------------------------
