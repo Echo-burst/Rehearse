@@ -162,6 +162,9 @@ export const STRINGS = {
     themeReset: "Back to default",
     themeResetDone: "Default colours restored.",
     adminOriginal: "Restore original colours",
+    tileConvos: "Conversations",
+    tileRehearsals: "Rehearsals",
+    tileAvg: "Avg. score",
   },
 
   ru: {
@@ -305,6 +308,9 @@ export const STRINGS = {
     themeReset: "Вернуть по умолчанию",
     themeResetDone: "Цвета по умолчанию восстановлены.",
     adminOriginal: "Вернуть исходные цвета",
+    tileConvos: "Разговоры",
+    tileRehearsals: "Репетиции",
+    tileAvg: "Ср. оценка",
   },
 
   es: {
@@ -448,6 +454,9 @@ export const STRINGS = {
     themeReset: "Volver a los predeterminados",
     themeResetDone: "Colores predeterminados restaurados.",
     adminOriginal: "Restaurar colores originales",
+    tileConvos: "Conversaciones",
+    tileRehearsals: "Ensayos",
+    tileAvg: "Nota media",
   },
 
   fr: {
@@ -591,6 +600,9 @@ export const STRINGS = {
     themeReset: "Revenir aux couleurs par défaut",
     themeResetDone: "Couleurs par défaut rétablies.",
     adminOriginal: "Rétablir les couleurs d'origine",
+    tileConvos: "Conversations",
+    tileRehearsals: "Répétitions",
+    tileAvg: "Note moy.",
   },
 
   de: {
@@ -734,6 +746,9 @@ export const STRINGS = {
     themeReset: "Zurück zum Standard",
     themeResetDone: "Standardfarben wiederhergestellt.",
     adminOriginal: "Originalfarben wiederherstellen",
+    tileConvos: "Gespräche",
+    tileRehearsals: "Übungen",
+    tileAvg: "Ø Note",
   },
 
   kk: {
@@ -877,5 +892,8 @@ export const STRINGS = {
     themeReset: "Әдепкіге қайтару",
     themeResetDone: "Әдепкі түстер қалпына келтірілді.",
     adminOriginal: "Бастапқы түстерді қайтару",
+    tileConvos: "Әңгімелер",
+    tileRehearsals: "Жаттығулар",
+    tileAvg: "Орт. баға",
   },
 };
