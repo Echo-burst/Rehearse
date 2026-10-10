@@ -719,6 +719,20 @@ input[type="color"] {
   @keyframes panelIn { from { opacity: 0; transform: translateY(-6px); } }
 }
 
+/* encouraging line under a score; the left edge takes the score's colour */
+.motivation {
+  margin: 14px 0 0;
+  padding: 10px 14px;
+  border-left: 3px solid var(--line);
+  border-radius: 0;
+  text-align: left;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--paper);
+}
+.score-card .motivation { max-width: 46ch; align-self: stretch; }
+.panel-motivation { margin: 0 0 6px; font-size: 14px; padding: 8px 12px; }
+
 /* average score inside the panel */
 .panel-score {
   display: flex;
