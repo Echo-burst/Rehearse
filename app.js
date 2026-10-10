@@ -305,6 +305,24 @@ function updateAccount() {
 
 // The average of this user's own scores. RLS means this query can only ever
 // see their rows, so no filtering by user_id is needed here.
+// Outline colour for an average score. Averages have decimals (6.5, 7.8), so
+// each band runs up to the next one: 1-2.9, 3-5.9, 6-7.9, 8-10.
+function scoreColour(avg) {
+  const n = Number(avg);
+  if (!avg || !Number.isFinite(n) || n <= 0) return null;   // no score yet
+  if (n < 3) return "#C21E00";   // 1-2   red
+  if (n < 6) return "#D94D00";   // 3-5   orange
+  if (n < 8) return "#E1E535";   // 6-7   yellow
+  return "#05BF00";              // 8-10  green
+}
+
+// Outline only: the border and the number take the colour, the fill stays as it is.
+function paintScore(box, number, avg) {
+  const colour = scoreColour(avg);
+  box.style.borderColor = colour || "";
+  number.style.color = colour || "";
+}
+
 async function loadAverage() {
   const { data, error } = await supabase
     .from("rehearsals")
@@ -314,14 +332,18 @@ async function loadAverage() {
   const value = $("account-avg");
   const label = $("account-avg-label");
 
+  const box = value.closest(".panel-score");
+
   if (error || !data || data.length === 0) {
     value.textContent = "—";
     label.textContent = t("noAvg");
+    paintScore(box, value, null);
     return;
   }
 
   const average = data.reduce((sum, row) => sum + row.score, 0) / data.length;
   value.textContent = average.toFixed(1);
+  paintScore(box, value, average);
   label.textContent = t("yourAvg") + " · " + data.length;
 }
 
@@ -1066,6 +1088,7 @@ async function loadUsers() {
     row.querySelector(".n-convos").textContent = user.scenarios;
     row.querySelector(".n-reh").textContent = user.rehearsals;
     row.querySelector(".n-avg").textContent = user.avg_score ?? "—";
+    paintScore(row.querySelector(".uc-score"), row.querySelector(".n-avg"), user.avg_score);
     row.querySelector(".l-convos").textContent = t("tileConvos");
     row.querySelector(".l-reh").textContent = t("tileRehearsals");
     row.querySelector(".l-avg").textContent = t("tileAvg");
