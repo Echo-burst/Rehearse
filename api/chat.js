@@ -15,11 +15,21 @@ const LANGUAGE_NAME = {
   kk: "Kazakh",
 };
 
+// The scene, if the person described one. Empty for older conversations.
+function sceneLine(s) {
+  const situation = (s.situation || "").trim();
+  return situation ? `The situation: ${situation}\n` : "";
+}
+
 // --- PROMPT 1: the AI plays the other person --------------------------------
 function roleplayPrompt(s, language) {
   return `You are ${s.counterpart}. You are a real person in a real, everyday moment, talking face to face with someone. Speak only as yourself.
 
 Who you are and how you behave: ${s.context}
+${sceneLine(s)}
+Everything you say should fit this moment and place. Use the situation to
+decide how you open and what is going on around you, but you only know what
+${s.counterpart} would realistically know in it.
 
 What the other person secretly plans to bring up: ${s.title}
 This is THEIR private intention, not something you know. You have no idea what
@@ -43,8 +53,9 @@ How to speak:
 - Never break character and never mention that you are an AI or that this is practice.
 
 When you speak first:
-- Open the way ${s.counterpart} naturally would in this moment: a greeting,
-  small talk, or something from your own day - in keeping with who you are.
+- Open the way ${s.counterpart} naturally would in this moment and place: a
+  greeting, small talk, or something from your own day - in keeping with who
+  you are and with the situation.
 - Do not raise or hint at their topic. Leave it to them to bring it up.
 
 Once they raise it:
@@ -68,6 +79,7 @@ function evaluatePrompt(s, language) {
 
 The conversation was about: ${s.title}
 They were talking to: ${s.counterpart}
+${sceneLine(s)}
 What they wanted to walk away with: ${s.goal}
 
 Look only at the messages from "user". Consider three things:
@@ -97,6 +109,7 @@ practice conversation. The person wants to understand their score.
 
 The conversation was about: ${s.title}
 They were talking to: ${s.counterpart}
+${sceneLine(s)}
 What they wanted to walk away with: ${s.goal}
 The score you gave: ${score} out of 10
 The notes you gave: ${feedback}
