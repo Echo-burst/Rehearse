@@ -90,6 +90,35 @@ Respond with valid JSON only. No markdown, no code fences, no text outside the J
 }`;
 }
 
+// --- PROMPT 3: the coach explains a score and answers questions about it -----
+function explainPrompt(s, language, score, feedback) {
+  return `You are the same warm, encouraging communication coach who just scored a
+practice conversation. The person wants to understand their score.
+
+The conversation was about: ${s.title}
+They were talking to: ${s.counterpart}
+What they wanted to walk away with: ${s.goal}
+The score you gave: ${score} out of 10
+The notes you gave: ${feedback}
+
+How to explain:
+- Write in ${language}.
+- Base everything on what they actually said. Quote a few of their own words.
+- Be honest about why the score is what it is, but kind. Never scold.
+- Keep it short and easy to read on a phone. Plain text only: no markdown,
+  no asterisks, no headings symbols, no bullet characters.
+
+If they did not ask anything specific, explain the score in this shape, each
+part on its own short paragraph starting with its name and a colon:
+Clarity: did they get across what they wanted?
+Steadiness: did they hold their ground kindly when pushed?
+Listening: did they respond to what the other person actually said?
+To go one point higher: one concrete thing to try, with an example sentence.
+
+If they asked a question, answer that question directly in 2 to 5 sentences,
+still about this conversation and this score.`;
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Use POST." });
@@ -99,7 +128,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "GROQ_API_KEY is not set on the server." });
   }
 
-  const { mode, scenario, messages = [], language = "en" } = req.body || {};
+  const { mode, scenario, messages = [], language = "en", score, feedback, question } = req.body || {};
 
   if (!scenario || !mode) {
     return res.status(400).json({ error: "Missing mode or scenario." });
@@ -109,7 +138,13 @@ export default async function handler(req, res) {
   const system =
     mode === "evaluate"
       ? evaluatePrompt(scenario, languageName)
-      : roleplayPrompt(scenario, languageName);
+      : mode === "explain"
+        ? explainPrompt(scenario, languageName, score, feedback || "")
+        : roleplayPrompt(scenario, languageName);
+
+  const transcript = messages
+    .map((m) => (m.role === "user" ? "user: " : "them: ") + m.content)
+    .join("\n");
 
   // In roleplay the AI is the other person, so the roles pass through as they are.
   // In evaluate the AI is an outside reviewer, so the whole transcript is handed
@@ -118,11 +153,16 @@ export default async function handler(req, res) {
     mode === "evaluate"
       ? [
           { role: "system", content: system },
+          { role: "user", content: transcript },
+        ]
+      : mode === "explain"
+      ? [
+          { role: "system", content: system },
           {
             role: "user",
-            content: messages
-              .map((m) => (m.role === "user" ? "user: " : "them: ") + m.content)
-              .join("\n"),
+            content:
+              "Transcript:\n" + transcript + "\n\n" +
+              (question ? "My question: " + String(question).slice(0, 500) : "Why did I get this score?"),
           },
         ]
       : [
@@ -145,8 +185,8 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: MODEL,
         messages: chat,
-        temperature: mode === "evaluate" ? 0.3 : 0.8,
-        max_tokens: mode === "evaluate" ? 2000 : 400,
+        temperature: mode === "evaluate" ? 0.3 : mode === "explain" ? 0.4 : 0.8,
+        max_tokens: mode === "roleplay" ? 400 : 2000,
         ...(mode === "evaluate" && { response_format: { type: "json_object" } }),
       }),
     });
@@ -160,7 +200,7 @@ export default async function handler(req, res) {
     const data = await upstream.json();
     const text = data.choices?.[0]?.message?.content?.trim() || "";
 
-    if (mode === "roleplay") {
+    if (mode === "roleplay" || mode === "explain") {
       return res.status(200).json({ reply: text });
     }
 
