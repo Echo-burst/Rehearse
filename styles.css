@@ -542,7 +542,13 @@ input[type="color"] {
   border: 1px solid var(--line);
   color: var(--muted);
 }
-.user-card.is-active .uc-badge { border-color: var(--you); color: var(--you); }
+/* A fixed green, not the theme accent: "active" should read as active even if
+   someone has changed their colours to purple. */
+.user-card.is-active .uc-badge {
+  background: #2FBF71;
+  border-color: #2FBF71;
+  color: #0B2A18;
+}
 
 .uc-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .uc-tile {
