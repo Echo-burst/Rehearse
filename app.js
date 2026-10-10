@@ -716,6 +716,7 @@ $("btn-finish").addEventListener("click", async () => {
     $("score-label").textContent = result.verdict;
     showMotivation($("score-motivation"), result.score);
     $("feedback-body").textContent = result.feedback;
+    resetExplain(result);
     await saveRehearsal(result.score, result.feedback);
     show("feedback");
   } catch (err) {
@@ -723,6 +724,71 @@ $("btn-finish").addEventListener("click", async () => {
     console.error(err);
   }
 
+  busy(btn, false);
+});
+
+// ---- "why this score?" ----------------------------------------------------
+// The coach explains the score it just gave, using the same transcript, and
+// can answer follow-up questions about it. Nothing here is saved.
+
+let lastResult = null;
+
+function resetExplain(result) {
+  lastResult = result;
+  $("explain-thread").innerHTML = "";
+  $("explain-thread").hidden = true;
+  $("ask-form").hidden = true;
+  $("ask-input").value = "";
+  $("btn-why").hidden = !(result && Number(result.score) > 0);
+}
+
+function addExplainEntry(kind, text) {
+  const thread = $("explain-thread");
+  const p = document.createElement("p");
+  p.className = "explain-" + kind;
+  p.textContent = text;
+  thread.appendChild(p);
+  thread.hidden = false;
+  return p;
+}
+
+async function askCoach(question) {
+  if (!lastResult) return;
+  if (question) addExplainEntry("question", question);
+  const waiting = addExplainEntry("waiting", t("explaining"));
+
+  try {
+    const { reply } = await callAI("explain", {
+      messages,
+      score: lastResult.score,
+      feedback: lastResult.feedback,
+      question: question || "",
+    });
+    waiting.className = "explain-answer";
+    waiting.textContent = reply;
+    $("ask-form").hidden = false;
+  } catch (err) {
+    waiting.remove();
+    toast(t("errExplain"));
+    console.error(err);
+  }
+}
+
+$("btn-why").addEventListener("click", async () => {
+  const btn = $("btn-why");
+  btn.hidden = true;
+  await askCoach("");
+  if ($("explain-thread").children.length === 0) btn.hidden = false;
+});
+
+$("ask-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const q = $("ask-input").value.trim();
+  if (!q) return;
+  $("ask-input").value = "";
+  const btn = $("btn-ask");
+  busy(btn, true, "…");
+  await askCoach(q);
   busy(btn, false);
 });
 
