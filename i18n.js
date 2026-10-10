@@ -165,6 +165,29 @@ export const STRINGS = {
     tileConvos: "Conversations",
     tileRehearsals: "Rehearsals",
     tileAvg: "Avg. score",
+    motivate: {
+      low: [
+        "Everyone who's good at hard conversations started right where you are now. A low score in practice is the cheapest lesson you'll ever get. Take one thing from the notes and go again.",
+        "This is exactly why you rehearse: you found the hard part here, in private, not in front of the real person. Try again while it's fresh. The second attempt is almost always better.",
+        "A rough first try says nothing about who you are. It only shows you where to start. Pick the one sentence you'd change and say it again.",
+        "Courage isn't getting it right the first time. It's coming back for round two. You've already done the hardest part by starting.",
+      ],
+      mid: [
+        "You're getting there. The pieces are in place; now it's about saying them with a bit more confidence. One more run could make the difference.",
+        "Solid groundwork. Change just the one thing the notes suggest and see how much further it takes you.",
+        "Halfway is real progress. Every rehearsal makes the real conversation a little less scary.",
+      ],
+      good: [
+        "You did really well! A little polish and you're ready for the real thing.",
+        "Nice work, that sounded confident. You're closer than you think.",
+        "Good one! You held your ground and kept it friendly.",
+      ],
+      top: [
+        "Excellent! You're ready. Go have the real conversation.",
+        "That was great. Take that energy into the real one.",
+        "Brilliant work. You could teach this.",
+      ],
+    },
   },
 
   ru: {
@@ -311,6 +334,29 @@ export const STRINGS = {
     tileConvos: "Разговоры",
     tileRehearsals: "Репетиции",
     tileAvg: "Ср. оценка",
+    motivate: {
+      low: [
+        "Все, кто хорошо ведёт трудные разговоры, начинали ровно с того места, где вы сейчас. Низкая оценка на тренировке — самый дешёвый урок в жизни. Возьмите одну мысль из разбора и попробуйте снова.",
+        "Именно для этого и нужна репетиция: вы нашли трудное место здесь, наедине с собой, а не перед настоящим человеком. Попробуйте ещё раз, пока всё свежо. Вторая попытка почти всегда лучше.",
+        "Неудачная первая попытка ничего не говорит о том, какой вы человек. Она лишь показывает, с чего начать. Выберите одну фразу, которую сказали бы иначе, и произнесите её снова.",
+        "Смелость — это не сделать всё идеально с первого раза. Это вернуться на второй раунд. Самое трудное — начать — вы уже сделали.",
+      ],
+      mid: [
+        "Вы на верном пути. Всё нужное уже есть — осталось сказать это чуть увереннее. Ещё одна попытка может всё изменить.",
+        "Хорошая основа. Измените только то, что советует разбор, и посмотрите, насколько дальше это вас продвинет.",
+        "Половина пути — это настоящий прогресс. Каждая репетиция делает настоящий разговор чуть менее страшным.",
+      ],
+      good: [
+        "У вас отлично получилось! Немного шлифовки — и вы готовы к настоящему разговору.",
+        "Хорошая работа, звучало уверенно. Вы ближе к цели, чем думаете.",
+        "Здорово! Вы стояли на своём и оставались дружелюбны.",
+      ],
+      top: [
+        "Превосходно! Вы готовы. Идите и проведите настоящий разговор.",
+        "Это было отлично. Возьмите эту энергию с собой в настоящий разговор.",
+        "Блестяще. Вы могли бы учить этому других.",
+      ],
+    },
   },
 
   es: {
@@ -457,6 +503,29 @@ export const STRINGS = {
     tileConvos: "Conversaciones",
     tileRehearsals: "Ensayos",
     tileAvg: "Nota media",
+    motivate: {
+      low: [
+        "Todas las personas que manejan bien las conversaciones difíciles empezaron justo donde estás tú ahora. Una nota baja en un ensayo es la lección más barata que vas a tener. Quédate con una idea de las notas y vuelve a intentarlo.",
+        "Para esto sirve ensayar: has encontrado la parte difícil aquí, en privado, y no delante de la persona real. Inténtalo otra vez ahora que lo tienes fresco. El segundo intento casi siempre sale mejor.",
+        "Un primer intento flojo no dice nada de quién eres. Solo te muestra por dónde empezar. Elige la frase que cambiarías y dila de nuevo.",
+        "El valor no es hacerlo perfecto a la primera. Es volver para el segundo asalto. Lo más difícil, empezar, ya lo has hecho.",
+      ],
+      mid: [
+        "Vas por buen camino. Ya tienes las piezas; ahora se trata de decirlo con un poco más de seguridad. Un intento más puede marcar la diferencia.",
+        "Buena base. Cambia solo lo que sugieren las notas y mira cuánto más lejos llegas.",
+        "Ir por la mitad ya es progreso de verdad. Cada ensayo hace que la conversación real dé un poco menos de miedo.",
+      ],
+      good: [
+        "¡Lo has hecho muy bien! Un poco de pulido y estarás listo para la de verdad.",
+        "Buen trabajo, sonaste seguro. Estás más cerca de lo que crees.",
+        "¡Muy bien! Mantuviste tu postura sin perder la amabilidad.",
+      ],
+      top: [
+        "¡Excelente! Estás listo. Ve a tener la conversación de verdad.",
+        "Ha sido genial. Llévate esa energía a la conversación real.",
+        "Brillante. Podrías enseñar a otros a hacerlo.",
+      ],
+    },
   },
 
   fr: {
@@ -603,6 +672,29 @@ export const STRINGS = {
     tileConvos: "Conversations",
     tileRehearsals: "Répétitions",
     tileAvg: "Note moy.",
+    motivate: {
+      low: [
+        "Tous ceux qui savent mener les conversations difficiles ont commencé exactement là où vous êtes. Une note basse à l'entraînement, c'est la leçon la moins chère que vous aurez jamais. Retenez une idée des remarques et recommencez.",
+        "C'est précisément à ça que sert la répétition : vous avez trouvé le passage difficile ici, en privé, et pas devant la vraie personne. Réessayez tant que c'est frais. Le deuxième essai est presque toujours meilleur.",
+        "Un premier essai maladroit ne dit rien de qui vous êtes. Il montre seulement par où commencer. Choisissez la phrase que vous changeriez et dites-la à nouveau.",
+        "Le courage, ce n'est pas réussir du premier coup. C'est revenir pour le deuxième round. Le plus dur, commencer, vous l'avez déjà fait.",
+      ],
+      mid: [
+        "Vous y êtes presque. Tout est en place ; il reste à le dire avec un peu plus d'assurance. Un essai de plus peut faire la différence.",
+        "De bonnes bases. Changez seulement ce que suggèrent les remarques et voyez jusqu'où cela vous mène.",
+        "Être à mi-chemin, c'est déjà un vrai progrès. Chaque répétition rend la vraie conversation un peu moins intimidante.",
+      ],
+      good: [
+        "Vous vous en êtes très bien sorti ! Encore un peu de finition et vous serez prêt pour la vraie.",
+        "Beau travail, c'était assuré. Vous êtes plus proche du but que vous ne le pensez.",
+        "Bien joué ! Vous avez tenu bon tout en restant aimable.",
+      ],
+      top: [
+        "Excellent ! Vous êtes prêt. Allez avoir la vraie conversation.",
+        "C'était super. Gardez cette énergie pour la vraie.",
+        "Brillant. Vous pourriez l'enseigner.",
+      ],
+    },
   },
 
   de: {
@@ -749,6 +841,29 @@ export const STRINGS = {
     tileConvos: "Gespräche",
     tileRehearsals: "Übungen",
     tileAvg: "Ø Note",
+    motivate: {
+      low: [
+        "Alle, die schwierige Gespräche gut führen, haben genau da angefangen, wo du jetzt stehst. Eine niedrige Note beim Üben ist die billigste Lektion, die du je bekommst. Nimm eine Sache aus den Notizen mit und versuch es noch einmal.",
+        "Genau dafür übst du: Du hast die schwierige Stelle hier gefunden, ganz für dich, und nicht vor der echten Person. Versuch es gleich noch einmal, solange es frisch ist. Der zweite Anlauf ist fast immer besser.",
+        "Ein holpriger erster Versuch sagt nichts darüber aus, wer du bist. Er zeigt nur, wo du anfangen kannst. Such dir den einen Satz aus, den du ändern würdest, und sag ihn noch einmal.",
+        "Mut heißt nicht, es beim ersten Mal perfekt zu machen. Mut heißt, für die zweite Runde zurückzukommen. Das Schwerste, das Anfangen, hast du schon geschafft.",
+      ],
+      mid: [
+        "Du bist auf einem guten Weg. Die Bausteine sind da; jetzt geht es darum, sie etwas selbstbewusster zu sagen. Noch ein Durchgang kann den Unterschied machen.",
+        "Eine solide Grundlage. Ändere nur das eine, was die Notizen vorschlagen, und schau, wie viel weiter du damit kommst.",
+        "Die Hälfte ist echter Fortschritt. Jede Übung macht das echte Gespräch ein bisschen weniger beängstigend.",
+      ],
+      good: [
+        "Das hast du richtig gut gemacht! Noch ein bisschen Feinschliff, und du bist bereit für das echte Gespräch.",
+        "Starke Arbeit, das klang selbstbewusst. Du bist näher dran, als du denkst.",
+        "Gut gemacht! Du bist standhaft geblieben und trotzdem freundlich.",
+      ],
+      top: [
+        "Ausgezeichnet! Du bist bereit. Führ jetzt das echte Gespräch.",
+        "Das war großartig. Nimm diese Energie mit ins echte Gespräch.",
+        "Brillant. Das könntest du anderen beibringen.",
+      ],
+    },
   },
 
   kk: {
@@ -895,5 +1010,28 @@ export const STRINGS = {
     tileConvos: "Әңгімелер",
     tileRehearsals: "Жаттығулар",
     tileAvg: "Орт. баға",
+    motivate: {
+      low: [
+        "Қиын әңгімелерді жақсы жүргізетіндердің бәрі дәл қазір сіз тұрған жерден бастаған. Жаттығудағы төмен баға — өміріңіздегі ең арзан сабақ. Ескертпелерден бір ойды алып, қайталап көріңіз.",
+        "Жаттығу дәл осы үшін керек: сіз қиын тұсты нағыз адамның алдында емес, осында, жеке өзіңіз таптыңыз. Есіңізде тұрғанда қайта байқап көріңіз. Екінші әрекет әрдайым дерлік жақсырақ болады.",
+        "Сәтсіз бірінші әрекет сіздің қандай адам екеніңіз туралы ештеңе айтпайды. Ол тек неден бастау керегін көрсетеді. Өзгертер едім деген бір сөйлемді таңдап, оны қайта айтыңыз.",
+        "Батылдық — бірінші реттен мінсіз жасау емес. Батылдық — екінші раундқа қайта оралу. Ең қиыны — бастау, оны сіз әлдеқашан жасадыңыз.",
+      ],
+      mid: [
+        "Сіз дұрыс жолдасыз. Керектің бәрі бар, енді соны сәл сенімдірек айту ғана қалды. Тағы бір әрекет бәрін өзгертуі мүмкін.",
+        "Жақсы негіз. Ескертпеде ұсынылған бір нәрсені ғана өзгертіп, қаншалықты алға жылжитыныңызды көріңіз.",
+        "Жолдың жартысы — нағыз ілгерілеу. Әр жаттығу нағыз әңгімені сәл де болса қорқынышсыз етеді.",
+      ],
+      good: [
+        "Өте жақсы шықты! Сәл ғана жетілдірсеңіз, нағыз әңгімеге дайынсыз.",
+        "Жақсы жұмыс, сенімді естілді. Сіз ойлағаннан да жақынсыз.",
+        "Керемет! Ұстанымыңызда тұрып, әрі сыпайы болып қалдыңыз.",
+      ],
+      top: [
+        "Тамаша! Сіз дайынсыз. Енді нағыз әңгімені өткізіңіз.",
+        "Бұл керемет болды. Осы қуатты нағыз әңгімеге алып барыңыз.",
+        "Ғажап. Мұны басқаларға үйрете аласыз.",
+      ],
+    },
   },
 };
