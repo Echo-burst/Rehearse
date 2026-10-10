@@ -204,6 +204,18 @@
       <label for="s-goal" data-t="goalLabel"></label>
       <textarea id="s-goal" required rows="2" maxlength="300" data-tp="goalPh"></textarea>
 
+      <p class="field-label" data-t="starterLabel"></p>
+      <div class="segmented" role="radiogroup">
+        <label class="seg">
+          <input type="radio" name="starter" value="them" checked>
+          <span data-t="starterThem"></span>
+        </label>
+        <label class="seg">
+          <input type="radio" name="starter" value="me">
+          <span data-t="starterMe"></span>
+        </label>
+      </div>
+
       <p id="new-error" class="error" hidden></p>
       <button type="submit" class="btn primary" data-t="start"></button>
     </form>
@@ -276,8 +288,24 @@
     <div class="card">
       <p class="panel-title" data-t="adminDesign"></p>
 
-      <label for="admin-accent" data-t="adminAccent"></label>
-      <input id="admin-accent" type="color" value="#6FE3B0">
+      <div class="swatches">
+        <label class="swatch">
+          <span data-t="adminAccent"></span>
+          <input id="admin-accent" type="color" value="#6FE3B0">
+        </label>
+        <label class="swatch">
+          <span data-t="colBg"></span>
+          <input id="admin-bg" type="color" value="#171C24">
+        </label>
+        <label class="swatch">
+          <span data-t="colSurface"></span>
+          <input id="admin-surface" type="color" value="#202832">
+        </label>
+        <label class="swatch">
+          <span data-t="colText"></span>
+          <input id="admin-ink" type="color" value="#E9EBEF">
+        </label>
+      </div>
 
       <label for="admin-wordmark" data-t="adminWordmark"></label>
       <input id="admin-wordmark" type="text" maxlength="24">
@@ -288,6 +316,9 @@
       <p id="admin-error" class="error" hidden></p>
       <button id="btn-admin-save" class="btn primary" data-t="adminSave"></button>
     </div>
+
+    <p class="panel-title accounts-heading" data-t="adminAccounts"></p>
+    <div id="user-list" class="stack"></div>
   </div>
 </section>
 
