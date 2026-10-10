@@ -10,6 +10,20 @@ let messages = [];        // [{ role: "user" | "assistant", content }]
 let lang = "en";          // current interface language
 let session = null;       // null means signed out
 
+// ---- colours ---------------------------------------------------------------
+// Three layers, most specific wins:
+//   1. the user's own colours (saved on their account, only they see them)
+//   2. the app-wide colours the admin sets for everyone
+//   3. the original Rehearse scheme: green, orange and near-black
+const ORIGINAL_THEME = {
+  accent: "#6FE3B0",   // green
+  them: "#E8B44A",     // orange
+  bg: "#171C24",       // near-black
+  surface: "#202832",
+  ink: "#E9EBEF",
+};
+let siteTheme = { ...ORIGINAL_THEME };
+
 // ---- tiny helpers ----------------------------------------------------------
 const $ = (id) => document.getElementById(id);
 const t = (key) => STRINGS[lang][key] ?? STRINGS.en[key] ?? key;
@@ -30,6 +44,8 @@ function show(name) {
     // And the reverse: a signed-in user has no business on the login screens.
     if (session && PUBLIC_VIEWS.includes(name)) name = "menu";
   }
+
+  if (name !== "theme" && name !== "admin") refreshTheme();
 
   document.querySelectorAll(".view").forEach((v) => (v.hidden = true));
   const view = $("view-" + name);
@@ -213,6 +229,7 @@ supabase.auth.onAuthStateChange((event, nextSession) => {
   }
 
   updateAccount();
+  refreshTheme();
 
   if (session) {
     updateGreeting();
@@ -681,6 +698,7 @@ document.querySelectorAll("[data-goto]").forEach((el) => {
     if (target === "list") loadScenarios();
     if (target === "history") loadHistory();
     if (target === "admin") loadAdmin();
+    if (target === "theme") fillMyPickers(currentTheme());
   });
 });
 
@@ -814,10 +832,11 @@ function mix(a, b, amount) {
 // Applies a theme to the whole page. Accent, background and text are set
 // independently, so changing one never drags the others with it. The greys in
 // between are derived so the admin only has to pick four colours.
-function applyTheme({ accent, bg, surface, ink }) {
+function applyTheme({ accent, them, bg, surface, ink }) {
   const root = document.documentElement.style;
 
   root.setProperty("--you", accent);
+  if (them) root.setProperty("--them", them);
   root.setProperty("--stage", bg);
   root.setProperty("--surface", surface);
   root.setProperty("--paper", ink);
@@ -843,7 +862,8 @@ async function loadSettings() {
 
   if (error || !data) return;
 
-  applyTheme(data);
+  siteTheme = { ...ORIGINAL_THEME, accent: data.accent, bg: data.bg, surface: data.surface, ink: data.ink };
+  refreshTheme();
   document.querySelectorAll(".wordmark").forEach((el) => (el.textContent = data.wordmark));
 
   const notice = $("notice");
@@ -859,6 +879,83 @@ async function loadSettings() {
 }
 
 loadSettings();
+
+// ---- personal colours -----------------------------------------------------
+
+function personalTheme() {
+  return session?.user?.user_metadata?.theme || null;
+}
+
+function currentTheme() {
+  return { ...siteTheme, ...(personalTheme() || {}) };
+}
+
+function refreshTheme() {
+  applyTheme(currentTheme());
+}
+
+const MY_FIELDS = { accent: "my-accent", them: "my-them", bg: "my-bg", surface: "my-surface", ink: "my-ink" };
+
+function fillMyPickers(theme) {
+  for (const [key, id] of Object.entries(MY_FIELDS)) $(id).value = theme[key];
+}
+
+function readMyPickers() {
+  const theme = {};
+  for (const [key, id] of Object.entries(MY_FIELDS)) theme[key] = $(id).value;
+  return theme;
+}
+
+// Preview live while dragging; nothing is saved until the button is pressed.
+for (const id of Object.values(MY_FIELDS)) {
+  $(id).addEventListener("input", () => applyTheme(readMyPickers()));
+}
+
+// Saved onto the user's own account (user_metadata), so the colours follow
+// them to any device and nobody else ever sees them.
+$("btn-theme-save").addEventListener("click", async () => {
+  const btn = $("btn-theme-save");
+  busy(btn, true, t("saving"));
+  const { data, error } = await supabase.auth.updateUser({ data: { theme: readMyPickers() } });
+  busy(btn, false);
+
+  if (error) {
+    toast(t("errSave"));
+    console.error(error);
+    return;
+  }
+
+  session.user = data.user;
+  refreshTheme();
+  toast(t("themeSaved"));
+});
+
+$("btn-theme-reset").addEventListener("click", async () => {
+  const btn = $("btn-theme-reset");
+  busy(btn, true, t("saving"));
+  const { data, error } = await supabase.auth.updateUser({ data: { theme: null } });
+  busy(btn, false);
+
+  if (error) {
+    toast(t("errSave"));
+    console.error(error);
+    return;
+  }
+
+  session.user = data.user;
+  refreshTheme();
+  fillMyPickers(currentTheme());
+  toast(t("themeResetDone"));
+});
+
+// Admin: put the original scheme back into the pickers (press Apply to keep it).
+$("btn-admin-original").addEventListener("click", () => {
+  $("admin-accent").value = ORIGINAL_THEME.accent;
+  $("admin-bg").value = ORIGINAL_THEME.bg;
+  $("admin-surface").value = ORIGINAL_THEME.surface;
+  $("admin-ink").value = ORIGINAL_THEME.ink;
+  applyTheme(ORIGINAL_THEME);
+});
 
 // Live preview while dragging a colour picker, before anything is saved.
 for (const id of ["admin-accent", "admin-bg", "admin-surface", "admin-ink"]) {
