@@ -1039,25 +1039,39 @@ async function loadUsers() {
     const lastSeen = user.last_sign_in_at ? new Date(user.last_sign_in_at) : null;
     const active = lastSeen && Date.now() - lastSeen.getTime() < 14 * 864e5;
 
+    const name = user.name || (user.email || "").split("@")[0];
     const row = document.createElement("article");
-    row.className = "card user-row" + (active ? " is-active" : "");
+    row.className = "card user-card" + (active ? " is-active" : "");
     row.innerHTML =
-      '<div class="user-head">' +
-      '<span class="dot"></span>' +
-      '<span class="user-meta"><h3></h3><p class="muted small"></p></span>' +
-      '<button class="mini danger act-del"></button>' +
+      '<div class="uc-head">' +
+        '<span class="uc-avatar"></span>' +
+        '<div class="uc-id"><h3></h3><p class="uc-email"></p></div>' +
+        '<span class="uc-badge"></span>' +
       "</div>" +
-      '<p class="muted small user-counts"></p>';
+      '<div class="uc-tiles">' +
+        '<div class="uc-tile"><span class="uc-num n-convos"></span><span class="uc-lab l-convos"></span></div>' +
+        '<div class="uc-tile"><span class="uc-num n-reh"></span><span class="uc-lab l-reh"></span></div>' +
+        '<div class="uc-tile uc-score"><span class="uc-num n-avg"></span><span class="uc-lab l-avg"></span></div>' +
+      "</div>" +
+      '<div class="uc-foot">' +
+        '<p class="uc-dates"></p>' +
+        '<button class="mini danger act-del"></button>' +
+      "</div>";
 
-    row.querySelector("h3").textContent = user.name || user.email;
-    row.querySelector(".user-meta .small").textContent = user.name ? user.email : "";
+    row.querySelector(".uc-avatar").textContent = (name[0] || "?").toUpperCase();
+    row.querySelector("h3").textContent = name;
+    row.querySelector(".uc-email").textContent = user.email || "";
+    row.querySelector(".uc-badge").textContent = active ? t("activeNow") : t("dormant");
+
+    row.querySelector(".n-convos").textContent = user.scenarios;
+    row.querySelector(".n-reh").textContent = user.rehearsals;
+    row.querySelector(".n-avg").textContent = user.avg_score ?? "—";
+    row.querySelector(".l-convos").textContent = t("tileConvos");
+    row.querySelector(".l-reh").textContent = t("tileRehearsals");
+    row.querySelector(".l-avg").textContent = t("tileAvg");
 
     const seen = lastSeen ? t("lastSeen") + " " + fmt(user.last_sign_in_at) : t("neverIn");
-    row.querySelector(".user-counts").textContent =
-      (active ? t("activeNow") : t("dormant")) +
-      " · " + seen +
-      " · " + t("joined") + " " + fmt(user.created_at) +
-      " · " + user.scenarios + " / " + user.rehearsals + " " + t("countsShort");
+    row.querySelector(".uc-dates").textContent = t("joined") + " " + fmt(user.created_at) + " · " + seen;
 
     const del = row.querySelector(".act-del");
     del.textContent = t("armDelete");
