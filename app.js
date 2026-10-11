@@ -1180,7 +1180,10 @@ document.querySelectorAll("[data-goto]").forEach((el) => {
     if (target === "list") loadScenarios();
     if (target === "history") loadHistory();
     if (target === "stats") loadMyStats();
-    if (target === "admin") loadAdmin();
+    if (target === "admin") {
+      loadAdmin();
+      fillAdminPickers(currentTheme());
+    }
     if (target === "theme") fillMyPickers(currentTheme());
   });
 });
@@ -1591,6 +1594,51 @@ async function deleteUser(id) {
   loadStats();
   loadUsers();
 }
+
+// ---- admin colour pickers ---------------------------------------------------
+// Same as "My colours": saved on the admin's own account, so they change how
+// the app looks for the admin only. Everyone else keeps their own colours.
+
+const ADMIN_FIELDS = { accent: "admin-accent", them: "admin-them", bg: "admin-bg", surface: "admin-surface", ink: "admin-ink" };
+
+function fillAdminPickers(theme) {
+  for (const [key, id] of Object.entries(ADMIN_FIELDS)) $(id).value = theme[key];
+}
+
+function readAdminPickers() {
+  const theme = {};
+  for (const [key, id] of Object.entries(ADMIN_FIELDS)) theme[key] = $(id).value;
+  return theme;
+}
+
+// Live preview while dragging; nothing is saved until the button is pressed.
+for (const id of Object.values(ADMIN_FIELDS)) {
+  $(id).addEventListener("input", () => applyTheme(readAdminPickers()));
+}
+
+$("btn-admin-colours").addEventListener("click", async () => {
+  const btn = $("btn-admin-colours");
+  busy(btn, true, t("saving"));
+  const { data, error } = await supabase.auth.updateUser({ data: { theme: readAdminPickers() } });
+  busy(btn, false);
+
+  if (error) {
+    toast(t("errSave"));
+    console.error(error);
+    return;
+  }
+
+  session.user = data.user;
+  refreshTheme();
+  toast(t("themeSaved"));
+});
+
+// Puts the original green, orange and near-black into the pickers as a
+// preview. Press "Save my colours" to keep it.
+$("btn-admin-original").addEventListener("click", () => {
+  fillAdminPickers(ORIGINAL_THEME);
+  applyTheme(ORIGINAL_THEME);
+});
 
 $("btn-admin-save").addEventListener("click", async () => {
   const btn = $("btn-admin-save");
