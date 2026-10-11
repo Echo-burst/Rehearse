@@ -131,7 +131,13 @@
   <header class="bar">
     <button id="account" class="account" aria-haspopup="true">
       <span id="account-initial" class="avatar"></span>
-      <span id="account-name" class="account-name"></span>
+      <span class="account-text">
+        <span id="account-name" class="account-name"></span>
+        <span id="account-rank" class="account-rank" hidden><img alt=""><span></span></span>
+      </span>
+    </button>
+    <button id="btn-extras" type="button" class="extras-btn" data-goto="extras" hidden>
+      <img src="rank-oblivion.png" alt=""><span data-t="extras"></span>
     </button>
     <button type="button" class="energy-pill" aria-label="Energy">
       <img src="energy.png" alt="" class="energy-icon">
@@ -325,6 +331,25 @@
   <p id="history-empty" class="empty" data-t="historyEmpty" hidden></p>
 </section>
 
+<!-- ============ EXTRAS (Oblivion rank only) ============ -->
+<section id="view-extras" class="view" hidden>
+  <header class="bar">
+    <button class="linkish back" data-goto="menu" data-t="back"></button>
+    <p class="bar-title" data-t="extras"></p>
+  </header>
+
+  <div class="stack">
+    <div class="card extras-hero">
+      <img src="rank-oblivion.png" alt="" class="extras-emblem">
+      <h2 class="rank-name rank-oblivion">Oblivion</h2>
+      <p class="lede" data-t="extrasLead"></p>
+    </div>
+
+    <p class="panel-title section-title" data-t="allRanks"></p>
+    <div id="rank-ladder" class="rank-ladder"></div>
+  </div>
+</section>
+
 <!-- ============ MY STATISTICS (every user, their own data only) ============ -->
 <section id="view-stats" class="view" hidden>
   <header class="bar">
@@ -491,6 +516,15 @@
 
 <div id="account-panel" class="account-panel" hidden>
   <p class="panel-title" data-t="accountTitle"></p>
+
+  <div id="panel-rank" class="panel-rank">
+    <img id="panel-rank-img" alt="" hidden>
+    <span class="panel-rank-text">
+      <span class="panel-label" data-t="rankLabel"></span>
+      <span id="panel-rank-name" class="rank-name"></span>
+      <span id="panel-rank-next" class="panel-rank-next"></span>
+    </span>
+  </div>
 
   <div class="panel-score">
     <span id="account-avg" class="panel-score-value">—</span>
