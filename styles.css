@@ -830,6 +830,7 @@ input[type="color"] {
 .energy-title { display: flex; align-items: center; gap: 8px; }
 .energy-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .energy-row input { width: 110px; flex: 0 0 auto; }
+.energy-row .btn { flex: 1; }
 .energy-row .btn { margin-top: 0; }
 
 .uc-energy { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -843,6 +844,8 @@ input[type="color"] {
 .energy-chip img { width: 20px; height: 20px; }
 .energy-chip b { font-family: "Bricolage Grotesque", Inter, sans-serif; font-size: 16px; }
 .uc-energy .e-amount { width: 80px; padding: 6px 8px; font-size: 14px; }
+.e-inf { border-color: rgba(110, 196, 255, .5); color: #9FD8FF; }
+.e-inf.on { background: rgba(40, 110, 240, .25); color: #EAF6FF; }
 
 /* ---------- my statistics ---------- */
 .stats-tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
