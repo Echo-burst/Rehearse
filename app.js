@@ -294,7 +294,7 @@ supabase.auth.onAuthStateChange((event, nextSession) => {
   refreshTheme();
 
   if (session) {
-    refreshEnergy();
+    refreshEnergy().then(checkNewMessages);
     updateGreeting();
     updateAdminVisibility();
     show("menu");
@@ -1526,6 +1526,152 @@ function renderRankLadder(box = $("rank-ladder")) {
   }
 }
 
+// ---- messages to Oblivion ---------------------------------------------------
+// One-way: the admin writes, Oblivion players read. The database decides who
+// may read (only people at Oblivion right now) and who may write (only the
+// admin), so hiding buttons here is just tidiness, not the protection.
+
+const fmtWhen = (iso) =>
+  new Date(iso).toLocaleString(lang, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+
+function dmBubble(msg, opts = {}) {
+  const el = document.createElement("article");
+  el.className = "dm" + (opts.isNew ? " is-new" : "");
+  el.innerHTML = '<p class="dm-meta"><span class="dm-to-label"></span><span class="dm-time"></span></p><p class="dm-body"></p>';
+  el.querySelector(".dm-to-label").textContent = opts.toLabel;
+  el.querySelector(".dm-time").textContent = fmtWhen(msg.created_at) + (opts.isNew ? " · " + t("dmNew") : "");
+  el.querySelector(".dm-body").textContent = msg.body;
+  return el;
+}
+
+// Oblivion player: read the inbox on the Extras screen
+async function loadInbox() {
+  const list = $("dm-list");
+  if (!list) return;
+  list.innerHTML = "";
+
+  const { data, error } = await supabase
+    .from("oblivion_messages")
+    .select("id, recipient, body, created_at")
+    .order("created_at", { ascending: false })
+    .limit(100);
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  let lastSeen = "";
+  try { lastSeen = localStorage.getItem("dmSeen") || ""; } catch {}
+
+  // The admin can read every message (to manage them), but their own inbox
+  // should only show what was meant for everyone or for them.
+  const mine = data.filter((m) => !m.recipient || (session && m.recipient === session.user.id));
+
+  $("dm-empty").hidden = mine.length > 0;
+  for (const msg of mine) {
+    list.appendChild(dmBubble(msg, {
+      toLabel: msg.recipient ? t("dmToYou") : t("dmToAll"),
+      isNew: msg.created_at > lastSeen,
+    }));
+  }
+
+  // mark everything as read
+  try { if (mine[0]) localStorage.setItem("dmSeen", mine[0].created_at); } catch {}
+  $("extras-dot").hidden = true;
+}
+
+// A dot on the Extras button when there's something unread
+async function checkNewMessages() {
+  const dot = $("extras-dot");
+  if (!dot || $("btn-extras").hidden) return;
+  const { data, error } = await supabase
+    .from("oblivion_messages").select("recipient, created_at").order("created_at", { ascending: false }).limit(20);
+  const mine = (data || []).filter((m) => !m.recipient || (session && m.recipient === session.user.id));
+  if (error || !mine.length) { dot.hidden = true; return; }
+  let lastSeen = "";
+  try { lastSeen = localStorage.getItem("dmSeen") || ""; } catch {}
+  dot.hidden = !(mine[0].created_at > lastSeen);
+}
+
+// Admin: who can receive messages (everyone at Oblivion right now)
+let oblivionPeople = [];
+let adminUserCache = [];
+
+function fillRecipients(users) {
+  const select = $("dm-to");
+  if (!select) return;
+  const keep = select.value;
+  oblivionPeople = users.filter(
+    (u) => (u.unlimited || (u.energy ?? 0) >= 500) && !(session && u.id === session.user.id)
+  );
+  select.innerHTML = "";
+  const all = document.createElement("option");
+  all.value = "";
+  all.textContent = t("dmAll");
+  select.appendChild(all);
+  for (const u of oblivionPeople) {
+    const o = document.createElement("option");
+    o.value = u.id;
+    o.textContent = (u.name || u.email.split("@")[0]) + " — " + u.email;
+    select.appendChild(o);
+  }
+  if ([...select.options].some((o) => o.value === keep)) select.value = keep;
+  $("dm-note").hidden = oblivionPeople.length > 0;
+}
+
+async function loadSentMessages() {
+  const box = $("dm-sent");
+  if (!box) return;
+  box.innerHTML = "";
+  const { data, error } = await supabase
+    .from("oblivion_messages")
+    .select("id, recipient, body, created_at")
+    .order("created_at", { ascending: false })
+    .limit(50);
+  if (error) { console.error(error); return; }
+
+  const nameOf = (id) => {
+    const u = oblivionPeople.find((p) => p.id === id) || adminUserCache.find((p) => p.id === id);
+    return u ? (u.name || u.email) : "?";
+  };
+
+  for (const msg of data) {
+    const el = dmBubble(msg, { toLabel: msg.recipient ? "→ " + nameOf(msg.recipient) : "→ " + t("dmAll") });
+    const del = document.createElement("button");
+    del.className = "mini danger dm-del";
+    del.textContent = t("del");
+    del.addEventListener("click", async () => {
+      if (!confirm(t("dmDeleteConfirm"))) return;
+      const { error } = await supabase.from("oblivion_messages").delete().eq("id", msg.id);
+      if (error) { toast(error.message); return; }
+      el.remove();
+    });
+    el.querySelector(".dm-meta").appendChild(del);
+    box.appendChild(el);
+  }
+}
+
+on("btn-dm-send", "click", async () => {
+  const body = $("dm-body").value.trim();
+  if (!body) return;
+  const btn = $("btn-dm-send");
+  busy(btn, true, t("sending"));
+  const { error } = await supabase.from("oblivion_messages").insert({
+    recipient: $("dm-to").value || null,
+    body,
+  });
+  busy(btn, false);
+  if (error) {
+    toast(error.message);
+    console.error(error);
+    return;
+  }
+  $("dm-body").value = "";
+  toast(t("dmSent"));
+  loadSentMessages();
+});
+
 // ============================================================================
 // 5. NAVIGATION
 // ============================================================================
@@ -1540,12 +1686,15 @@ document.querySelectorAll("[data-goto]").forEach((el) => {
     if (target === "new") showError($("new-error"), "");
     if (target === "menu") {
       updateGreeting();
-      refreshEnergy();
+      refreshEnergy().then(checkNewMessages);
     }
     if (target === "list") loadScenarios();
     if (target === "history") loadHistory();
     if (target === "stats") loadMyStats();
-    if (target === "extras") renderRankLadder();
+    if (target === "extras") {
+      renderRankLadder();
+      loadInbox();
+    }
     if (target === "ranks") renderRankLadder($("rank-ladder-guide"));
     if (target === "admin") {
       loadAdmin();
@@ -1866,6 +2015,10 @@ async function loadUsers() {
     console.error(error);
     return;
   }
+
+  adminUserCache = data;
+  fillRecipients(data);
+  loadSentMessages();
 
   const fmt = (iso) =>
     iso ? new Date(iso).toLocaleDateString(lang, { day: "numeric", month: "short" }) : null;
