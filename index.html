@@ -331,6 +331,29 @@
   <p id="history-empty" class="empty" data-t="historyEmpty" hidden></p>
 </section>
 
+<!-- ============ HOW RANKS WORK (everyone) ============ -->
+<section id="view-ranks" class="view" hidden>
+  <header class="bar">
+    <button class="linkish back" data-goto="menu" data-t="back"></button>
+    <p class="bar-title" data-t="rankGuide"></p>
+  </header>
+
+  <div class="stack">
+    <div class="card">
+      <h2 data-t="rankGuide"></h2>
+      <p class="lede guide-lead" data-t="rankGuideLead"></p>
+    </div>
+
+    <div class="card">
+      <p class="panel-title energy-title"><img src="energy.png" alt="" class="energy-icon"><span data-t="earnTitle"></span></p>
+      <div class="energy-guide"></div>
+    </div>
+
+    <p class="panel-title section-title" data-t="allRanks"></p>
+    <div id="rank-ladder-guide" class="rank-ladder"></div>
+  </div>
+</section>
+
 <!-- ============ EXTRAS (Oblivion rank only) ============ -->
 <section id="view-extras" class="view" hidden>
   <header class="bar">
@@ -524,6 +547,7 @@
       <span id="panel-rank-name" class="rank-name"></span>
       <span id="panel-rank-next" class="panel-rank-next"></span>
     </span>
+    <button id="btn-rank-help" type="button" class="rank-help" data-goto="ranks" aria-label="?" data-t-aria="rankHelpAria">?</button>
   </div>
 
   <div class="panel-score">
@@ -548,7 +572,7 @@
 
 <div id="energy-help" class="energy-help" hidden>
   <p class="energy-help-title"><img src="energy.png" alt="" class="energy-icon"><span data-t="energy"></span>: <b class="energy-num">0</b></p>
-  <p class="energy-help-body" data-t="energyHelp"></p>
+  <div class="energy-guide"></div>
 </div>
 
 <div id="toast" class="toast" hidden></div>
