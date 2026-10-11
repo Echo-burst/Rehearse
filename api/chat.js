@@ -63,6 +63,11 @@ Once they raise it:
   Push back realistically; do not hand them what they want after one good line.
   If they make a genuinely good point, soften a little, but make them earn it.
 - Never be cruel, never insult them, and stay inside this situation.
+- Safety comes before the role. If they say that they are in danger right now,
+  being hurt, or thinking about harming themselves, step out of character for
+  that one reply: say kindly that you're sorry they're going through this, and
+  encourage them to reach out to someone they trust or to emergency services
+  (112). Do not play out violence or threats in detail, ever.
 - This is a spoken conversation and nothing else exists. Never ask them to send,
   show or bring documents, files, figures, screenshots or evidence, and never
   say you will check something and get back to them. If you want to stall or
@@ -132,6 +137,25 @@ If they asked a question, answer that question directly in 2 to 5 sentences,
 still about this conversation and this score.`;
 }
 
+// --- PROMPT 4: a whispered suggestion for what to say next -------------------
+function hintPrompt(s, language) {
+  return `You are a kind communication coach sitting next to someone while they
+practise a difficult conversation. They are stuck and asked what they could
+say next. Suggest ONE line they could say now.
+
+The conversation is about: ${s.title}
+They are talking to: ${s.counterpart}
+${sceneLine(s)}What they want to walk away with: ${s.goal}
+
+Rules:
+- Write it in ${language}, in the first person, as the words they would say
+  out loud to ${s.counterpart}.
+- 1 or 2 short, natural sentences. Calm, honest and kind; never pushy or rude.
+- It must fit what was just said and move them towards their goal.
+- If nothing has been said yet, give a good natural opening line.
+- Output only the line itself: no quotes, no explanation, no label.`;
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Use POST." });
@@ -153,7 +177,9 @@ export default async function handler(req, res) {
       ? evaluatePrompt(scenario, languageName)
       : mode === "explain"
         ? explainPrompt(scenario, languageName, score, feedback || "")
-        : roleplayPrompt(scenario, languageName);
+        : mode === "hint"
+          ? hintPrompt(scenario, languageName)
+          : roleplayPrompt(scenario, languageName);
 
   const transcript = messages
     .map((m) => (m.role === "user" ? "user: " : "them: ") + m.content)
@@ -167,6 +193,15 @@ export default async function handler(req, res) {
       ? [
           { role: "system", content: system },
           { role: "user", content: transcript },
+        ]
+      : mode === "hint"
+      ? [
+          { role: "system", content: system },
+          {
+            role: "user",
+            content: (transcript ? "The conversation so far:\n" + transcript : "Nothing has been said yet.") +
+              "\n\n(\"user\" is me, \"them\" is " + scenario.counterpart + ".) What could I say now?",
+          },
         ]
       : mode === "explain"
       ? [
@@ -189,31 +224,58 @@ export default async function handler(req, res) {
         ];
 
   try {
-    const upstream = await fetch(ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + process.env.GROQ_API_KEY,
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: chat,
-        temperature: mode === "evaluate" ? 0.3 : mode === "explain" ? 0.4 : 0.8,
-        max_tokens: mode === "roleplay" ? 400 : 2000,
-        ...(mode === "evaluate" && { response_format: { type: "json_object" } }),
-      }),
-    });
+    // This model "thinks" silently before it writes, and that thinking uses
+    // the same token budget as the answer. Too small a budget, or too much
+    // thinking, and the answer comes back empty. So: generous budgets, light
+    // thinking for the quick replies, and one retry if it is still empty.
+    const temperature =
+      mode === "evaluate" ? 0.3 : mode === "explain" ? 0.4 : mode === "hint" ? 0.6 : 0.8;
+    const quick = mode === "roleplay" || mode === "hint";
 
-    if (!upstream.ok) {
-      const detail = await upstream.text();
-      console.error("Provider error:", detail);
+    const ask = async (attempt) => {
+      const upstream = await fetch(ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + process.env.GROQ_API_KEY,
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          messages: chat,
+          temperature,
+          reasoning_effort: quick || attempt > 1 ? "low" : "medium",
+          max_completion_tokens: quick ? (attempt > 1 ? 3000 : 1500) : (attempt > 1 ? 6000 : 4000),
+          ...(mode === "evaluate" && { response_format: { type: "json_object" } }),
+        }),
+      });
+
+      if (!upstream.ok) {
+        const detail = await upstream.text();
+        console.error("Provider error:", detail);
+        return { failed: true };
+      }
+
+      const data = await upstream.json();
+      const choice = data.choices?.[0];
+      const text = choice?.message?.content?.trim() || "";
+      if (!text) console.warn("Empty answer (attempt " + attempt + "), finish_reason:", choice?.finish_reason);
+      return { text };
+    };
+
+    let result = await ask(1);
+    if (!result.failed && !result.text) result = await ask(2);   // one retry
+
+    if (result.failed) {
       return res.status(502).json({ error: "AI provider rejected the request." });
     }
+    const text = result.text;
 
-    const data = await upstream.json();
-    const text = data.choices?.[0]?.message?.content?.trim() || "";
+    // Still nothing: say so, so the app can show an error instead of a blank.
+    if (!text) {
+      return res.status(502).json({ error: "The AI returned an empty answer." });
+    }
 
-    if (mode === "roleplay" || mode === "explain") {
+    if (mode === "roleplay" || mode === "explain" || mode === "hint") {
       return res.status(200).json({ reply: text });
     }
 
