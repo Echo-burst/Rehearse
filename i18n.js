@@ -249,6 +249,12 @@ export const STRINGS = {
     extrasLead: "You've reached Oblivion, the highest rank in Rehearse. Only people with 500 energy or more get here.",
     allRanks: "All ranks",
     youAreHere: "You",
+    rankGuide: "How ranks work",
+    rankHelpAria: "What do ranks mean?",
+    rankGuideLead: "Your rank comes from your energy. The more energy you have, the higher your rank. Spending energy on Rewind or hints can lower it again. Reach 500 energy to become Oblivion and unlock the Extras tab.",
+    earnTitle: "How to earn energy",
+    earnLead: "Score 6 or more in a rehearsal:",
+    spendLead: "Spend it on:",
     motivate: {
       low: [
         "That's okay. Hard conversations take practice, and you've just had some. Whenever you're ready, try it again.",
@@ -529,6 +535,12 @@ export const STRINGS = {
     extrasLead: "Вы достигли ранга Oblivion — самого высокого в Rehearse. Сюда попадают только те, у кого 500 энергии или больше.",
     allRanks: "Все ранги",
     youAreHere: "Вы",
+    rankGuide: "Как работают ранги",
+    rankHelpAria: "Что означают ранги?",
+    rankGuideLead: "Ваш ранг зависит от энергии. Чем больше энергии, тем выше ранг. Если тратить энергию на перемотку или подсказки, ранг может снова понизиться. Наберите 500 энергии, чтобы стать Oblivion и открыть вкладку Extras.",
+    earnTitle: "Как заработать энергию",
+    earnLead: "Получите 6 или больше на репетиции:",
+    spendLead: "На что тратить:",
     motivate: {
       low: [
         "Всё в порядке. Трудные разговоры требуют практики, и вы только что потренировались. Когда будете готовы, попробуйте ещё раз.",
@@ -809,6 +821,12 @@ export const STRINGS = {
     extrasLead: "Has llegado a Oblivion, el rango más alto de Rehearse. Solo llegan aquí quienes tienen 500 de energía o más.",
     allRanks: "Todos los rangos",
     youAreHere: "Tú",
+    rankGuide: "Cómo funcionan los rangos",
+    rankHelpAria: "¿Qué significan los rangos?",
+    rankGuideLead: "Tu rango depende de tu energía. Cuanta más energía tengas, más alto será tu rango. Gastarla en rebobinar o en pistas puede bajarlo de nuevo. Llega a 500 de energía para ser Oblivion y desbloquear la pestaña Extras.",
+    earnTitle: "Cómo ganar energía",
+    earnLead: "Saca 6 o más en un ensayo:",
+    spendLead: "Úsala en:",
     motivate: {
       low: [
         "No pasa nada. Las conversaciones difíciles requieren práctica, y acabas de practicar. Cuando quieras, vuelve a intentarlo.",
@@ -1089,6 +1107,12 @@ export const STRINGS = {
     extrasLead: "Vous avez atteint Oblivion, le rang le plus élevé de Rehearse. Seuls ceux qui ont 500 d'énergie ou plus y arrivent.",
     allRanks: "Tous les rangs",
     youAreHere: "Vous",
+    rankGuide: "Comment marchent les rangs",
+    rankHelpAria: "Que signifient les rangs ?",
+    rankGuideLead: "Votre rang dépend de votre énergie. Plus vous en avez, plus votre rang est élevé. Dépenser de l'énergie pour rembobiner ou pour des suggestions peut le faire redescendre. Atteignez 500 d'énergie pour devenir Oblivion et débloquer l'onglet Extras.",
+    earnTitle: "Comment gagner de l'énergie",
+    earnLead: "Obtenez 6 ou plus à une répétition :",
+    spendLead: "À dépenser pour :",
     motivate: {
       low: [
         "Ce n'est pas grave. Les conversations difficiles demandent de la pratique, et vous venez de vous entraîner. Quand vous serez prêt, réessayez.",
@@ -1369,6 +1393,12 @@ export const STRINGS = {
     extrasLead: "Du hast Oblivion erreicht, den höchsten Rang in Rehearse. Nur wer 500 Energie oder mehr hat, kommt hierher.",
     allRanks: "Alle Ränge",
     youAreHere: "Du",
+    rankGuide: "So funktionieren Ränge",
+    rankHelpAria: "Was bedeuten die Ränge?",
+    rankGuideLead: "Dein Rang hängt von deiner Energie ab. Je mehr Energie du hast, desto höher dein Rang. Gibst du Energie für Zurückspulen oder Tipps aus, kann er wieder sinken. Erreiche 500 Energie, um Oblivion zu werden und den Tab Extras freizuschalten.",
+    earnTitle: "So bekommst du Energie",
+    earnLead: "Erreiche 6 oder mehr in einer Übung:",
+    spendLead: "Ausgeben für:",
     motivate: {
       low: [
         "Das ist völlig in Ordnung. Schwierige Gespräche brauchen Übung, und genau die hattest du gerade. Wenn du bereit bist, versuch es noch einmal.",
@@ -1649,6 +1679,12 @@ export const STRINGS = {
     extrasLead: "Сіз Rehearse-тегі ең жоғары дәреже — Oblivion-ға жеттіңіз. Мұнда тек 500 және одан көп энергиясы барлар жетеді.",
     allRanks: "Барлық дәрежелер",
     youAreHere: "Сіз",
+    rankGuide: "Дәрежелер қалай жұмыс істейді",
+    rankHelpAria: "Дәрежелер нені білдіреді?",
+    rankGuideLead: "Дәрежеңіз энергияңызға байланысты. Энергия неғұрлым көп болса, дәреже соғұрлым жоғары. Энергияны кері қайтаруға немесе кеңестерге жұмсасаңыз, дәреже қайта төмендеуі мүмкін. Oblivion болып, Extras қойындысын ашу үшін 500 энергия жинаңыз.",
+    earnTitle: "Энергияны қалай табуға болады",
+    earnLead: "Жаттығуда 6 не одан жоғары баға алыңыз:",
+    spendLead: "Неге жұмсауға болады:",
     motivate: {
       low: [
         "Ештеңе етпейді. Қиын әңгімелер жаттығуды қажет етеді, ал сіз дәл қазір жаттықтыңыз. Дайын болғанда қайталап көріңіз.",
