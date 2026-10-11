@@ -961,6 +961,31 @@ input[type="color"] {
 .ladder-range { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .ladder-row.is-you { border-color: #fff; }
 
+/* ---------- messages to Oblivion ---------- */
+.extras-btn { position: relative; }
+.extras-dot {
+  position: absolute; top: 2px; right: 2px;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: #fff; box-shadow: 0 0 0 2px #0B0B0E;
+}
+.dm-inbox { gap: 10px; }
+.dm-list { display: flex; flex-direction: column; gap: 8px; }
+.dm {
+  background: #0B0B0E;
+  border: 1px solid rgba(255, 255, 255, .22);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.dm.is-new { border-color: #fff; }
+.dm-meta { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font-size: 12px; color: #A8ABB4; flex-wrap: wrap; }
+.dm-to-label { font-weight: 700; color: #fff; }
+.dm-time { flex: 1; }
+.dm-body { margin: 0; white-space: pre-wrap; line-height: 1.55; color: #F2F2F4; }
+.dm-readonly { margin: 0; font-size: 12px; color: var(--muted); text-align: center; }
+.dm-to { font: inherit; color: var(--paper); background: var(--stage); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.dm-sent-title { margin: 14px 0 0; }
+.dm-del { padding: 3px 8px; font-size: 12px; }
+
 /* admin cards */
 .rank-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; }
 .rank-chip img { width: 20px; height: 20px; }
