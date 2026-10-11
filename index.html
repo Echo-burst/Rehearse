@@ -157,6 +157,11 @@
         <span class="nav-desc" data-t="descList"></span>
       </button>
 
+      <button class="nav-card" data-goto="stats">
+        <span class="nav-title" data-t="myStats"></span>
+        <span class="nav-desc" data-t="descStats"></span>
+      </button>
+
       <button class="nav-card" data-goto="history">
         <span class="nav-title" data-t="history"></span>
         <span class="nav-desc" data-t="descHistory"></span>
@@ -292,6 +297,36 @@
 
   <div id="history-list" class="stack"></div>
   <p id="history-empty" class="empty" data-t="historyEmpty" hidden></p>
+</section>
+
+<!-- ============ MY STATISTICS (every user, their own data only) ============ -->
+<section id="view-stats" class="view" hidden>
+  <header class="bar">
+    <button id="stats-back" class="linkish back" data-goto="menu" data-t="back"></button>
+    <p id="stats-heading" class="bar-title" data-t="myStats"></p>
+  </header>
+
+  <p id="stats-privacy" class="privacy-note" data-t="adminPrivacy" hidden></p>
+
+  <p id="mystats-empty" class="empty" data-t="noStats" hidden></p>
+
+  <div id="mystats-body" class="stack" hidden>
+    <div id="mystats-tiles" class="stats-tiles"></div>
+
+    <div class="card">
+      <p class="panel-title" data-t="allScores"></p>
+      <div id="mystats-chart" class="chart"></div>
+      <p id="mystats-trend" class="trend"></p>
+    </div>
+
+    <div class="card">
+      <p class="panel-title" data-t="realOutcomes"></p>
+      <div id="mystats-real" class="uc-tiles"></div>
+    </div>
+
+    <p id="mystats-convos-title" class="panel-title section-title" data-t="byConversation"></p>
+    <div id="mystats-convos" class="stack"></div>
+  </div>
 </section>
 
 <!-- ============ PROGRESS FOR ONE CONVERSATION ============ -->
