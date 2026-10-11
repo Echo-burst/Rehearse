@@ -9,6 +9,8 @@ let scenario = null;      // the conversation being rehearsed right now
 let messages = [];        // [{ role: "user" | "assistant", content }]
 let lang = "en";          // current interface language
 let session = null;       // null means signed out
+let energyBalance = 0;    // shown at the top; the database holds the real number
+let waitingForReply = false;
 
 // ---- colours ---------------------------------------------------------------
 // Three layers, most specific wins:
@@ -232,6 +234,7 @@ supabase.auth.onAuthStateChange((event, nextSession) => {
   refreshTheme();
 
   if (session) {
+    refreshEnergy();
     updateGreeting();
     updateAdminVisibility();
     show("menu");
@@ -547,7 +550,19 @@ async function saveRehearsal(score, feedback) {
     feedback,
   });
 
-  if (error) console.error(error);
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  // The database pays the energy out itself when the rehearsal is saved
+  // (see migration-energy.sql). Here we only show it and refresh the number.
+  const earned = energyReward(score);
+  const line = $("score-energy");
+  line.hidden = earned === 0;
+  line.querySelector("span").textContent = t("earnedLong").replace("{n}", earned);
+  if (earned > 0) toast(t("earned").replace("{n}", earned));
+  refreshEnergy();
 }
 
 async function loadHistory() {
@@ -671,6 +686,8 @@ function renderTranscript(pending) {
 async function startRehearsal(row) {
   scenario = row;
   messages = [];
+  $("hint-box").hidden = true;
+  refreshEnergy();
   $("support").hidden = !looksSerious([row.title, row.situation, row.context, row.goal].join(" "));
   $("rehearse-title").textContent = row.title + " · " + row.counterpart;
   show("rehearse");
@@ -703,9 +720,11 @@ $("reply-form").addEventListener("submit", async (e) => {
 
   messages.push({ role: "user", content: text });
   $("reply").value = "";
+  $("hint-box").hidden = true;
   if (looksSerious(text)) $("support").hidden = false;
   renderTranscript(true);
   busy($("btn-send"), true, t("sending"));
+  waitingForReply = true;
 
   try {
     const { reply } = await callAI("roleplay", { messages });
@@ -715,6 +734,7 @@ $("reply-form").addEventListener("submit", async (e) => {
     console.error(err);
   }
 
+  waitingForReply = false;
   busy($("btn-send"), false);
   renderTranscript(false);
 });
@@ -733,6 +753,7 @@ $("btn-finish").addEventListener("click", async () => {
     $("score").textContent = result.score;
     $("score-label").textContent = result.verdict;
     showMotivation($("score-motivation"), result.score);
+    $("score-energy").hidden = true;
     $("feedback-body").textContent = result.feedback;
     resetExplain(result);
     await saveRehearsal(result.score, result.feedback);
@@ -1164,6 +1185,155 @@ function renderStats({ rows, conversations, outcomes, convos }) {
   }
 }
 
+// ---- energy -----------------------------------------------------------------
+// Earned by scoring 6 or more, spent on Rewind (5) and "What could I say now?"
+// (10). The balance lives in the database and users can't edit it: earning
+// happens in a database trigger, spending in spend_energy(), and only the
+// admin can give or take it directly.
+
+const COST = { rewind: 5, hint: 10 };
+
+function energyReward(score) {
+  const n = Number(score) || 0;
+  return n >= 10 ? 7 : n === 9 ? 4 : n === 8 ? 3 : n === 7 ? 2 : n === 6 ? 1 : 0;
+}
+
+function paintEnergy() {
+  document.querySelectorAll(".energy-num").forEach((el) => (el.textContent = energyBalance));
+  // dim a tool when you can't afford it (it still explains why when tapped)
+  $("btn-rewind").classList.toggle("cant", energyBalance < COST.rewind);
+  $("btn-hint").classList.toggle("cant", energyBalance < COST.hint);
+}
+
+async function refreshEnergy() {
+  if (!session) return;
+  const { data, error } = await supabase.rpc("my_energy");
+  if (error) {
+    console.error(error);
+    return;
+  }
+  energyBalance = data ?? 0;
+  paintEnergy();
+}
+
+// Asks the database to take the cost. It refuses if the balance is too low,
+// so nobody can go negative even by tampering with the page.
+async function spend(action) {
+  const { data, error } = await supabase.rpc("spend_energy", { action });
+  if (error) {
+    toast(/not enough/i.test(error.message) ? t("notEnough") : t("errSave"));
+    console.error(error);
+    refreshEnergy();
+    return false;
+  }
+  energyBalance = data;
+  paintEnergy();
+  return true;
+}
+
+// tapping the counter explains how energy works
+document.querySelectorAll(".energy-pill").forEach((pill) =>
+  pill.addEventListener("click", (e) => {
+    e.stopPropagation();
+    $("energy-help").hidden = !$("energy-help").hidden;
+  })
+);
+document.addEventListener("click", (e) => {
+  if (!$("energy-help").contains(e.target)) $("energy-help").hidden = true;
+});
+
+// REWIND (5): takes back your last message and the reply to it, and puts your
+// words back in the box so you can say it differently.
+$("btn-rewind").addEventListener("click", async () => {
+  if (waitingForReply) return;
+
+  let last = -1;
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (messages[i].role === "user") { last = i; break; }
+  }
+  if (last === -1) {
+    toast(t("nothingToRewind"));
+    return;
+  }
+  if (energyBalance < COST.rewind) {
+    toast(t("notEnough"));
+    return;
+  }
+
+  const btn = $("btn-rewind");
+  btn.disabled = true;
+  const ok = await spend("rewind");
+  btn.disabled = false;
+  if (!ok) return;
+
+  const removed = messages.splice(last);
+  $("reply").value = removed[0].content;
+  $("hint-box").hidden = true;
+  renderTranscript(false);
+  $("reply").focus();
+  toast(t("rewound"));
+});
+
+// WHAT COULD I SAY NOW? (10): the coach suggests one next line. The energy is
+// only taken once a suggestion has actually arrived.
+$("btn-hint").addEventListener("click", async () => {
+  if (waitingForReply) return;
+  if (energyBalance < COST.hint) {
+    toast(t("notEnough"));
+    return;
+  }
+
+  const box = $("hint-box");
+  const btn = $("btn-hint");
+  $("hint-text").textContent = t("hintThinking");
+  $("btn-use-hint").hidden = true;
+  box.hidden = false;
+  btn.disabled = true;
+
+  try {
+    const { reply } = await callAI("hint", { messages });
+    const paid = await spend("hint");
+    if (!paid) {
+      box.hidden = true;
+    } else {
+      $("hint-text").textContent = reply;
+      $("btn-use-hint").hidden = false;
+    }
+  } catch (err) {
+    box.hidden = true;
+    toast(t("errNoReply"));
+    console.error(err);
+  }
+
+  btn.disabled = false;
+});
+
+$("btn-use-hint").addEventListener("click", () => {
+  $("reply").value = $("hint-text").textContent;
+  $("hint-box").hidden = true;
+  $("reply").focus();
+});
+
+// ADMIN: energy for everyone at once
+async function changeEnergyForAll(sign) {
+  const amount = Math.abs(parseInt($("energy-all-amount").value, 10) || 0);
+  if (!amount) return;
+  const question = (sign > 0 ? t("confirmGiveAll") : t("confirmTakeAll")).replace("{n}", amount);
+  if (!confirm(question)) return;
+
+  const { error } = await supabase.rpc("admin_change_energy_all", { delta: sign * amount });
+  if (error) {
+    toast(error.message);
+    console.error(error);
+    return;
+  }
+  toast(t("energyUpdated"));
+  refreshEnergy();
+  loadUsers();
+}
+$("btn-energy-give-all").addEventListener("click", () => changeEnergyForAll(+1));
+$("btn-energy-take-all").addEventListener("click", () => changeEnergyForAll(-1));
+
 // ============================================================================
 // 5. NAVIGATION
 // ============================================================================
@@ -1176,7 +1346,10 @@ document.querySelectorAll("[data-goto]").forEach((el) => {
     if (target === "signin") showError($("signin-error"), "");
     if (target === "signup") showError($("signup-error"), "");
     if (target === "new") showError($("new-error"), "");
-    if (target === "menu") updateGreeting();
+    if (target === "menu") {
+      updateGreeting();
+      refreshEnergy();
+    }
     if (target === "list") loadScenarios();
     if (target === "history") loadHistory();
     if (target === "stats") loadMyStats();
@@ -1519,6 +1692,12 @@ async function loadUsers() {
         '<div class="uc-tile"><span class="uc-num n-reh"></span><span class="uc-lab l-reh"></span></div>' +
         '<div class="uc-tile uc-score"><span class="uc-num n-avg"></span><span class="uc-lab l-avg"></span></div>' +
       "</div>" +
+      '<div class="uc-energy">' +
+        '<span class="energy-chip"><img src="energy.png" alt=""><b class="e-num"></b></span>' +
+        '<input type="number" class="e-amount" min="1" max="100000" value="5">' +
+        '<button class="mini e-give"></button>' +
+        '<button class="mini e-take"></button>' +
+      "</div>" +
       '<div class="uc-foot">' +
         '<p class="uc-dates"></p>' +
         '<span class="uc-actions">' +
@@ -1542,6 +1721,32 @@ async function loadUsers() {
 
     const seen = lastSeen ? t("lastSeen") + " " + fmt(user.last_sign_in_at) : t("neverIn");
     row.querySelector(".uc-dates").textContent = t("joined") + " " + fmt(user.created_at) + " · " + seen;
+
+    // energy for this one person (the admin can give themselves any amount too)
+    row.querySelector(".e-num").textContent = user.energy ?? 0;
+    row.querySelector(".e-amount").placeholder = t("amountPh");
+    const changeOne = async (sign) => {
+      const amount = Math.abs(parseInt(row.querySelector(".e-amount").value, 10) || 0);
+      if (!amount) return;
+      const { data, error } = await supabase.rpc("admin_change_energy", { target: user.id, delta: sign * amount });
+      if (error) {
+        toast(error.message);
+        console.error(error);
+        return;
+      }
+      row.querySelector(".e-num").textContent = data;
+      if (session && user.id === session.user.id) {
+        energyBalance = data;
+        paintEnergy();
+      }
+      toast(t("energyUpdated"));
+    };
+    const give = row.querySelector(".e-give");
+    const take = row.querySelector(".e-take");
+    give.textContent = t("give");
+    take.textContent = t("take");
+    give.addEventListener("click", () => changeOne(+1));
+    take.addEventListener("click", () => changeOne(-1));
 
     const statsBtn = row.querySelector(".act-stats");
     statsBtn.textContent = t("viewStats");
