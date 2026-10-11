@@ -306,15 +306,17 @@ function updateAccount() {
 // The average of this user's own scores. RLS means this query can only ever
 // see their rows, so no filtering by user_id is needed here.
 // Outline colour for an average score. Averages have decimals (6.5, 7.8), so
-// each band runs up to the next one: 1-2.9, 3-3.9, 4-5.9, 6-7.9, 8-10.
+// each band runs up to the next one: 1-2.9, 3-4.9, 5-6.9, 7-7.9, 8-8.9, 9-9.9, 10.
 function scoreColour(avg) {
   const n = Number(avg);
   if (!avg || !Number.isFinite(n) || n <= 0) return null;   // no score yet
-  if (n < 3) return "#C21E00";   // 1-2   red
-  if (n < 4) return "#D94D00";   // 3     orange
-  if (n < 6) return "#E89466";   // 4-5   lighter orange
-  if (n < 8) return "#E1E535";   // 6-7   yellow
-  return "#05BF00";              // 8-10  green
+  if (n < 3)  return "#DE2F2F";   // 1-2  red
+  if (n < 5)  return "#D44811";   // 3-4  orange
+  if (n < 7)  return "#F0E000";   // 5-6  yellow
+  if (n < 8)  return "#C8F000";   // 7    yellow-green
+  if (n < 9)  return "#9CF000";   // 8    light green
+  if (n < 10) return "#73E639";   // 9    green
+  return "#48D921";               // 10   deep green
 }
 
 // Outline only: the border and the number take the colour, the fill stays as it is.
