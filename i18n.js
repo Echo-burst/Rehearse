@@ -234,6 +234,9 @@ export const STRINGS = {
     confirmTakeAll: "Take {n} energy from every account? Nobody goes below zero.",
     energyUpdated: "Energy updated.",
     amountPh: "Amount",
+    setTo: "Set",
+    unlimitedOn: "Make ∞",
+    unlimitedOff: "Turn off ∞",
     motivate: {
       low: [
         "That's okay. Hard conversations take practice, and you've just had some. Whenever you're ready, try it again.",
@@ -499,6 +502,9 @@ export const STRINGS = {
     confirmTakeAll: "Забрать {n} энергии у каждого аккаунта? Ниже нуля ни у кого не будет.",
     energyUpdated: "Энергия обновлена.",
     amountPh: "Количество",
+    setTo: "Установить",
+    unlimitedOn: "Сделать ∞",
+    unlimitedOff: "Выключить ∞",
     motivate: {
       low: [
         "Всё в порядке. Трудные разговоры требуют практики, и вы только что потренировались. Когда будете готовы, попробуйте ещё раз.",
@@ -764,6 +770,9 @@ export const STRINGS = {
     confirmTakeAll: "¿Quitar {n} de energía a cada cuenta? Nadie bajará de cero.",
     energyUpdated: "Energía actualizada.",
     amountPh: "Cantidad",
+    setTo: "Fijar",
+    unlimitedOn: "Poner ∞",
+    unlimitedOff: "Quitar ∞",
     motivate: {
       low: [
         "No pasa nada. Las conversaciones difíciles requieren práctica, y acabas de practicar. Cuando quieras, vuelve a intentarlo.",
@@ -1029,6 +1038,9 @@ export const STRINGS = {
     confirmTakeAll: "Retirer {n} d'énergie à chaque compte ? Personne ne descend sous zéro.",
     energyUpdated: "Énergie mise à jour.",
     amountPh: "Quantité",
+    setTo: "Définir",
+    unlimitedOn: "Passer à ∞",
+    unlimitedOff: "Retirer ∞",
     motivate: {
       low: [
         "Ce n'est pas grave. Les conversations difficiles demandent de la pratique, et vous venez de vous entraîner. Quand vous serez prêt, réessayez.",
@@ -1294,6 +1306,9 @@ export const STRINGS = {
     confirmTakeAll: "Jedem Konto {n} Energie abziehen? Niemand fällt unter null.",
     energyUpdated: "Energie aktualisiert.",
     amountPh: "Menge",
+    setTo: "Festlegen",
+    unlimitedOn: "Auf ∞ setzen",
+    unlimitedOff: "∞ ausschalten",
     motivate: {
       low: [
         "Das ist völlig in Ordnung. Schwierige Gespräche brauchen Übung, und genau die hattest du gerade. Wenn du bereit bist, versuch es noch einmal.",
@@ -1559,6 +1574,9 @@ export const STRINGS = {
     confirmTakeAll: "Әр аккаунттан {n} энергия алу керек пе? Ешкімде нөлден төмен болмайды.",
     energyUpdated: "Энергия жаңартылды.",
     amountPh: "Мөлшері",
+    setTo: "Орнату",
+    unlimitedOn: "∞ қосу",
+    unlimitedOff: "∞ өшіру",
     motivate: {
       low: [
         "Ештеңе етпейді. Қиын әңгімелер жаттығуды қажет етеді, ал сіз дәл қазір жаттықтыңыз. Дайын болғанда қайталап көріңіз.",
