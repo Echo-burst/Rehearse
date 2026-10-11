@@ -455,6 +455,19 @@
         <input id="energy-all-amount" type="number" min="1" max="100000" value="10" data-tp="amountPh">
         <button id="btn-energy-give-all" type="button" class="btn primary" data-t="giveAll"></button>
       </div>
+
+      <div class="self-energy">
+        <p class="field-label" data-t="yourEnergy"></p>
+        <div class="energy-row">
+          <span class="energy-chip"><img src="energy.png" alt=""><b class="energy-num">0</b></span>
+          <input id="self-amount" type="number" min="0" max="2000000000" value="100" data-tp="amountPh">
+        </div>
+        <div class="energy-row">
+          <button id="btn-self-give" type="button" class="btn primary" data-t="giveMe"></button>
+          <button id="btn-self-set" type="button" class="btn ghost" data-t="setTo"></button>
+          <button id="btn-self-inf" type="button" class="btn ghost e-inf"></button>
+        </div>
+      </div>
     </div>
 
     <p class="panel-title accounts-heading" data-t="adminAccounts"></p>
