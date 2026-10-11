@@ -654,7 +654,8 @@ async function loadHistory() {
       '<div class="history-head"><span class="history-score"></span>' +
       '<span class="history-meta"><h3></h3><p class="muted small"></p></span>' +
       '<button class="mini danger act-del"></button></div>' +
-      '<p class="history-feedback"></p>';
+      '<p class="history-feedback"></p>' +
+      '<button class="mini act-view"></button>';
 
     const scoreEl = item.querySelector(".history-score");
     scoreEl.textContent = row.score || "—";
@@ -665,9 +666,59 @@ async function loadHistory() {
     item.querySelector(".history-feedback").textContent = row.feedback || "";
     item.querySelector(".act-del").textContent = t("del");
     item.querySelector(".act-del").addEventListener("click", () => deleteRehearsal(row.id));
+    item.querySelector(".act-view").textContent = t("viewConvo");
+    item.querySelector(".act-view").addEventListener("click", () => openTranscript(row.id));
 
     list.appendChild(item);
   }
+}
+
+// READ one saved rehearsal, exactly as it happened. Read-only: the screen has
+// no inputs, and the transcript is only ever displayed, never written back.
+async function openTranscript(id) {
+  $("saved-transcript").innerHTML = "";
+  $("saved-feedback").textContent = "";
+  $("saved-title").textContent = "";
+  $("saved-sub").textContent = "";
+  $("saved-empty").hidden = true;
+  show("transcript");
+
+  const { data, error } = await supabase
+    .from("rehearsals")
+    .select("transcript, score, feedback, created_at, scenarios(title, counterpart)")
+    .eq("id", id)
+    .single();
+
+  if (error || !data) {
+    toast(t("errHistory"));
+    console.error(error);
+    return;
+  }
+
+  const other = data.scenarios?.counterpart || "";
+  $("saved-title").textContent = data.scenarios?.title || t("deleted");
+  $("saved-sub").textContent =
+    (other ? t("with") + " " + other + " · " : "") +
+    new Date(data.created_at).toLocaleString(lang, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+
+  const score = $("saved-score");
+  score.textContent = data.score || "—";
+  paintScore(score, score, data.score);
+
+  const turns = Array.isArray(data.transcript) ? data.transcript : [];
+  $("saved-empty").hidden = turns.length > 0;
+  for (const m of turns) {
+    const mine = m.role === "user";
+    const turn = document.createElement("div");
+    turn.className = "turn " + (mine ? "you" : "them");
+    turn.innerHTML = '<p class="who"></p><p class="said"></p>';
+    turn.querySelector(".who").textContent = mine ? t("you") : other;
+    turn.querySelector(".said").textContent = m.content;
+    $("saved-transcript").appendChild(turn);
+  }
+
+  $("saved-feedback").textContent = data.feedback || "";
+  $("saved-feedback-card").hidden = !data.feedback;
 }
 
 // DELETE one past rehearsal.
@@ -1652,6 +1703,15 @@ async function loadSentMessages() {
   }
 }
 
+// The admin's own "Messages to Oblivion" screen: who can receive + what was sent
+async function loadDmView() {
+  const { data, error } = await supabase.rpc("admin_users");
+  if (error) { console.error(error); toast(error.message); return; }
+  adminUserCache = data || [];
+  fillRecipients(adminUserCache);
+  loadSentMessages();
+}
+
 on("btn-dm-send", "click", async () => {
   const body = $("dm-body").value.trim();
   if (!body) return;
@@ -1696,6 +1756,7 @@ document.querySelectorAll("[data-goto]").forEach((el) => {
       loadInbox();
     }
     if (target === "ranks") renderRankLadder($("rank-ladder-guide"));
+    if (target === "dm") loadDmView();
     if (target === "admin") {
       loadAdmin();
       fillAdminPickers(currentTheme());
