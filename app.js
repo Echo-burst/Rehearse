@@ -443,18 +443,29 @@ async function loadScenarios() {
     const card = document.createElement("article");
     card.className = "scenario" + (row.pinned ? " pinned" : "");
     card.innerHTML =
-      '<button class="scenario-open"><h3></h3><p></p></button>' +
+      '<button class="scenario-open"><h3></h3><p></p><p class="real-tag" hidden></p></button>' +
       '<div class="scenario-actions">' +
+      '<button class="mini act-progress"></button>' +
       '<button class="mini act-pin"></button>' +
       '<button class="mini danger act-del"></button>' +
       "</div>";
 
     card.querySelector("h3").textContent = row.title;
     card.querySelector("p").textContent = t("with") + " " + row.counterpart;
+    card.querySelector(".act-progress").textContent = t("progressBtn");
     card.querySelector(".act-pin").textContent = row.pinned ? t("unpin") : t("pin");
+
+    const outcomeKey = OUTCOME_LABEL[row.real_outcome];
+    if (outcomeKey && row.real_outcome !== "notyet") {
+      const tag = card.querySelector(".real-tag");
+      tag.textContent = t("realLogged") + " " + t(outcomeKey);
+      tag.dataset.outcome = row.real_outcome;
+      tag.hidden = false;
+    }
     card.querySelector(".act-del").textContent = t("del");
 
     card.querySelector(".scenario-open").addEventListener("click", () => startRehearsal(row));
+    card.querySelector(".act-progress").addEventListener("click", () => openProgress(row));
     card.querySelector(".act-pin").addEventListener("click", () => togglePin(row));
     card.querySelector(".act-del").addEventListener("click", () => deleteScenario(row));
 
@@ -656,6 +667,7 @@ function renderTranscript(pending) {
 async function startRehearsal(row) {
   scenario = row;
   messages = [];
+  $("support").hidden = !looksSerious([row.title, row.situation, row.context, row.goal].join(" "));
   $("rehearse-title").textContent = row.title + " · " + row.counterpart;
   show("rehearse");
 
@@ -687,6 +699,7 @@ $("reply-form").addEventListener("submit", async (e) => {
 
   messages.push({ role: "user", content: text });
   $("reply").value = "";
+  if (looksSerious(text)) $("support").hidden = false;
   renderTranscript(true);
   busy($("btn-send"), true, t("sending"));
 
@@ -791,6 +804,223 @@ $("ask-form").addEventListener("submit", async (e) => {
   busy(btn, true, "…");
   await askCoach(q);
   busy(btn, false);
+});
+
+// ---- support for serious topics --------------------------------------------
+// A gentle, local check for words that suggest someone may be unsafe or in
+// crisis. It never blocks practice; it only shows where real help is. Nothing
+// is sent anywhere because of it.
+
+const SERIOUS = [
+  // English
+  /\b(hits?|hitting|beats?|beating|hurts?|hurting|kicks?|chokes?) me\b(?! up)/, /\bbeat me up\b/,
+  /\babus(e|ed|er|ive|ing)\b/, /\bviolen(t|ce)\b/, /\bunsafe\b/, /\bnot safe\b/,
+  /\b(afraid|scared|terrified) (of (him|her|them|my (dad|father|mom|mum|mother|husband|wife|partner|boyfriend|girlfriend|stepdad|stepmom))|to go home)\b/,
+  /\bthreaten(s|ed|ing)? (me|to)\b/, /\bself[- ]?harm/, /\bsuicid/, /\bkill myself\b/,
+  /\bwant(s)? to die\b/, /\bend (my|it all|my life)\b/, /\bcut(ting)? myself\b/,
+  /\bsexual(ly)? (assault|abus|harass)/, /\brape(d)?\b/, /\bbull(ied|ying)\b/, /\bgroom(ed|ing) me\b/,
+  // Russian
+  /бь[её]т меня/, /избива/, /насили/, /угрожа/, /боюсь (его|её|ее|отца|мать|мужа|идти домой)/,
+  /суицид/, /покончить с собой/, /хочу умереть/, /не хочу жить/, /самоповрежд/, /режу себя/,
+  /травл/, /домогател/, /изнасил/,
+  // Spanish
+  /me (pega|golpea|maltrata|amenaza)/, /maltrat/, /violencia/, /tengo miedo de (él|ella|volver a casa)/,
+  /suicid/, /quitarme la vida/, /quiero morir/, /autolesi/, /acoso/,
+  // French
+  /me (frappe|bat|menace)\b/, /maltrait/, /violence/, /peur de (lui|elle|rentrer)/,
+  /me tuer/, /envie de mourir/, /automutil/, /harc[eè]lement/, /harcel/,
+  // German
+  /schl(ä|ae)gt mich/, /misshandel/, /missbrauch/, /gewalt/, /bedroht mich/, /angst vor (ihm|ihr)/,
+  /angst,? nach hause/, /suizid/, /mich umbringen/, /sterben will/, /selbstverletz/, /mobbing/, /gemobbt/,
+  // Kazakh
+  /ұрады/, /соғады/, /зорлық/, /қорқытады/, /өзіме қол жұмса/, /өлгім келеді/, /қорлай/, /буллинг/,
+];
+
+function looksSerious(text) {
+  const lower = String(text || "").toLowerCase();
+  return SERIOUS.some((re) => re.test(lower));
+}
+
+$("btn-support-close").addEventListener("click", () => {
+  $("support").hidden = true;
+});
+
+// ---- progress for one conversation -----------------------------------------
+
+const OUTCOME_LABEL = { well: "outWell", mixed: "outMixed", bad: "outBad", notyet: "outNotYet" };
+let progressRow = null;
+
+async function openProgress(row) {
+  progressRow = row;
+  $("progress-name").textContent = row.title;
+  $("progress-with").textContent = t("with") + " " + row.counterpart;
+  $("progress-chart").innerHTML = "";
+  $("progress-tiles").innerHTML = "";
+  $("progress-trend").textContent = "";
+  $("progress-empty").hidden = true;
+
+  // the check-in form shows what they saved last time
+  document.querySelectorAll('input[name="outcome"]').forEach((r) => (r.checked = r.value === row.real_outcome));
+  $("real-note").value = row.real_note || "";
+
+  show("progress");
+
+  // READ: every finished attempt at this one conversation, oldest first.
+  const { data, error } = await supabase
+    .from("rehearsals")
+    .select("score, created_at")
+    .eq("scenario_id", row.id)
+    .gt("score", 0)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    toast(t("errHistory"));
+    console.error(error);
+    return;
+  }
+
+  if (!data.length) {
+    $("progress-empty").hidden = false;
+    return;
+  }
+
+  const scores = data.map((r) => r.score);
+  drawChart($("progress-chart"), data);
+
+  const first = scores[0];
+  const latest = scores[scores.length - 1];
+  const best = Math.max(...scores);
+  const diff = latest - first;
+
+  $("progress-trend").textContent =
+    scores.length < 2 ? "" :
+    diff > 0 ? t("trendUp").replace("{d}", "+" + diff) :
+    diff < 0 ? t("trendDown").replace("{d}", Math.abs(diff)) :
+    t("trendSame");
+  $("progress-trend").dataset.dir = diff > 0 ? "up" : diff < 0 ? "down" : "same";
+
+  for (const [key, value] of [["firstTry", first], ["latest", latest], ["best", best]]) {
+    const tile = document.createElement("div");
+    tile.className = "uc-tile uc-score";
+    tile.innerHTML = '<span class="uc-num"></span><span class="uc-lab"></span>';
+    tile.querySelector(".uc-num").textContent = value;
+    tile.querySelector(".uc-lab").textContent = t(key);
+    paintScore(tile, tile.querySelector(".uc-num"), value);
+    $("progress-tiles").appendChild(tile);
+  }
+}
+
+// A small line chart drawn as SVG: score 0-10 up the side, one point per
+// attempt, each dot in its score colour.
+function drawChart(box, rows) {
+  // Drawn at roughly phone width so the numbers stay readable when it scales.
+  const W = 340, H = 190, L = 26, R = 14, T = 24, B = 26;
+  const n = rows.length;
+  const x = (i) => (n === 1 ? (L + W - R) / 2 : L + (i * (W - L - R)) / (n - 1));
+  const y = (v) => T + ((10 - v) * (H - T - B)) / 10;
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", rows.map((r) => r.score).join(", "));
+
+  const add = (tag, attrs, text) => {
+    const el = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+    if (text != null) el.textContent = text;
+    svg.appendChild(el);
+    return el;
+  };
+
+  for (const v of [0, 2, 4, 6, 8, 10]) {
+    add("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), class: "grid" });
+    add("text", { x: L - 8, y: y(v) + 4, class: "axis", "text-anchor": "end" }, v);
+  }
+
+  if (n > 1) {
+    add("polyline", { points: rows.map((r, i) => `${x(i)},${y(r.score)}`).join(" "), class: "trendline" });
+  }
+
+  // label the attempts along the bottom, thinning them out when there are many
+  const step = Math.ceil(n / 8);
+  rows.forEach((r, i) => {
+    const colour = scoreColour(r.score) || "currentColor";
+    add("circle", { cx: x(i), cy: y(r.score), r: 5, fill: colour, class: "dot" });
+    add("text", { x: x(i), y: y(r.score) - 10, class: "dot-label", "text-anchor": "middle", fill: colour }, r.score);
+    if (i % step === 0 || i === n - 1) {
+      add("text", { x: x(i), y: H - 6, class: "axis", "text-anchor": "middle" }, i + 1);
+    }
+  });
+
+  box.innerHTML = "";
+  box.appendChild(svg);
+}
+
+// UPDATE: "How did the real one go?"
+$("btn-real-save").addEventListener("click", async () => {
+  if (!progressRow) return;
+  const picked = document.querySelector('input[name="outcome"]:checked');
+  if (!picked) return;
+
+  const btn = $("btn-real-save");
+  const update = {
+    real_outcome: picked.value,
+    real_note: $("real-note").value.trim(),
+    real_at: new Date().toISOString(),
+  };
+
+  busy(btn, true, t("saving"));
+  const { error } = await supabase.from("scenarios").update(update).eq("id", progressRow.id);
+  busy(btn, false);
+
+  if (error) {
+    toast(t("errSave"));
+    console.error(error);
+    return;
+  }
+
+  Object.assign(progressRow, update);
+  toast(t("realSaved"));
+});
+
+// ---- delete my account -----------------------------------------------------
+// Two steps: the first tap arms the button, the second asks for a final
+// confirmation. The database function only ever deletes the caller's own
+// account, along with every conversation and rehearsal in it.
+
+$("btn-delete-me").addEventListener("click", async (e) => {
+  e.stopPropagation();
+  const btn = $("btn-delete-me");
+
+  if (!btn.dataset.armed) {
+    btn.dataset.armed = "1";
+    btn.textContent = t("deleteMineArmed");
+    btn.classList.add("armed");
+    btn._timer = setTimeout(() => {
+      delete btn.dataset.armed;
+      btn.textContent = t("deleteMine");
+      btn.classList.remove("armed");
+    }, 5000);
+    return;
+  }
+
+  clearTimeout(btn._timer);
+  delete btn.dataset.armed;
+  btn.classList.remove("armed");
+  btn.textContent = t("deleteMine");
+
+  if (!confirm(t("deleteMineConfirm"))) return;
+
+  const { error } = await supabase.rpc("delete_my_account");
+  if (error) {
+    toast(t("errDelete"));
+    console.error(error);
+    return;
+  }
+
+  // The login no longer exists, so only clear it on this device.
+  await supabase.auth.signOut({ scope: "local" });
+  toast(t("deleteMineDone"));
 });
 
 // ============================================================================
@@ -1117,6 +1347,8 @@ async function loadStats() {
     ["statScenarios", data.scenarios],
     ["statRehearsals", data.rehearsals],
     ["statAvg", data.avg_score ?? "—"],
+    ["statReal", data.real_logged ?? 0],
+    ["statWell", (data.real_well ?? 0) + (data.real_logged ? " (" + Math.round((100 * data.real_well) / data.real_logged) + "%)" : "")],
   ];
 
   for (const [key, value] of rows) {
