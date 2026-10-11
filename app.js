@@ -1339,13 +1339,15 @@ function applyTheme({ accent, them, bg, surface, ink }) {
 async function loadSettings() {
   const { data, error } = await supabase
     .from("app_settings")
-    .select("accent, bg, surface, ink, wordmark, notice")
+    .select("wordmark, notice")
     .eq("id", 1)
     .single();
 
   if (error || !data) return;
 
-  siteTheme = { ...ORIGINAL_THEME, accent: data.accent, bg: data.bg, surface: data.surface, ink: data.ink };
+  // Colours are personal now: everyone starts from the original scheme and
+  // changes their own in "My colours". Only the name and notice are app-wide.
+  siteTheme = { ...ORIGINAL_THEME };
   refreshTheme();
   document.querySelectorAll(".wordmark").forEach((el) => (el.textContent = data.wordmark));
 
@@ -1353,10 +1355,6 @@ async function loadSettings() {
   notice.textContent = data.notice || "";
   notice.hidden = !data.notice;
 
-  $("admin-accent").value = data.accent;
-  $("admin-bg").value = data.bg;
-  $("admin-surface").value = data.surface;
-  $("admin-ink").value = data.ink;
   $("admin-wordmark").value = data.wordmark;
   $("admin-notice").value = data.notice || "";
 }
@@ -1431,26 +1429,6 @@ $("btn-theme-reset").addEventListener("click", async () => {
   toast(t("themeResetDone"));
 });
 
-// Admin: put the original scheme back into the pickers (press Apply to keep it).
-$("btn-admin-original").addEventListener("click", () => {
-  $("admin-accent").value = ORIGINAL_THEME.accent;
-  $("admin-bg").value = ORIGINAL_THEME.bg;
-  $("admin-surface").value = ORIGINAL_THEME.surface;
-  $("admin-ink").value = ORIGINAL_THEME.ink;
-  applyTheme(ORIGINAL_THEME);
-});
-
-// Live preview while dragging a colour picker, before anything is saved.
-for (const id of ["admin-accent", "admin-bg", "admin-surface", "admin-ink"]) {
-  $(id).addEventListener("input", () =>
-    applyTheme({
-      accent: $("admin-accent").value,
-      bg: $("admin-bg").value,
-      surface: $("admin-surface").value,
-      ink: $("admin-ink").value,
-    })
-  );
-}
 
 // The admin card only appears for the account the database recognises. Hiding
 // it is cosmetic; the admin functions re-check server side and refuse anyone else.
@@ -1622,10 +1600,6 @@ $("btn-admin-save").addEventListener("click", async () => {
   const { error } = await supabase
     .from("app_settings")
     .update({
-      accent: $("admin-accent").value,
-      bg: $("admin-bg").value,
-      surface: $("admin-surface").value,
-      ink: $("admin-ink").value,
       wordmark: $("admin-wordmark").value.trim() || "Rehearse",
       notice: $("admin-notice").value.trim(),
       updated_at: new Date().toISOString(),
