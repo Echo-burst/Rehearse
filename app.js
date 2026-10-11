@@ -1227,6 +1227,7 @@ function paintEnergy() {
   // dim a tool when you can't afford it (it still explains why when tapped)
   $("btn-rewind")?.classList.toggle("cant", !canAfford("rewind"));
   $("btn-hint")?.classList.toggle("cant", !canAfford("hint"));
+  paintRank();
 }
 
 async function refreshEnergy() {
@@ -1388,6 +1389,98 @@ on("btn-self-inf", "click", () =>
   changeMyEnergy("admin_set_unlimited", { turn_on: !energyUnlimited })
 );
 
+// ---- ranks -----------------------------------------------------------------
+// Your rank follows your current energy. Unlimited energy (∞) counts as the
+// top rank. Below 40 energy you are unranked. Rank names stay the same in
+// every language, like titles in a game.
+
+const RANKS = [
+  { min: 40,  max: 45,  family: "bronze",    name: "Bronze I" },
+  { min: 46,  max: 50,  family: "bronze",    name: "Bronze II" },
+  { min: 51,  max: 55,  family: "bronze",    name: "Bronze III" },
+  { min: 56,  max: 60,  family: "silver",    name: "Silver I" },
+  { min: 61,  max: 65,  family: "silver",    name: "Silver II" },
+  { min: 66,  max: 70,  family: "silver",    name: "Silver III" },
+  { min: 71,  max: 75,  family: "gold",      name: "Gold I" },
+  { min: 76,  max: 80,  family: "gold",      name: "Gold II" },
+  { min: 81,  max: 85,  family: "gold",      name: "Gold III" },
+  { min: 86,  max: 90,  family: "diamond",   name: "Diamond I" },
+  { min: 91,  max: 95,  family: "diamond",   name: "Diamond II" },
+  { min: 96,  max: 99,  family: "diamond",   name: "Diamond III" },
+  { min: 100, max: 110, family: "platinum",  name: "Platinum I" },
+  { min: 111, max: 120, family: "platinum",  name: "Platinum II" },
+  { min: 121, max: 130, family: "platinum",  name: "Platinum III" },
+  { min: 131, max: 149, family: "platinum",  name: "Platinum IV" },
+  { min: 150, max: 200, family: "elite",     name: "Elite",     bold: true },
+  { min: 201, max: 300, family: "ascendant", name: "Ascendant", bold: true },
+  { min: 301, max: 499, family: "ethereal",  name: "Ethereal",  bold: true },
+  { min: 500, max: Infinity, family: "oblivion", name: "Oblivion", bold: true },
+];
+
+function rankFor(balance, unlimited) {
+  if (unlimited) return RANKS[RANKS.length - 1];
+  return RANKS.find((r) => balance >= r.min && balance <= r.max) || null;
+}
+
+// Fills an element made of <img> + <span> with a rank, or hides it.
+function showRank(el, rank) {
+  if (!el) return;
+  el.hidden = !rank;
+  if (!rank) return;
+  el.className = el.className.replace(/\brank-\w+\b/g, "").trim() + " rank-" + rank.family;
+  el.classList.toggle("rank-bold", !!rank.bold);
+  el.querySelector("img").src = "rank-" + rank.family + ".png";
+  el.querySelector("span").textContent = rank.name;
+}
+
+function paintRank() {
+  const rank = rankFor(energyBalance, energyUnlimited);
+
+  // under the name on the profile button
+  showRank($("account-rank"), rank);
+
+  // in the profile panel
+  const img = $("panel-rank-img");
+  const name = $("panel-rank-name");
+  const next = $("panel-rank-next");
+  if (img && name && next) {
+    img.hidden = !rank;
+    if (rank) img.src = "rank-" + rank.family + ".png";
+    name.textContent = rank ? rank.name : t("unranked");
+    name.className = "rank-name" + (rank ? " rank-" + rank.family + (rank.bold ? " rank-bold" : "") : " muted");
+    const i = rank ? RANKS.indexOf(rank) : -1;
+    const upcoming = RANKS[i + 1];
+    next.textContent = !rank ? t("unrankedHint")
+      : !upcoming ? t("topRank")
+      : t("nextRank").replace("{rank}", upcoming.name).replace("{n}", upcoming.min);
+  }
+
+  // the Extras tab appears only for Oblivion
+  const extras = $("btn-extras");
+  if (extras) extras.hidden = !(rank && rank.family === "oblivion");
+}
+
+// The full ladder, shown on the Extras screen
+function renderRankLadder() {
+  const box = $("rank-ladder");
+  if (!box) return;
+  box.innerHTML = "";
+  const mine = rankFor(energyBalance, energyUnlimited);
+  for (const r of RANKS) {
+    const row = document.createElement("div");
+    row.className = "ladder-row" + (r === mine ? " is-you" : "");
+    row.innerHTML = '<img alt=""><span class="rank-name"></span><span class="ladder-range"></span>';
+    row.querySelector("img").src = "rank-" + r.family + ".png";
+    const nm = row.querySelector(".rank-name");
+    nm.textContent = r.name;
+    nm.classList.add("rank-" + r.family);
+    if (r.bold) nm.classList.add("rank-bold");
+    row.querySelector(".ladder-range").textContent =
+      (r === mine ? t("youAreHere") + " · " : "") + (r.max === Infinity ? r.min + "+" : r.min + "–" + r.max);
+    box.appendChild(row);
+  }
+}
+
 // ============================================================================
 // 5. NAVIGATION
 // ============================================================================
@@ -1407,6 +1500,7 @@ document.querySelectorAll("[data-goto]").forEach((el) => {
     if (target === "list") loadScenarios();
     if (target === "history") loadHistory();
     if (target === "stats") loadMyStats();
+    if (target === "extras") renderRankLadder();
     if (target === "admin") {
       loadAdmin();
       fillAdminPickers(currentTheme());
@@ -1789,11 +1883,18 @@ async function loadUsers() {
     const showNum = (balance) => (num.textContent = unlimited ? "∞" : balance);
     let balance = user.energy ?? 0;
     showNum(balance);
+    const rankChip = document.createElement("span");
+    rankChip.className = "rank-chip";
+    rankChip.innerHTML = "<img alt=''><span></span>";
+    row.querySelector(".uc-energy").prepend(rankChip);
+    const paintCardRank = () => showRank(rankChip, rankFor(balance, unlimited));
+    paintCardRank();
     row.querySelector(".e-amount").placeholder = t("amountPh");
 
     const afterChange = (newBalance) => {
       balance = newBalance;
       showNum(balance);
+      paintCardRank();
       if (isMe) refreshEnergy();
       toast(t("energyUpdated"));
     };
@@ -1840,6 +1941,7 @@ async function loadUsers() {
         unlimited = !unlimited;
         paintInf();
         showNum(balance);
+        paintCardRank();
         refreshEnergy();
         toast(t("energyUpdated"));
       });
