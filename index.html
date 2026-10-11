@@ -232,6 +232,12 @@
     <p id="rehearse-title" class="bar-title"></p>
   </header>
 
+  <div id="support" class="support-card" hidden>
+    <p class="support-title" data-t="supportTitle"></p>
+    <p class="support-body" data-t="supportBody"></p>
+    <button id="btn-support-close" type="button" class="btn ghost" data-t="supportClose"></button>
+  </div>
+
   <div id="transcript" class="transcript"></div>
 
   <form id="reply-form" class="composer">
@@ -286,6 +292,38 @@
 
   <div id="history-list" class="stack"></div>
   <p id="history-empty" class="empty" data-t="historyEmpty" hidden></p>
+</section>
+
+<!-- ============ PROGRESS FOR ONE CONVERSATION ============ -->
+<section id="view-progress" class="view" hidden>
+  <header class="bar">
+    <button class="linkish back" data-goto="list" data-t="back"></button>
+    <p class="bar-title" data-t="progressTitle"></p>
+  </header>
+
+  <div class="stack">
+    <div class="card">
+      <h2 id="progress-name"></h2>
+      <p id="progress-with" class="muted small"></p>
+      <div id="progress-chart" class="chart"></div>
+      <p id="progress-trend" class="trend"></p>
+      <div id="progress-tiles" class="uc-tiles"></div>
+      <p id="progress-empty" class="empty" data-t="noAttempts" hidden></p>
+    </div>
+
+    <div class="card">
+      <p class="panel-title" data-t="realTitle"></p>
+      <p class="lede small-lede" data-t="realHint"></p>
+      <div class="outcomes" role="radiogroup">
+        <label class="seg"><input type="radio" name="outcome" value="well"><span data-t="outWell"></span></label>
+        <label class="seg"><input type="radio" name="outcome" value="mixed"><span data-t="outMixed"></span></label>
+        <label class="seg"><input type="radio" name="outcome" value="bad"><span data-t="outBad"></span></label>
+        <label class="seg"><input type="radio" name="outcome" value="notyet"><span data-t="outNotYet"></span></label>
+      </div>
+      <textarea id="real-note" rows="2" maxlength="300" data-tp="realNotePh"></textarea>
+      <button id="btn-real-save" class="btn primary" data-t="realSave"></button>
+    </div>
+  </div>
 </section>
 
 <!-- ============ MY COLOURS ============ -->
@@ -395,6 +433,7 @@
 
   <button class="btn ghost wide" data-goto="theme" data-t="myColours"></button>
   <button id="btn-signout" class="btn ghost wide" data-t="signOut"></button>
+  <button id="btn-delete-me" type="button" class="linkish danger-link" data-t="deleteMine"></button>
 </div>
 
 <div id="toast" class="toast" hidden></div>
