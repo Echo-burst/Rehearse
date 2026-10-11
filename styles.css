@@ -831,6 +831,17 @@ input[type="color"] {
 .energy-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .energy-row input { width: 110px; flex: 0 0 auto; }
 .energy-row .btn { flex: 1; }
+.self-energy {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.self-energy .field-label { margin: 0; }
+.self-energy .energy-row input { flex: 1; width: auto; }
+.self-energy .btn { white-space: nowrap; padding-left: 10px; padding-right: 10px; }
 .energy-row .btn { margin-top: 0; }
 
 .uc-energy { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
