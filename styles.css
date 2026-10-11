@@ -858,6 +858,78 @@ input[type="color"] {
 .e-inf { border-color: rgba(110, 196, 255, .5); color: #9FD8FF; }
 .e-inf.on { background: rgba(40, 110, 240, .25); color: #EAF6FF; }
 
+/* ---------- ranks ---------- */
+.rank-bronze    { color: #D9945A; }
+.rank-silver    { color: #C9D2DE; }
+.rank-gold      { color: #F2C443; }
+.rank-diamond   { color: #7FD0FF; }
+.rank-platinum  { color: #F6FAFF; text-shadow: 0 0 10px rgba(220, 238, 255, .55); }
+.rank-elite     { color: #B37BFF; }
+.rank-ascendant { color: #5568FF; }  /* #3446EB lifted slightly so it reads on dark */
+.rank-ethereal  { color: #F08CE6; }
+.rank-oblivion  { color: #FFFFFF; text-shadow: 0 0 1px #000, 0 0 8px rgba(255, 255, 255, .35); }
+.rank-bold, .rank-bold span { font-weight: 800; }
+
+/* profile button: name with the rank underneath */
+.account-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
+.account-rank { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; }
+.account-rank img { width: 15px; height: 15px; }
+
+/* profile panel */
+.panel-rank { display: flex; align-items: center; gap: 12px; margin: 2px 0 8px; }
+.panel-rank img { width: 52px; height: 52px; flex: 0 0 52px; }
+.panel-rank-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.panel-rank-text .panel-label { margin: 0; }
+.panel-rank .rank-name { font-family: "Bricolage Grotesque", Inter, sans-serif; font-size: 20px; font-weight: 600; }
+.panel-rank .rank-bold { font-weight: 800; }
+.panel-rank-next { font-size: 13px; color: var(--muted); }
+
+/* Extras button next to the profile (Oblivion only) */
+.extras-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px 6px 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, .7);
+  background: #0B0B0E;
+  color: #fff;
+  font: inherit; font-size: 14px; font-weight: 700;
+  cursor: pointer;
+}
+.extras-btn img { width: 24px; height: 24px; }
+/* on phones the header is tight: Extras becomes a round icon button */
+@media (max-width: 479px) {
+  .extras-btn { padding: 5px; }
+  .extras-btn span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  #view-menu .bar { gap: 6px; }
+  #view-menu .lang { padding: 6px 6px; font-size: 14px; max-width: 96px; }
+  #view-menu .energy-pill { padding: 4px 10px 4px 4px; gap: 5px; }
+  #view-menu .account { padding-right: 12px; gap: 8px; max-width: 150px; }
+}
+
+/* Extras screen */
+.extras-hero { align-items: center; text-align: center; }
+.extras-emblem { width: 120px; height: 120px; }
+.extras-hero h2 { font-size: 30px; font-weight: 800; margin: 4px 0 0; }
+.extras-hero .lede { margin: 6px auto 0; }
+
+.rank-ladder { display: flex; flex-direction: column; gap: 6px; }
+.ladder-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.ladder-row img { width: 30px; height: 30px; }
+.ladder-row .rank-name { flex: 1; font-weight: 600; }
+.ladder-row .rank-bold { font-weight: 800; }
+.ladder-range { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ladder-row.is-you { border-color: #fff; }
+
+/* admin cards */
+.rank-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; }
+.rank-chip img { width: 20px; height: 20px; }
+
 /* ---------- my statistics ---------- */
 .stats-tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
 @media (min-width: 560px) { .stats-tiles { grid-template-columns: repeat(4, 1fr); } }
