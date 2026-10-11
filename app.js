@@ -1023,6 +1023,143 @@ $("btn-delete-me").addEventListener("click", async (e) => {
   toast(t("deleteMineDone"));
 });
 
+// ---- my statistics ----------------------------------------------------------
+// Everything here is read with the user's own login, and Row Level Security
+// means the database only ever returns their rows. Nobody sees anyone else's.
+
+// Resets the screen to "my statistics" mode (heading, back button, privacy note).
+function statsMode(adminUser) {
+  const back = $("stats-back");
+  back.dataset.goto = adminUser ? "admin" : "menu";
+  $("stats-heading").textContent = adminUser
+    ? t("statsFor").replace("{name}", adminUser.name || (adminUser.email || "").split("@")[0])
+    : t("myStats");
+  $("stats-privacy").hidden = !adminUser;
+  $("mystats-convos-title").hidden = !!adminUser;
+
+  $("mystats-empty").hidden = true;
+  $("mystats-body").hidden = true;
+  for (const id of ["mystats-tiles", "mystats-chart", "mystats-real", "mystats-convos"]) $(id).innerHTML = "";
+  $("mystats-trend").textContent = "";
+}
+
+async function loadMyStats() {
+  statsMode(null);
+
+  const [reh, scen] = await Promise.all([
+    supabase.from("rehearsals").select("score, created_at, scenario_id").gt("score", 0).order("created_at", { ascending: true }),
+    supabase.from("scenarios").select("id, title, counterpart, real_outcome, real_note, created_at").order("created_at", { ascending: false }),
+  ]);
+
+  if (reh.error || scen.error) {
+    toast(t("errLoad"));
+    console.error(reh.error || scen.error);
+    return;
+  }
+
+  const count = (o) => scen.data.filter((s) => s.real_outcome === o).length;
+  renderStats({
+    rows: reh.data,
+    conversations: scen.data.length,
+    outcomes: { well: count("well"), mixed: count("mixed"), bad: count("bad") },
+    convos: scen.data,
+  });
+}
+
+// Admin: one person's numbers. The database function sends no titles, no
+// transcripts and no feedback, so there is nothing private here to show.
+async function openUserStats(user) {
+  statsMode(user);
+  show("stats");
+
+  const { data, error } = await supabase.rpc("admin_user_stats", { target: user.id });
+  if (error || !data) {
+    toast(t("errLoad"));
+    console.error(error);
+    return;
+  }
+
+  renderStats({
+    rows: data.scores,
+    conversations: data.conversations,
+    outcomes: { well: data.real_well, mixed: data.real_mixed, bad: data.real_bad },
+    convos: null,
+  });
+}
+
+function renderStats({ rows, conversations, outcomes, convos }) {
+  if (!rows.length) {
+    $("mystats-empty").hidden = false;
+    return;
+  }
+  $("mystats-body").hidden = false;
+
+  const scores = rows.map((r) => r.score);
+  const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+
+  // headline numbers
+  const tiles = [
+    ["tileRehearsals", rows.length, null],
+    ["tileConvos", conversations, null],
+    ["tileAvg", avg.toFixed(1), avg],
+    ["best", Math.max(...scores), Math.max(...scores)],
+  ];
+  for (const [key, value, colourBy] of tiles) {
+    const tile = document.createElement("div");
+    tile.className = "uc-tile" + (colourBy != null ? " uc-score" : "");
+    tile.innerHTML = '<span class="uc-num"></span><span class="uc-lab"></span>';
+    tile.querySelector(".uc-num").textContent = value;
+    tile.querySelector(".uc-lab").textContent = t(key);
+    if (colourBy != null) paintScore(tile, tile.querySelector(".uc-num"), colourBy);
+    $("mystats-tiles").appendChild(tile);
+  }
+
+  // every score over time, and the change from the first to the latest
+  drawChart($("mystats-chart"), rows);
+  if (scores.length > 1) {
+    const diff = scores[scores.length - 1] - scores[0];
+    $("mystats-trend").textContent =
+      diff > 0 ? t("trendUp").replace("{d}", "+" + diff) :
+      diff < 0 ? t("trendDown").replace("{d}", Math.abs(diff)) : t("trendSame");
+    $("mystats-trend").dataset.dir = diff > 0 ? "up" : diff < 0 ? "down" : "same";
+  }
+
+  // how the real conversations went
+  for (const [key, value, cls] of [["outWell", outcomes.well, "good"], ["outMixed", outcomes.mixed, ""], ["outBad", outcomes.bad, ""]]) {
+    const tile = document.createElement("div");
+    tile.className = "uc-tile" + (cls ? " real-" + cls : "");
+    tile.innerHTML = '<span class="uc-num"></span><span class="uc-lab"></span>';
+    tile.querySelector(".uc-num").textContent = value;
+    tile.querySelector(".uc-lab").textContent = t(key);
+    $("mystats-real").appendChild(tile);
+  }
+
+  // one line per conversation - only for the person's own view
+  if (!convos) return;
+  for (const s of convos) {
+    const mine = rows.filter((r) => r.scenario_id === s.id).map((r) => r.score);
+    const a = mine.length ? mine.reduce((x, y) => x + y, 0) / mine.length : null;
+
+    const card = document.createElement("article");
+    card.className = "card stat-convo";
+    card.innerHTML =
+      '<div class="stat-convo-head"><div class="stat-convo-id"><h3></h3><p class="muted small"></p></div>' +
+      '<span class="stat-convo-avg"></span></div>' +
+      '<button class="mini act-progress"></button>';
+    card.querySelector("h3").textContent = s.title;
+    card.querySelector(".small").textContent = mine.length
+      ? t("attemptsAvg").replace("{n}", mine.length).replace("{a}", a.toFixed(1))
+      : t("with") + " " + s.counterpart;
+    const badge = card.querySelector(".stat-convo-avg");
+    badge.textContent = a == null ? "—" : a.toFixed(1);
+    paintScore(badge, badge, a);
+    const btn = card.querySelector(".act-progress");
+    btn.textContent = t("progressBtn");
+    btn.addEventListener("click", () => openProgress(s));
+    $("mystats-convos").appendChild(card);
+  }
+}
+
 // ============================================================================
 // 5. NAVIGATION
 // ============================================================================
@@ -1038,6 +1175,7 @@ document.querySelectorAll("[data-goto]").forEach((el) => {
     if (target === "menu") updateGreeting();
     if (target === "list") loadScenarios();
     if (target === "history") loadHistory();
+    if (target === "stats") loadMyStats();
     if (target === "admin") loadAdmin();
     if (target === "theme") fillMyPickers(currentTheme());
   });
@@ -1398,7 +1536,10 @@ async function loadUsers() {
       "</div>" +
       '<div class="uc-foot">' +
         '<p class="uc-dates"></p>' +
-        '<button class="mini danger act-del"></button>' +
+        '<span class="uc-actions">' +
+          '<button class="mini act-stats"></button>' +
+          '<button class="mini danger act-del"></button>' +
+        "</span>" +
       "</div>";
 
     row.querySelector(".uc-avatar").textContent = (name[0] || "?").toUpperCase();
@@ -1416,6 +1557,10 @@ async function loadUsers() {
 
     const seen = lastSeen ? t("lastSeen") + " " + fmt(user.last_sign_in_at) : t("neverIn");
     row.querySelector(".uc-dates").textContent = t("joined") + " " + fmt(user.created_at) + " · " + seen;
+
+    const statsBtn = row.querySelector(".act-stats");
+    statsBtn.textContent = t("viewStats");
+    statsBtn.addEventListener("click", () => openUserStats(user));
 
     const del = row.querySelector(".act-del");
     del.textContent = t("armDelete");
