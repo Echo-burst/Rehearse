@@ -961,6 +961,24 @@ input[type="color"] {
 .ladder-range { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .ladder-row.is-you { border-color: #fff; }
 
+/* ---------- saved conversation ---------- */
+.history-item .act-view { align-self: flex-start; }
+.saved-head { flex-direction: row; align-items: center; gap: 14px; }
+.saved-meta { flex: 1; min-width: 0; }
+.saved-meta h2 { font-size: 20px; margin: 0; }
+.saved-meta p { margin: 2px 0 0; }
+.readonly-note {
+  margin: 0;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--muted);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  text-align: center;
+}
+.transcript.saved { padding-bottom: 4px; }
+.saved-feedback { margin: 0; white-space: pre-wrap; line-height: 1.6; }
+
 /* ---------- messages to Oblivion ---------- */
 .extras-btn { position: relative; }
 .extras-dot {
