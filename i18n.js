@@ -120,6 +120,7 @@ export const STRINGS = {
     micNo: "Your browser does not support voice input.",
     adminTitle: "Admin",
     descAdmin: "Usage across everyone who has signed up.",
+    descDm: "Write to everyone at Oblivion, or to one person. They can read, not reply.",
     statUsers: "People signed up",
     statWeek: "New this week",
     statToday: "New today",
@@ -271,6 +272,10 @@ export const STRINGS = {
     dmDeleteConfirm: "Delete this message for everyone?",
     dmSentList: "Sent messages",
     dmNew: "new",
+    viewConvo: "View conversation",
+    savedConvo: "Saved conversation",
+    readOnlyNote: "This is a saved copy. You can read it, but not change it.",
+    noTranscript: "This rehearsal has no saved conversation.",
     motivate: {
       low: [
         "That's okay. Hard conversations take practice, and you've just had some. Whenever you're ready, try it again.",
@@ -422,6 +427,7 @@ export const STRINGS = {
     micNo: "Ваш браузер не поддерживает голосовой ввод.",
     adminTitle: "Админ",
     descAdmin: "Статистика по всем, кто зарегистрировался.",
+    descDm: "Напишите всем участникам Oblivion или одному человеку. Они читают, но не отвечают.",
     statUsers: "Зарегистрировано",
     statWeek: "Новых за неделю",
     statToday: "Новых сегодня",
@@ -573,6 +579,10 @@ export const STRINGS = {
     dmDeleteConfirm: "Удалить это сообщение для всех?",
     dmSentList: "Отправленные",
     dmNew: "новое",
+    viewConvo: "Посмотреть разговор",
+    savedConvo: "Сохранённый разговор",
+    readOnlyNote: "Это сохранённая копия. Её можно читать, но нельзя изменить.",
+    noTranscript: "У этой репетиции нет сохранённого разговора.",
     motivate: {
       low: [
         "Всё в порядке. Трудные разговоры требуют практики, и вы только что потренировались. Когда будете готовы, попробуйте ещё раз.",
@@ -724,6 +734,7 @@ export const STRINGS = {
     micNo: "Tu navegador no admite la entrada de voz.",
     adminTitle: "Administración",
     descAdmin: "Uso de todas las personas registradas.",
+    descDm: "Escribe a todos los miembros Oblivion o a una persona. Pueden leer, no responder.",
     statUsers: "Personas registradas",
     statWeek: "Nuevas esta semana",
     statToday: "Nuevas hoy",
@@ -875,6 +886,10 @@ export const STRINGS = {
     dmDeleteConfirm: "¿Eliminar este mensaje para todos?",
     dmSentList: "Mensajes enviados",
     dmNew: "nuevo",
+    viewConvo: "Ver conversación",
+    savedConvo: "Conversación guardada",
+    readOnlyNote: "Es una copia guardada. Puedes leerla, pero no cambiarla.",
+    noTranscript: "Este ensayo no tiene una conversación guardada.",
     motivate: {
       low: [
         "No pasa nada. Las conversaciones difíciles requieren práctica, y acabas de practicar. Cuando quieras, vuelve a intentarlo.",
@@ -1026,6 +1041,7 @@ export const STRINGS = {
     micNo: "Votre navigateur ne gère pas la saisie vocale.",
     adminTitle: "Administration",
     descAdmin: "Utilisation par toutes les personnes inscrites.",
+    descDm: "Écrivez à tous les membres Oblivion ou à une personne. Ils lisent, sans répondre.",
     statUsers: "Personnes inscrites",
     statWeek: "Nouvelles cette semaine",
     statToday: "Nouvelles aujourd'hui",
@@ -1177,6 +1193,10 @@ export const STRINGS = {
     dmDeleteConfirm: "Supprimer ce message pour tout le monde ?",
     dmSentList: "Messages envoyés",
     dmNew: "nouveau",
+    viewConvo: "Voir la conversation",
+    savedConvo: "Conversation enregistrée",
+    readOnlyNote: "C'est une copie enregistrée. Vous pouvez la lire, mais pas la modifier.",
+    noTranscript: "Cette répétition n'a pas de conversation enregistrée.",
     motivate: {
       low: [
         "Ce n'est pas grave. Les conversations difficiles demandent de la pratique, et vous venez de vous entraîner. Quand vous serez prêt, réessayez.",
@@ -1328,6 +1348,7 @@ export const STRINGS = {
     micNo: "Dein Browser unterstützt keine Spracheingabe.",
     adminTitle: "Admin",
     descAdmin: "Nutzung über alle angemeldeten Personen.",
+    descDm: "Schreib allen Oblivion-Mitgliedern oder einer Person. Sie können lesen, nicht antworten.",
     statUsers: "Angemeldete Personen",
     statWeek: "Neu diese Woche",
     statToday: "Neu heute",
@@ -1479,6 +1500,10 @@ export const STRINGS = {
     dmDeleteConfirm: "Diese Nachricht für alle löschen?",
     dmSentList: "Gesendete Nachrichten",
     dmNew: "neu",
+    viewConvo: "Gespräch ansehen",
+    savedConvo: "Gespeichertes Gespräch",
+    readOnlyNote: "Das ist eine gespeicherte Kopie. Du kannst sie lesen, aber nicht ändern.",
+    noTranscript: "Für diese Übung ist kein Gespräch gespeichert.",
     motivate: {
       low: [
         "Das ist völlig in Ordnung. Schwierige Gespräche brauchen Übung, und genau die hattest du gerade. Wenn du bereit bist, versuch es noch einmal.",
@@ -1630,6 +1655,7 @@ export const STRINGS = {
     micNo: "Браузеріңіз дауыспен енгізуді қолдамайды.",
     adminTitle: "Әкімші",
     descAdmin: "Тіркелген барлық адамдар бойынша статистика.",
+    descDm: "Барлық Oblivion мүшелеріне не бір адамға жазыңыз. Олар оқиды, жауап бере алмайды.",
     statUsers: "Тіркелгендер",
     statWeek: "Осы аптада жаңа",
     statToday: "Бүгін жаңа",
@@ -1781,6 +1807,10 @@ export const STRINGS = {
     dmDeleteConfirm: "Бұл хабарламаны барлығы үшін жою керек пе?",
     dmSentList: "Жіберілгендер",
     dmNew: "жаңа",
+    viewConvo: "Әңгімені көру",
+    savedConvo: "Сақталған әңгіме",
+    readOnlyNote: "Бұл сақталған көшірме. Оны оқуға болады, бірақ өзгертуге болмайды.",
+    noTranscript: "Бұл жаттығуда сақталған әңгіме жоқ.",
     motivate: {
       low: [
         "Ештеңе етпейді. Қиын әңгімелер жаттығуды қажет етеді, ал сіз дәл қазір жаттықтыңыз. Дайын болғанда қайталап көріңіз.",
