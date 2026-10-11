@@ -10,6 +10,8 @@ let messages = [];        // [{ role: "user" | "assistant", content }]
 let lang = "en";          // current interface language
 let session = null;       // null means signed out
 let energyBalance = 0;    // shown at the top; the database holds the real number
+let isAdmin = false;
+let energyUnlimited = false;  // switched on by the admin for their own account
 let waitingForReply = false;
 
 // ---- colours ---------------------------------------------------------------
@@ -1198,21 +1200,27 @@ function energyReward(score) {
   return n >= 10 ? 7 : n === 9 ? 4 : n === 8 ? 3 : n === 7 ? 2 : n === 6 ? 1 : 0;
 }
 
+function canAfford(action) {
+  return energyUnlimited || energyBalance >= COST[action];
+}
+
 function paintEnergy() {
-  document.querySelectorAll(".energy-num").forEach((el) => (el.textContent = energyBalance));
+  const shown = energyUnlimited ? "∞" : energyBalance;
+  document.querySelectorAll(".energy-num").forEach((el) => (el.textContent = shown));
   // dim a tool when you can't afford it (it still explains why when tapped)
-  $("btn-rewind").classList.toggle("cant", energyBalance < COST.rewind);
-  $("btn-hint").classList.toggle("cant", energyBalance < COST.hint);
+  $("btn-rewind").classList.toggle("cant", !canAfford("rewind"));
+  $("btn-hint").classList.toggle("cant", !canAfford("hint"));
 }
 
 async function refreshEnergy() {
   if (!session) return;
-  const { data, error } = await supabase.rpc("my_energy");
+  const { data, error } = await supabase.rpc("my_energy_info");
   if (error) {
     console.error(error);
     return;
   }
-  energyBalance = data ?? 0;
+  energyBalance = data?.balance ?? 0;
+  energyUnlimited = !!data?.unlimited;
   paintEnergy();
 }
 
@@ -1255,7 +1263,7 @@ $("btn-rewind").addEventListener("click", async () => {
     toast(t("nothingToRewind"));
     return;
   }
-  if (energyBalance < COST.rewind) {
+  if (!canAfford("rewind")) {
     toast(t("notEnough"));
     return;
   }
@@ -1278,7 +1286,7 @@ $("btn-rewind").addEventListener("click", async () => {
 // only taken once a suggestion has actually arrived.
 $("btn-hint").addEventListener("click", async () => {
   if (waitingForReply) return;
-  if (energyBalance < COST.hint) {
+  if (!canAfford("hint")) {
     toast(t("notEnough"));
     return;
   }
@@ -1332,7 +1340,6 @@ async function changeEnergyForAll(sign) {
   loadUsers();
 }
 $("btn-energy-give-all").addEventListener("click", () => changeEnergyForAll(+1));
-$("btn-energy-take-all").addEventListener("click", () => changeEnergyForAll(-1));
 
 // ============================================================================
 // 5. NAVIGATION
@@ -1610,12 +1617,15 @@ $("btn-theme-reset").addEventListener("click", async () => {
 // it is cosmetic; the admin functions re-check server side and refuse anyone else.
 async function updateAdminVisibility() {
   if (!session) {
+    isAdmin = false;
     $("nav-admin").hidden = true;
     return;
   }
 
   const { data, error } = await supabase.rpc("is_admin");
-  $("nav-admin").hidden = !!error || data !== true;
+  isAdmin = !error && data === true;
+  $("nav-admin").hidden = !isAdmin;
+  paintEnergy();
 }
 
 async function loadAdmin() {
@@ -1697,6 +1707,8 @@ async function loadUsers() {
         '<input type="number" class="e-amount" min="1" max="100000" value="5">' +
         '<button class="mini e-give"></button>' +
         '<button class="mini e-take"></button>' +
+        '<button class="mini e-set"></button>' +
+        '<button class="mini e-inf" hidden></button>' +
       "</div>" +
       '<div class="uc-foot">' +
         '<p class="uc-dates"></p>' +
@@ -1722,31 +1734,69 @@ async function loadUsers() {
     const seen = lastSeen ? t("lastSeen") + " " + fmt(user.last_sign_in_at) : t("neverIn");
     row.querySelector(".uc-dates").textContent = t("joined") + " " + fmt(user.created_at) + " · " + seen;
 
-    // energy for this one person (the admin can give themselves any amount too)
-    row.querySelector(".e-num").textContent = user.energy ?? 0;
+    // energy for this one person: Give, Take, or Set an exact number.
+    // On the admin's own card there is also the ∞ switch.
+    const isMe = session && user.id === session.user.id;
+    let unlimited = !!user.unlimited;
+    const num = row.querySelector(".e-num");
+    const showNum = (balance) => (num.textContent = unlimited ? "∞" : balance);
+    let balance = user.energy ?? 0;
+    showNum(balance);
     row.querySelector(".e-amount").placeholder = t("amountPh");
-    const changeOne = async (sign) => {
-      const amount = Math.abs(parseInt(row.querySelector(".e-amount").value, 10) || 0);
-      if (!amount) return;
-      const { data, error } = await supabase.rpc("admin_change_energy", { target: user.id, delta: sign * amount });
-      if (error) {
-        toast(error.message);
-        console.error(error);
-        return;
-      }
-      row.querySelector(".e-num").textContent = data;
-      if (session && user.id === session.user.id) {
-        energyBalance = data;
-        paintEnergy();
-      }
+
+    const afterChange = (newBalance) => {
+      balance = newBalance;
+      showNum(balance);
+      if (isMe) refreshEnergy();
       toast(t("energyUpdated"));
     };
+
+    const amountNow = () => Math.abs(parseInt(row.querySelector(".e-amount").value, 10) || 0);
+
+    const changeOne = async (sign) => {
+      const amount = amountNow();
+      if (!amount) return;
+      const { data, error } = await supabase.rpc("admin_change_energy", { target: user.id, delta: sign * amount });
+      if (error) { toast(error.message); console.error(error); return; }
+      afterChange(data);
+    };
+
+    const setOne = async () => {
+      const raw = row.querySelector(".e-amount").value;
+      if (raw === "") return;
+      const { data, error } = await supabase.rpc("admin_set_energy", { target: user.id, amount: amountNow() });
+      if (error) { toast(error.message); console.error(error); return; }
+      afterChange(data);
+    };
+
     const give = row.querySelector(".e-give");
     const take = row.querySelector(".e-take");
+    const set = row.querySelector(".e-set");
     give.textContent = t("give");
     take.textContent = t("take");
+    set.textContent = t("setTo");
     give.addEventListener("click", () => changeOne(+1));
     take.addEventListener("click", () => changeOne(-1));
+    set.addEventListener("click", setOne);
+
+    if (isMe) {
+      const inf = row.querySelector(".e-inf");
+      const paintInf = () => {
+        inf.textContent = unlimited ? t("unlimitedOff") : t("unlimitedOn");
+        inf.classList.toggle("on", unlimited);
+      };
+      paintInf();
+      inf.hidden = false;
+      inf.addEventListener("click", async () => {
+        const { error } = await supabase.rpc("admin_set_unlimited", { turn_on: !unlimited });
+        if (error) { toast(error.message); console.error(error); return; }
+        unlimited = !unlimited;
+        paintInf();
+        showNum(balance);
+        refreshEnergy();
+        toast(t("energyUpdated"));
+      });
+    }
 
     const statsBtn = row.querySelector(".act-stats");
     statsBtn.textContent = t("viewStats");
