@@ -884,6 +884,41 @@ input[type="color"] {
 .panel-rank .rank-bold { font-weight: 800; }
 .panel-rank-next { font-size: 13px; color: var(--muted); }
 
+/* how to earn / spend energy */
+.energy-guide { display: flex; flex-direction: column; gap: 8px; }
+.guide-line { margin: 4px 0 0; font-size: 14px; color: var(--muted); }
+.reward-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.reward-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--stage);
+  font-size: 14px;
+}
+.reward-chip .rc-score { border: 0 !important; }
+.reward-chip .rc-arrow { color: var(--muted); }
+.reward-chip img { width: 16px; height: 16px; }
+.reward-chip .rc-gain { color: #9FD8FF; }
+.spend-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 14px; }
+.spend-cost { display: inline-flex; align-items: center; gap: 5px; color: #9FD8FF; }
+.spend-cost img { width: 16px; height: 16px; }
+
+/* the "?" next to your rank */
+.panel-rank-text { flex: 1; }
+.rank-help {
+  flex: 0 0 auto;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--stage);
+  color: var(--paper);
+  font: inherit; font-size: 16px; font-weight: 700;
+  cursor: pointer;
+}
+.rank-help:hover { border-color: var(--muted); background: var(--surface-hi); }
+.guide-lead { margin: 6px 0 0; max-width: none; }
+
 /* Extras button next to the profile (Oblivion only) */
 .extras-btn {
   display: inline-flex; align-items: center; gap: 6px;
