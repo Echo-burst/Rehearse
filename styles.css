@@ -353,10 +353,15 @@ input:focus-visible, textarea:focus-visible, button:focus-visible {
 .history-meta { flex: 1; min-width: 0; }
 .history-score {
   font-family: "Bricolage Grotesque", Inter, sans-serif;
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 600;
   color: var(--paper);
-  min-width: 34px;
+  min-width: 52px;
+  padding: 6px 8px;
+  text-align: center;
+  border: 2px solid var(--line);   /* coloured by the score from app.js */
+  border-radius: 10px;
+  flex: 0 0 auto;
 }
 .history-item h3 {
   font-family: "Bricolage Grotesque", Inter, sans-serif;
