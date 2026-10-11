@@ -722,6 +722,60 @@ input[type="color"] {
   @keyframes panelIn { from { opacity: 0; transform: translateY(-6px); } }
 }
 
+/* ---------- progress chart ---------- */
+.chart { margin: 10px 0 2px; color: var(--paper); }
+.chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+.chart .grid { stroke: var(--line); stroke-width: 1; }
+.chart .axis { fill: var(--muted); font-size: 11px; font-family: Inter, sans-serif; }
+.chart .trendline { fill: none; stroke: var(--muted); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.chart .dot { stroke: var(--surface); stroke-width: 2; }
+.chart .dot-label { font-size: 13px; font-weight: 600; font-family: Inter, sans-serif; }
+.trend { margin: 6px 0 4px; font-size: 15px; color: var(--muted); }
+.trend[data-dir="up"] { color: #2FBF71; }
+
+/* scores in the progress tiles have no value until painted */
+#progress-tiles .uc-score { border-width: 2px; }
+
+/* "how did the real one go?" choices, two per row */
+.outcomes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 4px;
+  background: var(--stage);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+.real-tag { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
+.real-tag[data-outcome="well"] { color: #2FBF71; }
+
+/* ---------- support for serious topics ---------- */
+.support-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 3px solid #7FB2F0;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.support-title {
+  margin: 0;
+  font-family: "Bricolage Grotesque", Inter, sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+}
+.support-body { margin: 0; font-size: 15px; line-height: 1.6; white-space: pre-line; }
+.support-card .btn { margin-top: 4px; align-self: flex-start; }
+
+/* ---------- delete my account ---------- */
+.danger-link { align-self: center; font-size: 14px; margin-top: 6px; }
+.danger-link:hover, .danger-link.armed { color: var(--danger); }
+
 /* ---------- why this score? ---------- */
 .explain-card { gap: 12px; }
 .explain-card > .btn { margin-top: 0; }
