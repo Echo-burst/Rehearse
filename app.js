@@ -30,6 +30,18 @@ let siteTheme = { ...ORIGINAL_THEME };
 
 // ---- tiny helpers ----------------------------------------------------------
 const $ = (id) => document.getElementById(id);
+
+// Hooks up an event without letting one missing element break the whole app.
+// If index.html and app.js ever get out of step, the rest still works and the
+// console says exactly which piece is missing.
+function on(id, event, handler) {
+  const el = document.getElementById(id);
+  if (!el) {
+    console.warn('Rehearse: no element with id "' + id + '" on the page. Is index.html up to date?');
+    return;
+  }
+  el.addEventListener(event, handler);
+}
 const t = (key) => STRINGS[lang][key] ?? STRINGS.en[key] ?? key;
 
 // Screens reachable without an account. Everything else is gated.
@@ -150,7 +162,7 @@ if (!localStorage.getItem("introSeen")) {
   $("intro").hidden = false;
 }
 
-$("btn-intro").addEventListener("click", () => {
+on("btn-intro", "click", () => {
   const overlay = $("intro");
   overlay.classList.add("leaving");
   setTimeout(() => {
@@ -164,7 +176,7 @@ $("btn-intro").addEventListener("click", () => {
 // 1. AUTHENTICATION  (Supabase Auth)
 // ============================================================================
 
-$("signin-form").addEventListener("submit", async (e) => {
+on("signin-form", "submit", async (e) => {
   e.preventDefault();
   const btn = $("btn-signin");
   showError($("signin-error"), "");
@@ -179,7 +191,7 @@ $("signin-form").addEventListener("submit", async (e) => {
   if (error) showError($("signin-error"), error.message);
 });
 
-$("signup-form").addEventListener("submit", async (e) => {
+on("signup-form", "submit", async (e) => {
   e.preventDefault();
   const btn = $("btn-signup");
   showError($("signup-error"), "");
@@ -206,7 +218,7 @@ $("signup-form").addEventListener("submit", async (e) => {
   else toast(t("accountCreated"));
 });
 
-$("btn-demo").addEventListener("click", async () => {
+on("btn-demo", "click", async () => {
   const { error } = await supabase.auth.signInWithPassword({
     email: DEMO_EMAIL,
     password: DEMO_PASSWORD,
@@ -214,7 +226,7 @@ $("btn-demo").addEventListener("click", async () => {
   if (error) toast(error.message);
 });
 
-$("btn-signout").addEventListener("click", async () => {
+on("btn-signout", "click", async () => {
   closePanel();
   await supabase.auth.signOut();
 });
@@ -247,7 +259,7 @@ supabase.auth.onAuthStateChange((event, nextSession) => {
 
 // ---- password reset -------------------------------------------------------
 
-$("reset-form").addEventListener("submit", async (e) => {
+on("reset-form", "submit", async (e) => {
   e.preventDefault();
   const btn = $("btn-reset");
   showError($("reset-error"), "");
@@ -263,7 +275,7 @@ $("reset-form").addEventListener("submit", async (e) => {
   else toast(t("resetSent"));
 });
 
-$("newpass-form").addEventListener("submit", async (e) => {
+on("newpass-form", "submit", async (e) => {
   e.preventDefault();
   const btn = $("btn-newpass");
   showError($("newpass-error"), "");
@@ -381,7 +393,7 @@ function closePanel() {
   $("account-panel").hidden = true;
 }
 
-$("account").addEventListener("click", (e) => {
+on("account", "click", (e) => {
   e.stopPropagation();
   const panel = $("account-panel");
   panel.hidden = !panel.hidden;
@@ -401,7 +413,7 @@ document.addEventListener("keydown", (e) => {
 });
 
 // UPDATE the name on the Supabase user record.
-$("btn-rename").addEventListener("click", async () => {
+on("btn-rename", "click", async () => {
   const name = $("account-rename").value.trim();
   if (!name) return;
 
@@ -511,7 +523,7 @@ async function deleteScenario(row) {
   loadScenarios();
 }
 
-$("scenario-form").addEventListener("submit", async (e) => {
+on("scenario-form", "submit", async (e) => {
   e.preventDefault();
   const btn = e.target.querySelector("button[type=submit]");
   showError($("new-error"), "");
@@ -714,7 +726,7 @@ async function startRehearsal(row) {
   renderTranscript(false);
 }
 
-$("reply-form").addEventListener("submit", async (e) => {
+on("reply-form", "submit", async (e) => {
   e.preventDefault();
 
   const text = $("reply").value.trim();
@@ -741,7 +753,7 @@ $("reply-form").addEventListener("submit", async (e) => {
   renderTranscript(false);
 });
 
-$("btn-finish").addEventListener("click", async () => {
+on("btn-finish", "click", async () => {
   if (messages.filter((m) => m.role === "user").length === 0) {
     toast(t("errSayFirst"));
     return;
@@ -815,14 +827,14 @@ async function askCoach(question) {
   }
 }
 
-$("btn-why").addEventListener("click", async () => {
+on("btn-why", "click", async () => {
   const btn = $("btn-why");
   btn.hidden = true;
   await askCoach("");
   if ($("explain-thread").children.length === 0) btn.hidden = false;
 });
 
-$("ask-form").addEventListener("submit", async (e) => {
+on("ask-form", "submit", async (e) => {
   e.preventDefault();
   const q = $("ask-input").value.trim();
   if (!q) return;
@@ -868,7 +880,7 @@ function looksSerious(text) {
   return SERIOUS.some((re) => re.test(lower));
 }
 
-$("btn-support-close").addEventListener("click", () => {
+on("btn-support-close", "click", () => {
   $("support").hidden = true;
 });
 
@@ -984,7 +996,7 @@ function drawChart(box, rows) {
 }
 
 // UPDATE: "How did the real one go?"
-$("btn-real-save").addEventListener("click", async () => {
+on("btn-real-save", "click", async () => {
   if (!progressRow) return;
   const picked = document.querySelector('input[name="outcome"]:checked');
   if (!picked) return;
@@ -1015,7 +1027,7 @@ $("btn-real-save").addEventListener("click", async () => {
 // confirmation. The database function only ever deletes the caller's own
 // account, along with every conversation and rehearsal in it.
 
-$("btn-delete-me").addEventListener("click", async (e) => {
+on("btn-delete-me", "click", async (e) => {
   e.stopPropagation();
   const btn = $("btn-delete-me");
 
@@ -1208,11 +1220,13 @@ function paintEnergy() {
   const shown = energyUnlimited ? "∞" : energyBalance;
   document.querySelectorAll(".energy-num").forEach((el) => (el.textContent = shown));
   const inf = $("btn-self-inf");
-  inf.textContent = energyUnlimited ? t("unlimitedOff") : t("unlimitedOn");
-  inf.classList.toggle("on", energyUnlimited);
+  if (inf) {
+    inf.textContent = energyUnlimited ? t("unlimitedOff") : t("unlimitedOn");
+    inf.classList.toggle("on", energyUnlimited);
+  }
   // dim a tool when you can't afford it (it still explains why when tapped)
-  $("btn-rewind").classList.toggle("cant", !canAfford("rewind"));
-  $("btn-hint").classList.toggle("cant", !canAfford("hint"));
+  $("btn-rewind")?.classList.toggle("cant", !canAfford("rewind"));
+  $("btn-hint")?.classList.toggle("cant", !canAfford("hint"));
 }
 
 async function refreshEnergy() {
@@ -1250,12 +1264,13 @@ document.querySelectorAll(".energy-pill").forEach((pill) =>
   })
 );
 document.addEventListener("click", (e) => {
-  if (!$("energy-help").contains(e.target)) $("energy-help").hidden = true;
+  const help = $("energy-help");
+  if (help && !help.contains(e.target)) help.hidden = true;
 });
 
 // REWIND (5): takes back your last message and the reply to it, and puts your
 // words back in the box so you can say it differently.
-$("btn-rewind").addEventListener("click", async () => {
+on("btn-rewind", "click", async () => {
   if (waitingForReply) return;
 
   let last = -1;
@@ -1287,7 +1302,7 @@ $("btn-rewind").addEventListener("click", async () => {
 
 // WHAT COULD I SAY NOW? (10): the coach suggests one next line. The energy is
 // only taken once a suggestion has actually arrived.
-$("btn-hint").addEventListener("click", async () => {
+on("btn-hint", "click", async () => {
   if (waitingForReply) return;
   if (!canAfford("hint")) {
     toast(t("notEnough"));
@@ -1319,7 +1334,7 @@ $("btn-hint").addEventListener("click", async () => {
   btn.disabled = false;
 });
 
-$("btn-use-hint").addEventListener("click", () => {
+on("btn-use-hint", "click", () => {
   $("reply").value = $("hint-text").textContent;
   $("hint-box").hidden = true;
   $("reply").focus();
@@ -1342,7 +1357,7 @@ async function changeEnergyForAll(sign) {
   refreshEnergy();
   loadUsers();
 }
-$("btn-energy-give-all").addEventListener("click", () => changeEnergyForAll(+1));
+on("btn-energy-give-all", "click", () => changeEnergyForAll(+1));
 
 // ADMIN: your own energy, right in the "Energy for everyone" card
 async function changeMyEnergy(fn, args) {
@@ -1359,15 +1374,15 @@ async function changeMyEnergy(fn, args) {
 
 const selfAmount = () => Math.abs(parseInt($("self-amount").value, 10) || 0);
 
-$("btn-self-give").addEventListener("click", () => {
+on("btn-self-give", "click", () => {
   const amount = selfAmount();
   if (amount) changeMyEnergy("admin_change_energy", { target: session.user.id, delta: amount });
 });
-$("btn-self-set").addEventListener("click", () => {
+on("btn-self-set", "click", () => {
   if ($("self-amount").value === "") return;
   changeMyEnergy("admin_set_energy", { target: session.user.id, amount: selfAmount() });
 });
-$("btn-self-inf").addEventListener("click", () =>
+on("btn-self-inf", "click", () =>
   changeMyEnergy("admin_set_unlimited", { turn_on: !energyUnlimited })
 );
 
@@ -1452,7 +1467,7 @@ let listening = false;
 if (SpeechRecognition) {
   $("btn-mic").hidden = false;
 
-  $("btn-mic").addEventListener("click", () => {
+  on("btn-mic", "click", () => {
     if (listening) {
       recognizer.stop();
       return;
@@ -1602,12 +1617,12 @@ function readMyPickers() {
 
 // Preview live while dragging; nothing is saved until the button is pressed.
 for (const id of Object.values(MY_FIELDS)) {
-  $(id).addEventListener("input", () => applyTheme(readMyPickers()));
+  on(id, "input", () => applyTheme(readMyPickers()));
 }
 
 // Saved onto the user's own account (user_metadata), so the colours follow
 // them to any device and nobody else ever sees them.
-$("btn-theme-save").addEventListener("click", async () => {
+on("btn-theme-save", "click", async () => {
   const btn = $("btn-theme-save");
   busy(btn, true, t("saving"));
   const { data, error } = await supabase.auth.updateUser({ data: { theme: readMyPickers() } });
@@ -1624,7 +1639,7 @@ $("btn-theme-save").addEventListener("click", async () => {
   toast(t("themeSaved"));
 });
 
-$("btn-theme-reset").addEventListener("click", async () => {
+on("btn-theme-reset", "click", async () => {
   const btn = $("btn-theme-reset");
   busy(btn, true, t("saving"));
   const { data, error } = await supabase.auth.updateUser({ data: { theme: null } });
@@ -1898,10 +1913,10 @@ function readAdminPickers() {
 
 // Live preview while dragging; nothing is saved until the button is pressed.
 for (const id of Object.values(ADMIN_FIELDS)) {
-  $(id).addEventListener("input", () => applyTheme(readAdminPickers()));
+  on(id, "input", () => applyTheme(readAdminPickers()));
 }
 
-$("btn-admin-colours").addEventListener("click", async () => {
+on("btn-admin-colours", "click", async () => {
   const btn = $("btn-admin-colours");
   busy(btn, true, t("saving"));
   const { data, error } = await supabase.auth.updateUser({ data: { theme: readAdminPickers() } });
@@ -1920,12 +1935,12 @@ $("btn-admin-colours").addEventListener("click", async () => {
 
 // Puts the original green, orange and near-black into the pickers as a
 // preview. Press "Save my colours" to keep it.
-$("btn-admin-original").addEventListener("click", () => {
+on("btn-admin-original", "click", () => {
   fillAdminPickers(ORIGINAL_THEME);
   applyTheme(ORIGINAL_THEME);
 });
 
-$("btn-admin-save").addEventListener("click", async () => {
+on("btn-admin-save", "click", async () => {
   const btn = $("btn-admin-save");
   showError($("admin-error"), "");
   busy(btn, true, t("saving"));
