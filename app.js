@@ -1318,6 +1318,8 @@ on("btn-hint", "click", async () => {
 
   try {
     const { reply } = await callAI("hint", { messages });
+    // never charge for an empty suggestion
+    if (!reply || !reply.trim()) throw new Error("Empty hint");
     const paid = await spend("hint");
     if (!paid) {
       box.hidden = true;
@@ -1327,7 +1329,7 @@ on("btn-hint", "click", async () => {
     }
   } catch (err) {
     box.hidden = true;
-    toast(t("errNoReply"));
+    toast(t("errHint"));
     console.error(err);
   }
 
