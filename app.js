@@ -581,7 +581,9 @@ async function loadHistory() {
       '<button class="mini danger act-del"></button></div>' +
       '<p class="history-feedback"></p>';
 
-    item.querySelector(".history-score").textContent = row.score ?? "—";
+    const scoreEl = item.querySelector(".history-score");
+    scoreEl.textContent = row.score || "—";
+    paintScore(scoreEl, scoreEl, row.score);
     item.querySelector("h3").textContent = row.scenarios?.title || t("deleted");
     item.querySelector(".small").textContent =
       (row.scenarios?.counterpart ? t("with") + " " + row.scenarios.counterpart + " · " : "") + date;
