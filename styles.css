@@ -722,6 +722,50 @@ input[type="color"] {
   @keyframes panelIn { from { opacity: 0; transform: translateY(-6px); } }
 }
 
+/* ---------- my statistics ---------- */
+.stats-tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+@media (min-width: 560px) { .stats-tiles { grid-template-columns: repeat(4, 1fr); } }
+.stats-tiles .uc-tile { background: var(--surface); padding: 14px; }
+.stats-tiles .uc-num { font-size: 30px; }
+.section-title { margin: 10px 0 0; }
+.real-good { border-color: #2FBF71; }
+.real-good .uc-num { color: #2FBF71; }
+
+.stat-convo { flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; }
+.stat-convo-head { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+.stat-convo-id { flex: 1; min-width: 0; }
+.stat-convo h3 {
+  margin: 0;
+  font-family: "Bricolage Grotesque", Inter, sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.stat-convo .small { margin: 2px 0 0; }
+.stat-convo-avg {
+  flex: 0 0 auto;
+  min-width: 48px;
+  text-align: center;
+  padding: 6px 8px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  font-family: "Bricolage Grotesque", Inter, sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.uc-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.privacy-note {
+  margin: 0 0 14px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--muted);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+}
+
 /* ---------- progress chart ---------- */
 .chart { margin: 10px 0 2px; color: var(--paper); }
 .chart svg { width: 100%; height: auto; display: block; overflow: visible; }
