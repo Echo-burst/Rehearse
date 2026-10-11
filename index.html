@@ -186,6 +186,30 @@
   </div>
 </section>
 
+<!-- ============ MESSAGES TO OBLIVION (admin only) ============ -->
+<section id="view-dm" class="view" hidden>
+  <header class="bar">
+    <button class="linkish back" data-goto="admin" data-t="back"></button>
+    <p class="bar-title" data-t="adminDm"></p>
+  </header>
+
+  <div class="stack">
+    <div class="card">
+      <p class="panel-title energy-title"><img src="rank-oblivion.png" alt="" class="energy-icon"><span data-t="adminDm"></span></p>
+      <p class="lede small-lede" data-t="adminDmHint"></p>
+      <label for="dm-to" data-t="dmTo"></label>
+      <select id="dm-to" class="dm-to"></select>
+      <textarea id="dm-body" rows="3" maxlength="2000" data-tp="dmPh"></textarea>
+      <p id="dm-note" class="muted small" data-t="dmNoOblivions" hidden></p>
+      <button id="btn-dm-send" type="button" class="btn primary" data-t="dmSend"></button>
+
+      <p class="field-label dm-sent-title" data-t="dmSentList"></p>
+      <div id="dm-sent" class="dm-list"></div>
+    </div>
+
+  </div>
+</section>
+
 <!-- ============ MY CONVERSATIONS ============ -->
 <section id="view-list" class="view" hidden>
   <header class="bar">
@@ -332,6 +356,33 @@
   <p id="history-empty" class="empty" data-t="historyEmpty" hidden></p>
 </section>
 
+<!-- ============ ONE SAVED CONVERSATION (read-only) ============ -->
+<section id="view-transcript" class="view" hidden>
+  <header class="bar">
+    <button class="linkish back" data-goto="history" data-t="back"></button>
+    <p class="bar-title" data-t="savedConvo"></p>
+  </header>
+
+  <div class="stack">
+    <div class="card saved-head">
+      <span id="saved-score" class="history-score"></span>
+      <span class="saved-meta">
+        <h2 id="saved-title"></h2>
+        <p id="saved-sub" class="muted small"></p>
+      </span>
+    </div>
+
+    <p class="readonly-note" data-t="readOnlyNote"></p>
+    <div id="saved-transcript" class="transcript saved"></div>
+    <p id="saved-empty" class="empty" data-t="noTranscript" hidden></p>
+
+    <div id="saved-feedback-card" class="card">
+      <p class="kicker" data-t="scoreKicker"></p>
+      <p id="saved-feedback" class="saved-feedback"></p>
+    </div>
+  </div>
+</section>
+
 <!-- ============ HOW RANKS WORK (everyone) ============ -->
 <section id="view-ranks" class="view" hidden>
   <header class="bar">
@@ -476,6 +527,11 @@
   </header>
 
   <div class="stack">
+    <button id="nav-dm" class="nav-card" data-goto="dm">
+      <span class="nav-title">✉ <span data-t="adminDm"></span></span>
+      <span class="nav-desc" data-t="descDm"></span>
+    </button>
+
     <div id="stats" class="stats"></div>
 
     <div class="card">
@@ -524,19 +580,6 @@
           <button id="btn-self-inf" type="button" class="btn ghost e-inf"></button>
         </div>
       </div>
-    </div>
-
-    <div class="card">
-      <p class="panel-title energy-title"><img src="rank-oblivion.png" alt="" class="energy-icon"><span data-t="adminDm"></span></p>
-      <p class="lede small-lede" data-t="adminDmHint"></p>
-      <label for="dm-to" data-t="dmTo"></label>
-      <select id="dm-to" class="dm-to"></select>
-      <textarea id="dm-body" rows="3" maxlength="2000" data-tp="dmPh"></textarea>
-      <p id="dm-note" class="muted small" data-t="dmNoOblivions" hidden></p>
-      <button id="btn-dm-send" type="button" class="btn primary" data-t="dmSend"></button>
-
-      <p class="field-label dm-sent-title" data-t="dmSentList"></p>
-      <div id="dm-sent" class="dm-list"></div>
     </div>
 
     <p class="panel-title accounts-heading" data-t="adminAccounts"></p>
