@@ -133,6 +133,10 @@
       <span id="account-initial" class="avatar"></span>
       <span id="account-name" class="account-name"></span>
     </button>
+    <button type="button" class="energy-pill" aria-label="Energy">
+      <img src="energy.png" alt="" class="energy-icon">
+      <span class="energy-num">0</span>
+    </button>
     <span class="bar-actions">
       <select id="lang-menu" class="lang" aria-label="Language"></select>
     </span>
@@ -234,6 +238,10 @@
 <section id="view-rehearse" class="view" hidden>
   <header class="bar">
     <button class="linkish back" data-goto="list" data-t="leave"></button>
+    <button type="button" class="energy-pill" aria-label="Energy">
+      <img src="energy.png" alt="" class="energy-icon">
+      <span class="energy-num">0</span>
+    </button>
     <p id="rehearse-title" class="bar-title"></p>
   </header>
 
@@ -256,7 +264,24 @@
         </svg>
       </button>
     </div>
-    <button type="submit" class="btn primary" id="btn-send" data-t="send"></button>
+
+    <div id="hint-box" class="hint-box" hidden>
+      <p class="hint-label" data-t="hintTitle"></p>
+      <p id="hint-text" class="hint-text"></p>
+      <button id="btn-use-hint" type="button" class="mini" data-t="useHint" hidden></button>
+    </div>
+
+    <div class="composer-actions">
+      <button type="button" id="btn-rewind" class="tool-btn">
+        <span class="tool-name" data-t="rewind"></span>
+        <span class="cost"><img src="energy.png" alt="">5</span>
+      </button>
+      <button type="button" id="btn-hint" class="tool-btn">
+        <span class="tool-name" data-t="hintBtn"></span>
+        <span class="cost"><img src="energy.png" alt="">10</span>
+      </button>
+      <button type="submit" class="btn primary send-btn" id="btn-send" data-t="send"></button>
+    </div>
     <button type="button" class="btn ghost" id="btn-finish" data-t="finish"></button>
   </form>
 </section>
@@ -273,6 +298,7 @@
       <p id="score" class="score">&mdash;</p>
       <p id="score-label" class="muted"></p>
       <p id="score-motivation" class="motivation" hidden></p>
+      <p id="score-energy" class="score-energy" hidden><img src="energy.png" alt=""><span></span></p>
     </div>
     <div id="feedback-body" class="card"></div>
 
@@ -422,6 +448,16 @@
       <button id="btn-admin-save" class="btn primary" data-t="adminSave"></button>
     </div>
 
+    <div class="card">
+      <p class="panel-title energy-title"><img src="energy.png" alt="" class="energy-icon"><span data-t="adminEnergyAll"></span></p>
+      <p class="lede small-lede" data-t="adminEnergyHint"></p>
+      <div class="energy-row">
+        <input id="energy-all-amount" type="number" min="1" max="100000" value="10" data-tp="amountPh">
+        <button id="btn-energy-give-all" type="button" class="btn primary" data-t="giveAll"></button>
+        <button id="btn-energy-take-all" type="button" class="btn ghost" data-t="takeAll"></button>
+      </div>
+    </div>
+
     <p class="panel-title accounts-heading" data-t="adminAccounts"></p>
     <div id="user-list" class="stack"></div>
   </div>
@@ -462,6 +498,11 @@
   <button class="btn ghost wide" data-goto="theme" data-t="myColours"></button>
   <button id="btn-signout" class="btn ghost wide" data-t="signOut"></button>
   <button id="btn-delete-me" type="button" class="linkish danger-link" data-t="deleteMine"></button>
+</div>
+
+<div id="energy-help" class="energy-help" hidden>
+  <p class="energy-help-title"><img src="energy.png" alt="" class="energy-icon"><span data-t="energy"></span>: <b class="energy-num">0</b></p>
+  <p class="energy-help-body" data-t="energyHelp"></p>
 </div>
 
 <div id="toast" class="toast" hidden></div>
