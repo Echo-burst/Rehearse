@@ -1207,6 +1207,9 @@ function canAfford(action) {
 function paintEnergy() {
   const shown = energyUnlimited ? "∞" : energyBalance;
   document.querySelectorAll(".energy-num").forEach((el) => (el.textContent = shown));
+  const inf = $("btn-self-inf");
+  inf.textContent = energyUnlimited ? t("unlimitedOff") : t("unlimitedOn");
+  inf.classList.toggle("on", energyUnlimited);
   // dim a tool when you can't afford it (it still explains why when tapped)
   $("btn-rewind").classList.toggle("cant", !canAfford("rewind"));
   $("btn-hint").classList.toggle("cant", !canAfford("hint"));
@@ -1340,6 +1343,33 @@ async function changeEnergyForAll(sign) {
   loadUsers();
 }
 $("btn-energy-give-all").addEventListener("click", () => changeEnergyForAll(+1));
+
+// ADMIN: your own energy, right in the "Energy for everyone" card
+async function changeMyEnergy(fn, args) {
+  const { error } = await supabase.rpc(fn, args);
+  if (error) {
+    toast(error.message);
+    console.error(error);
+    return;
+  }
+  await refreshEnergy();
+  loadUsers();   // keep your account card below in step
+  toast(t("energyUpdated"));
+}
+
+const selfAmount = () => Math.abs(parseInt($("self-amount").value, 10) || 0);
+
+$("btn-self-give").addEventListener("click", () => {
+  const amount = selfAmount();
+  if (amount) changeMyEnergy("admin_change_energy", { target: session.user.id, delta: amount });
+});
+$("btn-self-set").addEventListener("click", () => {
+  if ($("self-amount").value === "") return;
+  changeMyEnergy("admin_set_energy", { target: session.user.id, amount: selfAmount() });
+});
+$("btn-self-inf").addEventListener("click", () =>
+  changeMyEnergy("admin_set_unlimited", { turn_on: !energyUnlimited })
+);
 
 // ============================================================================
 // 5. NAVIGATION
