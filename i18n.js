@@ -225,7 +225,7 @@ export const STRINGS = {
     earned: "+{n} energy",
     earnedLong: "You earned {n} energy",
     adminEnergyAll: "Energy for everyone",
-    adminEnergyHint: "Give or take energy from every account at once.",
+    adminEnergyHint: "Give energy to every account at once.",
     give: "Give",
     take: "Take",
     giveAll: "Give everyone",
@@ -237,6 +237,8 @@ export const STRINGS = {
     setTo: "Set",
     unlimitedOn: "Make ∞",
     unlimitedOff: "Turn off ∞",
+    yourEnergy: "Your energy",
+    giveMe: "Give me",
     motivate: {
       low: [
         "That's okay. Hard conversations take practice, and you've just had some. Whenever you're ready, try it again.",
@@ -493,7 +495,7 @@ export const STRINGS = {
     earned: "+{n} энергии",
     earnedLong: "Вы заработали {n} энергии",
     adminEnergyAll: "Энергия для всех",
-    adminEnergyHint: "Добавить или забрать энергию у всех аккаунтов сразу.",
+    adminEnergyHint: "Добавить энергию всем аккаунтам сразу.",
     give: "Дать",
     take: "Забрать",
     giveAll: "Дать всем",
@@ -505,6 +507,8 @@ export const STRINGS = {
     setTo: "Установить",
     unlimitedOn: "Сделать ∞",
     unlimitedOff: "Выключить ∞",
+    yourEnergy: "Ваша энергия",
+    giveMe: "Дать мне",
     motivate: {
       low: [
         "Всё в порядке. Трудные разговоры требуют практики, и вы только что потренировались. Когда будете готовы, попробуйте ещё раз.",
@@ -761,7 +765,7 @@ export const STRINGS = {
     earned: "+{n} de energía",
     earnedLong: "Has ganado {n} de energía",
     adminEnergyAll: "Energía para todos",
-    adminEnergyHint: "Da o quita energía a todas las cuentas a la vez.",
+    adminEnergyHint: "Da energía a todas las cuentas a la vez.",
     give: "Dar",
     take: "Quitar",
     giveAll: "Dar a todos",
@@ -773,6 +777,8 @@ export const STRINGS = {
     setTo: "Fijar",
     unlimitedOn: "Poner ∞",
     unlimitedOff: "Quitar ∞",
+    yourEnergy: "Tu energía",
+    giveMe: "Darme",
     motivate: {
       low: [
         "No pasa nada. Las conversaciones difíciles requieren práctica, y acabas de practicar. Cuando quieras, vuelve a intentarlo.",
@@ -1029,7 +1035,7 @@ export const STRINGS = {
     earned: "+{n} d'énergie",
     earnedLong: "Vous avez gagné {n} d'énergie",
     adminEnergyAll: "Énergie pour tous",
-    adminEnergyHint: "Donner ou retirer de l'énergie à tous les comptes d'un coup.",
+    adminEnergyHint: "Donner de l'énergie à tous les comptes d'un coup.",
     give: "Donner",
     take: "Retirer",
     giveAll: "Donner à tous",
@@ -1041,6 +1047,8 @@ export const STRINGS = {
     setTo: "Définir",
     unlimitedOn: "Passer à ∞",
     unlimitedOff: "Retirer ∞",
+    yourEnergy: "Votre énergie",
+    giveMe: "M'en donner",
     motivate: {
       low: [
         "Ce n'est pas grave. Les conversations difficiles demandent de la pratique, et vous venez de vous entraîner. Quand vous serez prêt, réessayez.",
@@ -1297,7 +1305,7 @@ export const STRINGS = {
     earned: "+{n} Energie",
     earnedLong: "Du hast {n} Energie verdient",
     adminEnergyAll: "Energie für alle",
-    adminEnergyHint: "Allen Konten auf einmal Energie geben oder abziehen.",
+    adminEnergyHint: "Allen Konten auf einmal Energie geben.",
     give: "Geben",
     take: "Abziehen",
     giveAll: "Allen geben",
@@ -1309,6 +1317,8 @@ export const STRINGS = {
     setTo: "Festlegen",
     unlimitedOn: "Auf ∞ setzen",
     unlimitedOff: "∞ ausschalten",
+    yourEnergy: "Deine Energie",
+    giveMe: "Mir geben",
     motivate: {
       low: [
         "Das ist völlig in Ordnung. Schwierige Gespräche brauchen Übung, und genau die hattest du gerade. Wenn du bereit bist, versuch es noch einmal.",
@@ -1565,7 +1575,7 @@ export const STRINGS = {
     earned: "+{n} энергия",
     earnedLong: "Сіз {n} энергия таптыңыз",
     adminEnergyAll: "Барлығына энергия",
-    adminEnergyHint: "Барлық аккаунттарға бірден энергия беру немесе алу.",
+    adminEnergyHint: "Барлық аккаунттарға бірден энергия беру.",
     give: "Беру",
     take: "Алу",
     giveAll: "Барлығына беру",
@@ -1577,6 +1587,8 @@ export const STRINGS = {
     setTo: "Орнату",
     unlimitedOn: "∞ қосу",
     unlimitedOff: "∞ өшіру",
+    yourEnergy: "Сіздің энергияңыз",
+    giveMe: "Маған беру",
     motivate: {
       low: [
         "Ештеңе етпейді. Қиын әңгімелер жаттығуды қажет етеді, ал сіз дәл қазір жаттықтыңыз. Дайын болғанда қайталап көріңіз.",
