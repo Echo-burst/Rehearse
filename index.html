@@ -138,6 +138,7 @@
     </button>
     <button id="btn-extras" type="button" class="extras-btn" data-goto="extras" hidden>
       <img src="rank-oblivion.png" alt=""><span data-t="extras"></span>
+      <i id="extras-dot" class="extras-dot" hidden></i>
     </button>
     <button type="button" class="energy-pill" aria-label="Energy">
       <img src="energy.png" alt="" class="energy-icon">
@@ -368,6 +369,13 @@
       <p class="lede" data-t="extrasLead"></p>
     </div>
 
+    <div class="card dm-inbox">
+      <p class="panel-title" data-t="dmTitle"></p>
+      <div id="dm-list" class="dm-list"></div>
+      <p id="dm-empty" class="muted small" data-t="dmEmpty" hidden></p>
+      <p class="dm-readonly" data-t="dmReadOnly"></p>
+    </div>
+
     <p class="panel-title section-title" data-t="allRanks"></p>
     <div id="rank-ladder" class="rank-ladder"></div>
   </div>
@@ -516,6 +524,19 @@
           <button id="btn-self-inf" type="button" class="btn ghost e-inf"></button>
         </div>
       </div>
+    </div>
+
+    <div class="card">
+      <p class="panel-title energy-title"><img src="rank-oblivion.png" alt="" class="energy-icon"><span data-t="adminDm"></span></p>
+      <p class="lede small-lede" data-t="adminDmHint"></p>
+      <label for="dm-to" data-t="dmTo"></label>
+      <select id="dm-to" class="dm-to"></select>
+      <textarea id="dm-body" rows="3" maxlength="2000" data-tp="dmPh"></textarea>
+      <p id="dm-note" class="muted small" data-t="dmNoOblivions" hidden></p>
+      <button id="btn-dm-send" type="button" class="btn primary" data-t="dmSend"></button>
+
+      <p class="field-label dm-sent-title" data-t="dmSentList"></p>
+      <div id="dm-sent" class="dm-list"></div>
     </div>
 
     <p class="panel-title accounts-heading" data-t="adminAccounts"></p>
