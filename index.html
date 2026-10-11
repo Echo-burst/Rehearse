@@ -399,6 +399,19 @@
     <div class="card">
       <p class="panel-title" data-t="adminDesign"></p>
 
+      <!-- Colours here are the admin's own, exactly like "My colours":
+           they change only how the app looks for this account. -->
+      <div class="swatches">
+        <label class="swatch"><span data-t="colAccent"></span><input id="admin-accent" type="color"></label>
+        <label class="swatch"><span data-t="colThem"></span><input id="admin-them" type="color"></label>
+        <label class="swatch"><span data-t="colBg"></span><input id="admin-bg" type="color"></label>
+        <label class="swatch"><span data-t="colSurface"></span><input id="admin-surface" type="color"></label>
+        <label class="swatch"><span data-t="colText"></span><input id="admin-ink" type="color"></label>
+      </div>
+      <p class="lede small-lede" data-t="themeHint"></p>
+      <button id="btn-admin-colours" class="btn primary" data-t="themeSave"></button>
+      <button id="btn-admin-original" class="btn ghost" data-t="adminOriginal"></button>
+
       <label for="admin-wordmark" data-t="adminWordmark"></label>
       <input id="admin-wordmark" type="text" maxlength="24">
 
