@@ -106,6 +106,46 @@ function busy(button, isBusy, labelWhenBusy) {
 // 0. LANGUAGE
 // ============================================================================
 
+// "How to earn and spend energy", drawn as chips so it reads clearly at any
+// width. Used in the energy pop-up and on the "How ranks work" screen.
+function renderEnergyGuides() {
+  const rewards = [[6, 1], [7, 2], [8, 3], [9, 4], [10, 7]];
+  document.querySelectorAll(".energy-guide").forEach((box) => {
+    box.innerHTML = "";
+    const lead = document.createElement("p");
+    lead.className = "guide-line";
+    lead.textContent = t("earnLead");
+    box.appendChild(lead);
+
+    const chips = document.createElement("div");
+    chips.className = "reward-chips";
+    for (const [score, gain] of rewards) {
+      const chip = document.createElement("span");
+      chip.className = "reward-chip";
+      chip.innerHTML = '<b class="rc-score"></b><span class="rc-arrow">→</span><img src="energy.png" alt=""><b class="rc-gain"></b>';
+      chip.querySelector(".rc-score").textContent = score;
+      chip.querySelector(".rc-gain").textContent = "+" + gain;
+      paintScore(chip.querySelector(".rc-score"), chip.querySelector(".rc-score"), score);
+      chips.appendChild(chip);
+    }
+    box.appendChild(chips);
+
+    const spendLead = document.createElement("p");
+    spendLead.className = "guide-line";
+    spendLead.textContent = t("spendLead");
+    box.appendChild(spendLead);
+
+    for (const [key, cost] of [["rewind", 5], ["hintBtn", 10]]) {
+      const row = document.createElement("div");
+      row.className = "spend-row";
+      row.innerHTML = '<span></span><span class="spend-cost"><img src="energy.png" alt=""><b></b></span>';
+      row.querySelector("span").textContent = t(key);
+      row.querySelector("b").textContent = cost;
+      box.appendChild(row);
+    }
+  });
+}
+
 function applyLanguage() {
   document.documentElement.lang = lang;
 
@@ -114,10 +154,16 @@ function applyLanguage() {
     el.textContent = t(el.dataset.t);
   });
 
+  // Elements with data-t-aria get a translated label for screen readers.
+  document.querySelectorAll("[data-t-aria]").forEach((el) => {
+    el.setAttribute("aria-label", t(el.dataset.tAria));
+  });
+
   // Elements with data-tp get their placeholder replaced.
   document.querySelectorAll("[data-tp]").forEach((el) => {
     el.placeholder = t(el.dataset.tp);
   });
+  renderEnergyGuides();
 }
 
 function setLanguage(next) {
@@ -1461,8 +1507,7 @@ function paintRank() {
 }
 
 // The full ladder, shown on the Extras screen
-function renderRankLadder() {
-  const box = $("rank-ladder");
+function renderRankLadder(box = $("rank-ladder")) {
   if (!box) return;
   box.innerHTML = "";
   const mine = rankFor(energyBalance, energyUnlimited);
@@ -1501,6 +1546,7 @@ document.querySelectorAll("[data-goto]").forEach((el) => {
     if (target === "history") loadHistory();
     if (target === "stats") loadMyStats();
     if (target === "extras") renderRankLadder();
+    if (target === "ranks") renderRankLadder($("rank-ladder-guide"));
     if (target === "admin") {
       loadAdmin();
       fillAdminPickers(currentTheme());
