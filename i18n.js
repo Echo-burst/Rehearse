@@ -239,6 +239,7 @@ export const STRINGS = {
     unlimitedOff: "Turn off ∞",
     yourEnergy: "Your energy",
     giveMe: "Give me",
+    errHint: "Couldn't come up with a suggestion just now. Try again — no energy was used.",
     motivate: {
       low: [
         "That's okay. Hard conversations take practice, and you've just had some. Whenever you're ready, try it again.",
@@ -509,6 +510,7 @@ export const STRINGS = {
     unlimitedOff: "Выключить ∞",
     yourEnergy: "Ваша энергия",
     giveMe: "Дать мне",
+    errHint: "Сейчас не получилось придумать подсказку. Попробуйте ещё раз — энергия не потрачена.",
     motivate: {
       low: [
         "Всё в порядке. Трудные разговоры требуют практики, и вы только что потренировались. Когда будете готовы, попробуйте ещё раз.",
@@ -779,6 +781,7 @@ export const STRINGS = {
     unlimitedOff: "Quitar ∞",
     yourEnergy: "Tu energía",
     giveMe: "Darme",
+    errHint: "No se pudo encontrar una sugerencia ahora. Inténtalo de nuevo; no se ha gastado energía.",
     motivate: {
       low: [
         "No pasa nada. Las conversaciones difíciles requieren práctica, y acabas de practicar. Cuando quieras, vuelve a intentarlo.",
@@ -1049,6 +1052,7 @@ export const STRINGS = {
     unlimitedOff: "Retirer ∞",
     yourEnergy: "Votre énergie",
     giveMe: "M'en donner",
+    errHint: "Impossible de trouver une suggestion pour l'instant. Réessayez — aucune énergie n'a été utilisée.",
     motivate: {
       low: [
         "Ce n'est pas grave. Les conversations difficiles demandent de la pratique, et vous venez de vous entraîner. Quand vous serez prêt, réessayez.",
@@ -1319,6 +1323,7 @@ export const STRINGS = {
     unlimitedOff: "∞ ausschalten",
     yourEnergy: "Deine Energie",
     giveMe: "Mir geben",
+    errHint: "Gerade ist kein Vorschlag gekommen. Versuch es noch einmal – es wurde keine Energie verbraucht.",
     motivate: {
       low: [
         "Das ist völlig in Ordnung. Schwierige Gespräche brauchen Übung, und genau die hattest du gerade. Wenn du bereit bist, versuch es noch einmal.",
@@ -1589,6 +1594,7 @@ export const STRINGS = {
     unlimitedOff: "∞ өшіру",
     yourEnergy: "Сіздің энергияңыз",
     giveMe: "Маған беру",
+    errHint: "Дәл қазір ұсыныс табылмады. Қайталап көріңіз — энергия жұмсалған жоқ.",
     motivate: {
       low: [
         "Ештеңе етпейді. Қиын әңгімелер жаттығуды қажет етеді, ал сіз дәл қазір жаттықтыңыз. Дайын болғанда қайталап көріңіз.",
