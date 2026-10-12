@@ -1304,3 +1304,7 @@ input[type="color"] {
 .ri-email { color: var(--muted); word-break: break-all; }
 .uc-state { color: var(--muted); }
 .uc-state.on { color: #2FBF71; font-weight: 600; }
+
+/* ---------- search in lists ---------- */
+.list-search { width: 100%; }
+#search-history { margin-bottom: 12px; }
