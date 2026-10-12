@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { SUPABASE_URL, SUPABASE_ANON_KEY, DEMO_EMAIL, DEMO_PASSWORD } from "./config.js";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
 import { LANGUAGES, STRINGS } from "./i18n.js";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -266,14 +266,6 @@ on("signup-form", "submit", async (e) => {
 
   if (error) showError($("signup-error"), error.message);
   else toast(t("accountCreated"));
-});
-
-on("btn-demo", "click", async () => {
-  const { error } = await supabase.auth.signInWithPassword({
-    email: DEMO_EMAIL,
-    password: DEMO_PASSWORD,
-  });
-  if (error) toast(error.message);
 });
 
 on("btn-signout", "click", async () => {
