@@ -1530,8 +1530,36 @@ function showRank(el, rank) {
   el.querySelector("span").textContent = rank.name;
 }
 
+// Ranks are a secret until someone reaches Platinum I (100 energy). From then
+// on they stay visible for that person, even if they spend energy later.
+const UNLOCK_AT = 100;
+let unlockSaving = false;
+
+function ranksUnlocked() {
+  if (energyUnlimited || energyBalance >= UNLOCK_AT) return true;
+  return !!(session && session.user.user_metadata && session.user.user_metadata.ranksUnlocked);
+}
+
+async function rememberUnlock() {
+  const meta = (session && session.user.user_metadata) || {};
+  if (!session || meta.ranksUnlocked || unlockSaving) return;
+  unlockSaving = true;
+  const { data, error } = await supabase.auth.updateUser({ data: { ranksUnlocked: true } });
+  unlockSaving = false;
+  if (error) { console.error(error); return; }
+  if (data && data.user) session.user = data.user;
+  // only celebrate when it's a real rank-up, not for the admin's ∞
+  if (!energyUnlimited) toast(t("ranksUnlocked").replace("{rank}", rankFor(energyBalance, false)?.name || "Platinum I"));
+}
+
 function paintRank() {
-  const rank = rankFor(energyBalance, energyUnlimited);
+  const unlocked = ranksUnlocked();
+  if (energyBalance >= UNLOCK_AT || energyUnlimited) rememberUnlock();
+  const rank = unlocked ? rankFor(energyBalance, energyUnlimited) : null;
+
+  // nothing about ranks shows until they are unlocked
+  const panelRank = $("panel-rank");
+  if (panelRank) panelRank.hidden = !unlocked;
 
   // under the name on the profile button
   showRank($("account-rank"), rank);
