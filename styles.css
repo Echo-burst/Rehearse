@@ -502,30 +502,50 @@ input[type="color"] {
 }
 .user-row.is-active .dot { background: var(--you); opacity: 1; }
 
-/* ---------- admin: account cards ---------- */
-.user-card { gap: 16px; padding: 20px; }
+/* ---------- admin: account list (compact rows that open) ---------- */
+.acc-tools { display: flex; flex-direction: column; gap: 10px; }
+.acc-row { display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.acc-filter { display: flex; gap: 6px; flex-wrap: wrap; }
+.acc-filter .chip {
+  font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 999px;
+  border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer;
+}
+.acc-filter .chip.on { border-color: var(--you); color: var(--paper); background: var(--surface-hi); }
+.acc-sort { font: inherit; font-size: 13px; color: var(--paper); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; }
+.acc-shown { margin: 0; }
 
-.uc-head { display: flex; align-items: center; gap: 14px; }
+.user-list { display: flex; flex-direction: column; gap: 6px; }
+.user-card { gap: 0; padding: 0; overflow: hidden; }
+.user-card.open { border-color: var(--muted); }
+
+.uc-head {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 10px 12px; background: none; border: 0; color: inherit;
+  font: inherit; text-align: left; cursor: pointer;
+}
+.uc-head:hover { background: var(--surface-hi); }
 .uc-avatar {
   display: grid;
   place-items: center;
-  width: 52px;
-  height: 52px;
-  flex: 0 0 52px;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
   border-radius: 50%;
   background: var(--surface-hi);
   border: 2px solid var(--line);
   color: var(--paper);
   font-family: "Bricolage Grotesque", Inter, sans-serif;
-  font-size: 22px;
+  font-size: 15px;
   font-weight: 600;
 }
-.user-card.is-active .uc-avatar { background: var(--you); border-color: var(--you); color: var(--accent-ink); }
+/* A fixed green, not the theme accent: "active" should read as active even if
+   someone has changed their colours to purple. */
+.user-card.is-active .uc-avatar { border-color: #2FBF71; color: #2FBF71; background: transparent; }
 
-.uc-id { flex: 1; min-width: 0; }
+.uc-id { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .uc-id h3 {
-  font-family: "Bricolage Grotesque", Inter, sans-serif;
-  font-size: 20px;
+  font-family: Inter, sans-serif;
+  font-size: 15px;
   font-weight: 600;
   margin: 0;
   overflow: hidden;
@@ -533,29 +553,28 @@ input[type="color"] {
   white-space: nowrap;
 }
 .uc-email {
-  margin: 2px 0 0;
-  font-size: 15px;
+  font-size: 12.5px;
   color: var(--muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-.uc-badge {
-  flex: 0 0 auto;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 5px 11px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  color: var(--muted);
+.uc-mini { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; }
+.uc-mini-rank { width: 20px; height: 20px; }
+.uc-mini-energy { display: inline-flex; align-items: center; gap: 3px; font-size: 13px; }
+.uc-mini-energy img { width: 15px; height: 15px; }
+.uc-mini-score {
+  min-width: 30px; text-align: center; font-size: 12.5px; font-weight: 700;
+  padding: 2px 6px; border-radius: 8px; border: 1.5px solid var(--line); color: var(--muted);
 }
-/* A fixed green, not the theme accent: "active" should read as active even if
-   someone has changed their colours to purple. */
-.user-card.is-active .uc-badge {
-  background: transparent;
-  border-color: #2FBF71;
-  color: #2FBF71;
+.uc-chev { color: var(--muted); font-size: 20px; line-height: 1; transition: transform .15s; }
+.user-card.open .uc-chev { transform: rotate(90deg); }
+
+.uc-more { display: flex; flex-direction: column; gap: 12px; padding: 4px 12px 14px; border-top: 1px solid var(--line); padding-top: 12px; }
+.uc-more[hidden] { display: none; }
+
+@media (max-width: 379px) {
+  .uc-mini-score { display: none; }
 }
 
 .uc-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -563,7 +582,7 @@ input[type="color"] {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 12px 10px;
+  padding: 8px 10px;
   background: var(--stage);
   border: 1px solid var(--line);
   border-radius: 10px;
@@ -571,7 +590,7 @@ input[type="color"] {
 }
 .uc-num {
   font-family: "Bricolage Grotesque", Inter, sans-serif;
-  font-size: 26px;
+  font-size: 20px;
   font-weight: 600;
   line-height: 1.1;
   color: var(--paper);
@@ -1275,3 +1294,5 @@ input[type="color"] {
 .ri-body { margin: 0; white-space: pre-wrap; line-height: 1.55; }
 .ri-from { margin: 0; font-size: 14px; }
 .ri-email { color: var(--muted); word-break: break-all; }
+.uc-state { color: var(--muted); }
+.uc-state.on { color: #2FBF71; font-weight: 600; }
