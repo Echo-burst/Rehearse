@@ -1310,3 +1310,13 @@ input[type="color"] {
 /* ---------- search in lists ---------- */
 .list-search { width: 100%; }
 #search-history { margin-bottom: 12px; }
+
+/* ---------- Continue with Google ---------- */
+.btn-google { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.g-logo { width: 20px; height: 20px; flex: 0 0 20px; }
+.or-line {
+  display: flex; align-items: center; gap: 12px; margin: 4px 0;
+  color: var(--muted); font-size: 13px; text-transform: lowercase;
+}
+.or-line::before, .or-line::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.form-wrap .btn-google { width: 100%; }
