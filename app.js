@@ -1580,6 +1580,10 @@ function paintRank() {
       : t("nextRank").replace("{rank}", upcoming.name).replace("{n}", upcoming.min);
   }
 
+  // reviews: Elite and every rank above it
+  const reviewBtn = $("btn-review");
+  if (reviewBtn) reviewBtn.hidden = !(rank && RANKS.indexOf(rank) >= RANKS.findIndex((r) => r.family === "elite"));
+
   // the Extras tab appears only for Oblivion
   const extras = $("btn-extras");
   if (extras) extras.hidden = !(rank && rank.family === "oblivion");
@@ -1760,6 +1764,104 @@ on("btn-dm-send", "click", async () => {
   loadSentMessages();
 });
 
+// ---- reviews ---------------------------------------------------------------
+// Players at Elite or higher can send a review. The database fills in who sent
+// it (email + name from their account) and only lets the admin read them.
+
+let reviewStars = 0;
+
+function paintStars(box, n) {
+  box.querySelectorAll(".star").forEach((s) => s.classList.toggle("on", Number(s.dataset.star) <= n));
+}
+
+function resetReview() {
+  reviewStars = 0;
+  paintStars($("review-stars"), 0);
+  $("review-body").value = "";
+  showError($("review-error"), "");
+}
+
+document.querySelectorAll("#review-stars .star").forEach((s) =>
+  s.addEventListener("click", () => {
+    reviewStars = Number(s.dataset.star);
+    paintStars($("review-stars"), reviewStars);
+    showError($("review-error"), "");
+  })
+);
+
+on("btn-review-send", "click", async () => {
+  const body = $("review-body").value.trim();
+  if (!reviewStars) { showError($("review-error"), t("reviewNeedStars")); return; }
+  if (!body) { showError($("review-error"), t("reviewNeedText")); return; }
+  const btn = $("btn-review-send");
+  busy(btn, true, t("sending"));
+  const { error } = await supabase.from("reviews").insert({ stars: reviewStars, body });
+  busy(btn, false);
+  if (error) {
+    console.error(error);
+    showError($("review-error"), /row-level security/i.test(error.message) ? t("reviewNotElite") : error.message);
+    return;
+  }
+  resetReview();
+  toast(t("reviewThanks"));
+  show("menu");
+});
+
+// Admin: how many reviews, shown on the Admin button
+async function countReviews() {
+  const el = $("reviews-count");
+  if (!el) return;
+  const { count, error } = await supabase.from("reviews").select("id", { count: "exact", head: true });
+  el.textContent = !error && count ? "(" + count + ")" : "";
+}
+
+// Admin: read every review, with who sent it
+async function loadReviews() {
+  const list = $("reviews-list");
+  list.innerHTML = "";
+  const { data, error } = await supabase
+    .from("reviews")
+    .select("id, email, name, stars, body, created_at")
+    .order("created_at", { ascending: false })
+    .limit(200);
+  if (error) { console.error(error); toast(error.message); return; }
+
+  $("reviews-empty").hidden = data.length > 0;
+  const avgEl = $("reviews-avg");
+  avgEl.hidden = !data.length;
+  if (data.length) {
+    const avg = data.reduce((s, r) => s + r.stars, 0) / data.length;
+    avgEl.textContent = t("reviewsAvg").replace("{avg}", avg.toFixed(1)).replace("{n}", data.length);
+  }
+
+  for (const r of data) {
+    const card = document.createElement("article");
+    card.className = "card review-item";
+    card.innerHTML =
+      '<div class="ri-head"><span class="ri-stars"></span><span class="ri-time"></span></div>' +
+      '<p class="ri-body"></p>' +
+      '<p class="ri-from"><b class="ri-name"></b> <span class="ri-email"></span></p>';
+    card.querySelector(".ri-stars").textContent = "★".repeat(r.stars) + "☆".repeat(5 - r.stars);
+    card.querySelector(".ri-time").textContent = fmtWhen(r.created_at);
+    card.querySelector(".ri-body").textContent = r.body;
+    card.querySelector(".ri-name").textContent = r.name || (r.email || "").split("@")[0];
+    card.querySelector(".ri-email").textContent = r.email || "";
+
+    const del = document.createElement("button");
+    del.className = "mini danger ri-del";
+    del.textContent = t("del");
+    del.addEventListener("click", async () => {
+      if (!confirm(t("reviewDeleteConfirm"))) return;
+      const { error } = await supabase.from("reviews").delete().eq("id", r.id);
+      if (error) { toast(error.message); return; }
+      loadReviews();
+      countReviews();
+    });
+    card.querySelector(".ri-head").appendChild(del);
+    list.appendChild(card);
+  }
+}
+
 // ============================================================================
 // 5. NAVIGATION
 // ============================================================================
@@ -1785,6 +1887,8 @@ document.querySelectorAll("[data-goto]").forEach((el) => {
     }
     if (target === "ranks") renderRankLadder($("rank-ladder-guide"));
     if (target === "dm") loadDmView();
+    if (target === "review") resetReview();
+    if (target === "reviews") loadReviews();
     if (target === "admin") {
       loadAdmin();
       fillAdminPickers(currentTheme());
@@ -2056,6 +2160,7 @@ async function updateAdminVisibility() {
 async function loadAdmin() {
   loadStats();
   loadUsers();
+  countReviews();
 }
 
 async function loadStats() {
