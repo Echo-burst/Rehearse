@@ -210,6 +210,46 @@
   </div>
 </section>
 
+<!-- ============ LEAVE A REVIEW (Elite and higher) ============ -->
+<section id="view-review" class="view" hidden>
+  <header class="bar">
+    <button class="linkish back" data-goto="menu" data-t="back"></button>
+    <p class="bar-title" data-t="reviewBtn"></p>
+  </header>
+
+  <div class="stack">
+    <div class="card review-card">
+      <p class="panel-title" data-t="reviewTitle"></p>
+      <p class="lede small-lede" data-t="reviewLead"></p>
+      <div id="review-stars" class="review-stars" role="radiogroup" data-t-aria="reviewStarsAria">
+        <button type="button" class="star" data-star="1" aria-label="1">★</button>
+        <button type="button" class="star" data-star="2" aria-label="2">★</button>
+        <button type="button" class="star" data-star="3" aria-label="3">★</button>
+        <button type="button" class="star" data-star="4" aria-label="4">★</button>
+        <button type="button" class="star" data-star="5" aria-label="5">★</button>
+      </div>
+      <textarea id="review-body" rows="5" maxlength="2000" data-tp="reviewPh"></textarea>
+      <p id="review-error" class="error" hidden></p>
+      <button id="btn-review-send" type="button" class="btn primary" data-t="reviewSend"></button>
+      <p class="muted small" data-t="reviewPrivacy"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REVIEWS (admin only) ============ -->
+<section id="view-reviews" class="view" hidden>
+  <header class="bar">
+    <button class="linkish back" data-goto="admin" data-t="back"></button>
+    <p class="bar-title" data-t="reviewsTitle"></p>
+  </header>
+
+  <div class="stack">
+    <p id="reviews-avg" class="reviews-avg" hidden></p>
+    <div id="reviews-list" class="stack"></div>
+    <p id="reviews-empty" class="empty" data-t="reviewsEmpty" hidden></p>
+  </div>
+</section>
+
 <!-- ============ MY CONVERSATIONS ============ -->
 <section id="view-list" class="view" hidden>
   <header class="bar">
@@ -532,6 +572,11 @@
       <span class="nav-desc" data-t="descDm"></span>
     </button>
 
+    <button id="nav-reviews" class="nav-card" data-goto="reviews">
+      <span class="nav-title">★ <span data-t="reviewsTitle"></span> <span id="reviews-count" class="reviews-count"></span></span>
+      <span class="nav-desc" data-t="descReviews"></span>
+    </button>
+
     <div id="stats" class="stats"></div>
 
     <div class="card">
@@ -629,6 +674,7 @@
     <button id="btn-rename" class="mini" data-t="saveName"></button>
   </div>
 
+  <button id="btn-review" class="btn ghost wide" data-goto="review" hidden>★ <span data-t="reviewBtn"></span></button>
   <button class="btn ghost wide" data-goto="theme" data-t="myColours"></button>
   <button id="btn-signout" class="btn ghost wide" data-t="signOut"></button>
   <button id="btn-delete-me" type="button" class="linkish danger-link" data-t="deleteMine"></button>
