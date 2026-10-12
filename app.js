@@ -204,7 +204,11 @@ initLanguage();
 // Shown once. The flag in localStorage is what stops it reappearing.
 // ============================================================================
 
-if (!localStorage.getItem("introSeen")) {
+// Bump this whenever "What's new" changes, so everyone sees it once more.
+const INTRO_VERSION = "2";
+let introSeen = null;
+try { introSeen = localStorage.getItem("introSeen"); } catch {}
+if (introSeen !== INTRO_VERSION) {
   $("intro").hidden = false;
 }
 
@@ -215,7 +219,7 @@ on("btn-intro", "click", () => {
     overlay.hidden = true;
     overlay.classList.remove("leaving");
   }, 260);
-  localStorage.setItem("introSeen", "1");
+  try { localStorage.setItem("introSeen", INTRO_VERSION); } catch {}
 });
 
 // ============================================================================
