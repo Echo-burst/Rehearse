@@ -1871,7 +1871,10 @@ async function loadReviews() {
     card.className = "card review-item";
     card.innerHTML =
       '<div class="ri-head"><span class="ri-stars"></span><span class="ri-time"></span></div>' +
-      '<div class="ri-from"><div class="ri-name"></div><div class="ri-email"></div></div>' +
+      '<div class="ri-from" style="display:flex;flex-direction:column;gap:5px;margin:4px 0 2px">' +
+        '<div class="ri-name" style="font-size:19px;font-weight:400;line-height:1.25"></div>' +
+        '<div class="ri-email" style="font-size:12.5px;line-height:1.3;opacity:.75"></div>' +
+      "</div>" +
       '<p class="ri-body"></p>';
     card.querySelector(".ri-stars").textContent = "★".repeat(r.stars) + "☆".repeat(5 - r.stars);
     card.querySelector(".ri-time").textContent = fmtWhen(r.created_at);
