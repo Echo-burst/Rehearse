@@ -1524,7 +1524,7 @@ function showRank(el, rank) {
   if (!el) return;
   el.hidden = !rank;
   if (!rank) return;
-  el.className = el.className.replace(/\brank-\w+\b/g, "").trim() + " rank-" + rank.family;
+  el.className = el.className.replace(/\brank-(?!chip\b)\w+\b/g, "").trim() + " rank-" + rank.family;
   el.classList.toggle("rank-bold", !!rank.bold);
   el.querySelector("img").src = "rank-" + rank.family + ".png";
   el.querySelector("span").textContent = rank.name;
@@ -1889,6 +1889,7 @@ document.querySelectorAll("[data-goto]").forEach((el) => {
     if (target === "dm") loadDmView();
     if (target === "review") resetReview();
     if (target === "reviews") loadReviews();
+    if (target === "accounts") loadUsers();
     if (target === "admin") {
       loadAdmin();
       fillAdminPickers(currentTheme());
@@ -2159,7 +2160,7 @@ async function updateAdminVisibility() {
 
 async function loadAdmin() {
   loadStats();
-  loadUsers();
+  loadUsers();   // fills the account count on the Admin button
   countReviews();
 }
 
@@ -2199,10 +2200,14 @@ async function loadStats() {
 
 // The account list. Deliberately no conversation content - names, activity and
 // counts only, so usage is visible without reading anyone's private text.
-async function loadUsers() {
-  const list = $("user-list");
-  list.innerHTML = "";
+// Accounts screen: a compact list you can search, filter and sort. Each row
+// opens to show the numbers, energy controls, statistics and delete.
+let allUsers = [];
+let accFilter = "all";
 
+const isActiveUser = (u) => u.last_sign_in_at && Date.now() - new Date(u.last_sign_in_at).getTime() < 14 * 864e5;
+
+async function loadUsers() {
   const { data, error } = await supabase.rpc("admin_users");
 
   if (error || !data) {
@@ -2210,14 +2215,67 @@ async function loadUsers() {
     return;
   }
 
+  allUsers = data;
   adminUserCache = data;
   fillRecipients(data);
-  loadSentMessages();
+  const count = $("accounts-count");
+  if (count) count.textContent = "(" + data.length + ")";
+  renderUsers();
+}
+
+function renderUsers() {
+  const list = $("user-list");
+  if (!list) return;
+  const open = list.querySelector(".user-card.open")?.dataset.id;
+  list.innerHTML = "";
+
+  const q = ($("acc-search")?.value || "").trim().toLowerCase();
+  const sort = $("acc-sort")?.value || "new";
+  const time = (iso) => (iso ? new Date(iso).getTime() : 0);
+  const energyOf = (u) => (u.unlimited ? Infinity : u.energy ?? 0);
+
+  const shown = allUsers
+    .filter((u) => !q || (u.name || "").toLowerCase().includes(q) || (u.email || "").toLowerCase().includes(q))
+    .filter((u) => accFilter === "all" || (accFilter === "active") === !!isActiveUser(u))
+    .sort((a, b) =>
+      sort === "seen"   ? time(b.last_sign_in_at) - time(a.last_sign_in_at) :
+      sort === "energy" ? energyOf(b) - energyOf(a) :
+      sort === "score"  ? (b.avg_score ?? -1) - (a.avg_score ?? -1) :
+      sort === "name"   ? (a.name || a.email || "").localeCompare(b.name || b.email || "") :
+                          time(b.created_at) - time(a.created_at));
+
+  $("acc-shown").textContent = t("accShown").replace("{n}", shown.length).replace("{total}", allUsers.length);
+  $("acc-none").hidden = shown.length > 0;
 
   const fmt = (iso) =>
     iso ? new Date(iso).toLocaleDateString(lang, { day: "numeric", month: "short" }) : null;
 
-  for (const user of data) {
+  for (const user of shown) {
+    const row = buildUserCard(user, fmt);
+    if (user.id === open) toggleUserCard(row, true);
+    list.appendChild(row);
+  }
+}
+
+function toggleUserCard(row, force) {
+  const openNow = force ?? !row.classList.contains("open");
+  if (openNow) document.querySelectorAll("#user-list .user-card.open").forEach((r) => r !== row && toggleUserCard(r, false));
+  row.classList.toggle("open", openNow);
+  row.querySelector(".uc-more").hidden = !openNow;
+  row.querySelector(".uc-head").setAttribute("aria-expanded", String(openNow));
+}
+
+on("acc-search", "input", () => renderUsers());
+on("acc-sort", "change", () => renderUsers());
+document.querySelectorAll(".acc-filter .chip").forEach((chip) =>
+  chip.addEventListener("click", () => {
+    accFilter = chip.dataset.filter;
+    document.querySelectorAll(".acc-filter .chip").forEach((c) => c.classList.toggle("on", c === chip));
+    renderUsers();
+  })
+);
+
+function buildUserCard(user, fmt) {
     // Active means they have signed in within the last two weeks.
     const lastSeen = user.last_sign_in_at ? new Date(user.last_sign_in_at) : null;
     const active = lastSeen && Date.now() - lastSeen.getTime() < 14 * 864e5;
@@ -2226,11 +2284,17 @@ async function loadUsers() {
     const row = document.createElement("article");
     row.className = "card user-card" + (active ? " is-active" : "");
     row.innerHTML =
-      '<div class="uc-head">' +
+      '<button type="button" class="uc-head" aria-expanded="false">' +
         '<span class="uc-avatar"></span>' +
-        '<div class="uc-id"><h3></h3><p class="uc-email"></p></div>' +
-        '<span class="uc-badge"></span>' +
-      "</div>" +
+        '<span class="uc-id"><h3></h3><span class="uc-email"></span></span>' +
+        '<span class="uc-mini">' +
+          '<img class="uc-mini-rank" alt="" hidden>' +
+          '<span class="uc-mini-energy"><img src="energy.png" alt=""><b></b></span>' +
+          '<span class="uc-mini-score"></span>' +
+        "</span>" +
+        '<span class="uc-chev" aria-hidden="true">›</span>' +
+      "</button>" +
+      '<div class="uc-more" hidden>' +
       '<div class="uc-tiles">' +
         '<div class="uc-tile"><span class="uc-num n-convos"></span><span class="uc-lab l-convos"></span></div>' +
         '<div class="uc-tile"><span class="uc-num n-reh"></span><span class="uc-lab l-reh"></span></div>' +
@@ -2250,12 +2314,15 @@ async function loadUsers() {
           '<button class="mini act-stats"></button>' +
           '<button class="mini danger act-del"></button>' +
         "</span>" +
+      "</div>" +
       "</div>";
 
     row.querySelector(".uc-avatar").textContent = (name[0] || "?").toUpperCase();
     row.querySelector("h3").textContent = name;
     row.querySelector(".uc-email").textContent = user.email || "";
-    row.querySelector(".uc-badge").textContent = active ? t("activeNow") : t("dormant");
+    const miniScore = row.querySelector(".uc-mini-score");
+    miniScore.textContent = user.avg_score ?? "—";
+    if (user.avg_score != null) paintScore(miniScore, miniScore, user.avg_score);
 
     row.querySelector(".n-convos").textContent = user.scenarios;
     row.querySelector(".n-reh").textContent = user.rehearsals;
@@ -2266,21 +2333,33 @@ async function loadUsers() {
     row.querySelector(".l-avg").textContent = t("tileAvg");
 
     const seen = lastSeen ? t("lastSeen") + " " + fmt(user.last_sign_in_at) : t("neverIn");
-    row.querySelector(".uc-dates").textContent = t("joined") + " " + fmt(user.created_at) + " · " + seen;
+    const dates = row.querySelector(".uc-dates");
+    const state = document.createElement("span");
+    state.className = active ? "uc-state on" : "uc-state";
+    state.textContent = active ? "● " + t("activeNow") : t("dormant");
+    dates.append(state, " · ");
+    dates.append(t("joined") + " " + fmt(user.created_at) + " · " + seen);
 
     // energy for this one person: Give, Take, or Set an exact number.
     // On the admin's own card there is also the ∞ switch.
     const isMe = session && user.id === session.user.id;
     let unlimited = !!user.unlimited;
     const num = row.querySelector(".e-num");
-    const showNum = (balance) => (num.textContent = unlimited ? "∞" : balance);
+    const miniNum = row.querySelector(".uc-mini-energy b");
+    const miniRank = row.querySelector(".uc-mini-rank");
+    const showNum = (balance) => (num.textContent = miniNum.textContent = unlimited ? "∞" : balance);
     let balance = user.energy ?? 0;
     showNum(balance);
     const rankChip = document.createElement("span");
     rankChip.className = "rank-chip";
     rankChip.innerHTML = "<img alt=''><span></span>";
     row.querySelector(".uc-energy").prepend(rankChip);
-    const paintCardRank = () => showRank(rankChip, rankFor(balance, unlimited));
+    const paintCardRank = () => {
+      const r = rankFor(balance, unlimited);
+      showRank(rankChip, r);
+      miniRank.hidden = !r;
+      if (r) { miniRank.src = "rank-" + r.family + ".png"; miniRank.title = r.name; }
+    };
     paintCardRank();
     row.querySelector(".e-amount").placeholder = t("amountPh");
 
@@ -2348,8 +2427,9 @@ async function loadUsers() {
     del.textContent = t("armDelete");
     del.addEventListener("click", () => armDelete(del, user));
 
-    list.appendChild(row);
-  }
+    row.dataset.id = user.id;
+    row.querySelector(".uc-head").addEventListener("click", () => toggleUserCard(row));
+    return row;
 }
 
 // Two steps on purpose. The first tap only arms the button; the second asks for
