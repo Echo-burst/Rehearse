@@ -521,6 +521,7 @@ async function loadScenarios() {
 
     card.querySelector("h3").textContent = row.title;
     card.querySelector("p").textContent = t("with") + " " + row.counterpart;
+    card.dataset.search = [row.title, row.counterpart, row.situation, row.context, row.goal].join(" ");
     card.querySelector(".act-progress").textContent = t("progressBtn");
     card.querySelector(".act-pin").textContent = row.pinned ? t("unpin") : t("pin");
 
@@ -540,6 +541,8 @@ async function loadScenarios() {
 
     list.appendChild(card);
   }
+  $("search-list").hidden = data.length < 2;
+  applySearch("search-list", "scenario-list", "search-list-none");
 }
 
 // UPDATE: flip the pinned flag on one row.
@@ -672,10 +675,35 @@ async function loadHistory() {
     item.querySelector(".act-del").addEventListener("click", () => deleteRehearsal(row.id));
     item.querySelector(".act-view").textContent = t("viewConvo");
     item.querySelector(".act-view").addEventListener("click", () => openTranscript(row.id));
+    item.dataset.search = [row.scenarios?.title, row.scenarios?.counterpart, row.feedback, date].join(" ");
 
     list.appendChild(item);
   }
+  $("search-history").hidden = data.length < 2;
+  applySearch("search-history", "history-list", "search-history-none");
 }
+
+// ---- search in My conversations and Past attempts --------------------------
+// Everything is already on screen, so we just hide cards that don't match.
+// Case and accents don't matter, and every word you type has to appear.
+const fold = (s) => (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+function applySearch(inputId, listId, noneId) {
+  const input = $(inputId), list = $(listId), none = $(noneId);
+  if (!input || !list) return;
+  const words = fold(input.value).split(/\s+/).filter(Boolean);
+  let shown = 0;
+  for (const card of list.children) {
+    const hay = fold(card.dataset.search);
+    const match = words.every((w) => hay.includes(w));
+    card.hidden = !match;
+    if (match) shown++;
+  }
+  if (none) none.hidden = !(words.length && shown === 0 && list.children.length);
+}
+
+on("search-list", "input", () => applySearch("search-list", "scenario-list", "search-list-none"));
+on("search-history", "input", () => applySearch("search-history", "history-list", "search-history-none"));
 
 // READ one saved rehearsal, exactly as it happened. Read-only: the screen has
 // no inputs, and the transcript is only ever displayed, never written back.
